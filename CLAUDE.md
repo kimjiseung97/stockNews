@@ -26,7 +26,7 @@ On Windows use `gradlew.bat` instead of `./gradlew`.
 
 ## Architecture
 
-**Sync MVC + on-demand async batch jobs.** The web layer (`controller/`) is a conventional synchronous Spring MVC REST API. Spring Batch jobs are launched explicitly through `JobOperator` from a controller endpoint rather than via a scheduler or the batch autoconfiguration's auto-run-on-startup behavior — e.g. `POST /admin/stocks/seed` in `StockAdminController` starts `stockSeedJob` and immediately returns the job execution id (fire-and-forget, does not block on completion). The intended scope for real async/parallel work is the future daily news-email dispatch batch job, not the API itself.
+**Sync MVC + scheduler-driven async batch jobs.** The web layer (`controller/`) is a conventional synchronous Spring MVC REST API. Spring Batch jobs are launched explicitly through `JobOperator` from `@Scheduled` methods (`StockSeedScheduler` / `StockThemeEnrichScheduler`) rather than via the batch autoconfiguration's auto-run-on-startup behavior — there is no on-demand admin endpoint for triggering these jobs. The intended scope for real async/parallel work is the future daily news-email dispatch batch job, not the API itself.
 
 **Batch job configs** (`batch/*JobConfig.kt`) each define a `Job` + `Step` pair as `@Bean`s using the builder DSL. Note the Spring Batch 6 package layout used throughout — these differ from most online tutorials/examples written against Batch 5 and earlier:
   - `org.springframework.batch.core.job.Job` / `.job.builder.JobBuilder` (not `org.springframework.batch.core.Job`/`JobBuilder`)
@@ -38,7 +38,7 @@ Stock seeding is split into two independent jobs so the slow, sequential per-com
 - `StockThemeEnrichJobConfig`: single tasklet that pulls up to `stock.theme-enrich.batch-size` rows from `TB_STOCK` where `theme IS NULL`, calls SEC's per-company submissions endpoint (`SecCompanyProfileClient`, keyed by CIK) for each to get a SIC code, maps it to a `StockTheme` via `themeForSic()`, and saves. Rows whose SIC code doesn't map to a known theme are left with `theme = null` and get retried on the next run.
 - `NewsDispatchJobConfig`: currently a stub job/step (tasklet just returns `RepeatStatus.FINISHED`) — placeholder for the daily news email batch.
 
-Both stock jobs are also triggered on a cron schedule (`StockSeedScheduler` / `StockThemeEnrichScheduler`, configured via `stock.seed.cron` / `stock.theme-enrich.cron`), in addition to being launchable on demand via the `/admin/stocks/*` endpoints — they are not purely on-demand.
+Both stock jobs are triggered exclusively on a cron schedule (`StockSeedScheduler` / `StockThemeEnrichScheduler`, configured via `stock.seed.cron` / `stock.theme-enrich.cron`) — each scheduler checks `jobRepository.findRunningJobExecutions(...)` first and skips the trigger if the job is already running, to avoid overlapping executions.
 
 **External clients** (`service/`) are thin `RestClient` wrappers built on the JDK `HttpClient`, each with its own connect/read timeouts:
   - `SecTickerClient` fetches `sec.gov/files/company_tickers.json` (requires a descriptive `User-Agent`, configured via `sec.user-agent`) and parses it into `List<SecTickerEntry>` (ticker, company title, CIK).

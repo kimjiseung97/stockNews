@@ -40,7 +40,12 @@ class StockThemeEnrichJobConfig(
     @StepScope
     fun stockThemeEnrichReader(): ItemReader<Stock> {
         val candidates = stockRepository.findByThemeIsNull(enrichBatchSize).iterator()
-        return ItemReader { if (candidates.hasNext()) candidates.next() else null }
+        return ItemReader {
+            if (candidates.hasNext()) {
+                candidates.next()
+            }
+            else null
+        }
     }
 
     @Bean

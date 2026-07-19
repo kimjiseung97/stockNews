@@ -10,8 +10,6 @@ src/main/kotlin/org/kjs/stocknews/
 ├── batch/
 │   ├── StockSeedJobConfig.kt        # stockSeedJob: SEC 티커 -> FMP 프로필 조회 -> STOCKS 시딩
 │   └── NewsDispatchJobConfig.kt     # newsDispatchJob: 스텁 (tasklet이 바로 FINISHED 반환)
-├── controller/
-│   └── StockAdminController.kt      # POST /admin/stocks/seed -> stockSeedJob 비동기 트리거
 ├── model/
 │   ├── dto/
 │   │   ├── FmpCompanyProfile.kt     # FMP /profile 응답 (symbol, companyName, sector)
@@ -36,9 +34,8 @@ sql/
 
 ## 요청 흐름 (주식 시딩)
 
-1. `POST /admin/stocks/seed` → `StockAdminController.seed()`
-2. `JobOperator.start(stockSeedJob, ...)` — 즉시 `jobExecutionId` 반환 (fire-and-forget, 완료 대기 안 함)
-3. `StockSeedJobConfig.stockSeedStep` 태스클릿:
+1. `StockSeedScheduler.run()` (`stock.seed.cron` 스케줄) → 이미 실행 중이면 스킵, 아니면 `JobOperator.start(stockSeedJob, ...)`
+2. `StockSeedJobConfig.stockSeedStep` 태스클릿:
    - `SecTickerClient.fetchAllTickers()` 로 SEC 전체 티커 목록 조회
    - 이미 `STOCKS`에 있는 티커 제외, `fmp.seed-batch-size` 만큼 취함
    - 후보마다 `FmpStockClient.fetchProfile(ticker)` 호출 → sector 획득
