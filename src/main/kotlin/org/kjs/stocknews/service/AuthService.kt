@@ -56,6 +56,14 @@ class AuthService(
         emailVerificationRepository.delete(verification)
     }
 
+    fun login(email: String, rawPassword: String): Long {
+        val user = userRepository.findByEmail(email) ?: throw CustomException(ResultCode.INVALID_CREDENTIALS)
+        if (!passwordEncoder.matches(rawPassword, user.password)) {
+            throw CustomException(ResultCode.INVALID_CREDENTIALS)
+        }
+        return user.id!!
+    }
+
     private fun generateCode(): String =
         (1..codeLength).map { Random.nextInt(0, 10) }.joinToString("")
 }

@@ -1,6 +1,8 @@
 package org.kjs.stocknews.controller
 
-import org.kjs.stocknews.common.ApiResponse
+import jakarta.servlet.http.HttpSession
+import org.kjs.stocknews.common.SessionKeys
+import org.kjs.stocknews.model.dto.LoginRequest
 import org.kjs.stocknews.model.dto.SignUpRequest
 import org.kjs.stocknews.model.dto.VerifyEmailRequest
 import org.kjs.stocknews.service.AuthService
@@ -15,14 +17,23 @@ class AuthController(
     private val authService: AuthService,
 ) {
     @PostMapping("/signup")
-    fun signUp(@RequestBody request: SignUpRequest): ApiResponse<Unit> {
+    fun signUp(@RequestBody request: SignUpRequest) {
         authService.signUp(request.email, request.password)
-        return ApiResponse.success(message = "인증 메일을 발송했습니다")
     }
 
     @PostMapping("/verify")
-    fun verifyEmail(@RequestBody request: VerifyEmailRequest): ApiResponse<Unit> {
+    fun verifyEmail(@RequestBody request: VerifyEmailRequest) {
         authService.verifyEmail(request.email, request.code)
-        return ApiResponse.success(message = "회원가입이 완료되었습니다")
+    }
+
+    @PostMapping("/login")
+    fun login(@RequestBody request: LoginRequest, session: HttpSession) {
+        val userId = authService.login(request.email, request.password)
+        session.setAttribute(SessionKeys.USER_ID, userId)
+    }
+
+    @PostMapping("/logout")
+    fun logout(session: HttpSession) {
+        session.invalidate()
     }
 }
