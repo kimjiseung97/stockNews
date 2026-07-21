@@ -51,31 +51,30 @@ class NewsDispatchJobConfig(
 
     @Bean
     @StepScope
-    fun newsDispatchProcessor(): ItemProcessor<User, UserNewsMail> {
-        // in-memory cache: 이번 배치 실행 동안에는 같은 티커의 뉴스를 중복 조회하지 않는다.
-        val newsCache = mutableMapOf<String, List<NewsArticle>>()
+    fun newsDispatchProcessor(): ItemProcessor<User, UserNewsMail> = ItemProcessor { user ->
+        val userId = user.id ?: return@ItemProcessor null
 
-        return ItemProcessor { user ->
-            val userId = user.id ?: return@ItemProcessor null
+        val userStocks = userStockRepository.findAllByUserId(userId)
+        if (userStocks.isEmpty()) return@ItemProcessor null
 
-            val userStocks = userStockRepository.findAllByUserId(userId)
-            if (userStocks.isEmpty()) return@ItemProcessor null
+        val stockIds = mutableListOf<Long>()
+        for (userStock in userStocks) {
+            stockIds.add(userStock.stockId)
+        }
+        val stocks = stockRepository.findAllById(stockIds)
 
-            val stockIds = mutableListOf<Long>()
-            for (userStock in userStocks) {
-                stockIds.add(userStock.stockId)
+        val articlesByTicker = linkedMapOf<String, List<NewsArticle>>()
+        for (stock in stocks) {
+            val articles = newsClient.fetchNews(stock.ticker)
+            if (articles.isNotEmpty()) {
+                articlesByTicker[stock.ticker] = articles
             }
-            val stocks = stockRepository.findAllById(stockIds)
+        }
 
-            val articlesByTicker = linkedMapOf<String, List<NewsArticle>>()
-            for (stock in stocks) {
-                val articles = newsCache.getOrPut(stock.ticker) { newsClient.fetchNews(stock.ticker) }
-                if (articles.isNotEmpty()) {
-                    articlesByTicker[stock.ticker] = articles
-                }
-            }
-
-            if (articlesByTicker.isEmpty()) null else UserNewsMail(user.email, articlesByTicker)
+        if (articlesByTicker.isEmpty()) {
+            null
+        } else {
+            UserNewsMail(user.email, articlesByTicker)
         }
     }
 

@@ -15,4 +15,10 @@ class StockRepositoryCustomImpl(
             .where(stock.theme.isNull)
             .limit(limit.toLong())
             .fetch()
+
+    override fun findAllByIdIn(ids: List<Long>): List<Stock> =
+        queryFactory
+            .selectFrom(stock)
+            .where(stock.id.`in`(ids))
+            .fetch()
 }

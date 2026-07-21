@@ -20,15 +20,15 @@ class UserStockController(
 ) {
     @PostMapping
     fun register(@RequestBody request: RegisterUserStockRequest, session: HttpSession) {
-        userStockService.register(session.currentUserId(), request.tickers)
+        userStockService.register(session.currentUserId(), request.stockIds)
     }
 
     @GetMapping
     fun list(session: HttpSession): List<UserStockResponse> =
         userStockService.list(session.currentUserId())
 
-    @DeleteMapping("/{ticker}")
-    fun unregister(@PathVariable ticker: String, session: HttpSession) {
-        userStockService.unregister(session.currentUserId(), ticker)
+    @DeleteMapping("/{stockId}")
+    fun unregister(@PathVariable stockId: Long, session: HttpSession) {
+        userStockService.unregister(session.currentUserId(), stockId)
     }
 }

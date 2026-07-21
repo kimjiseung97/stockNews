@@ -15,25 +15,20 @@ class UserStockService(
     private val stockRepository: StockRepository,
 ) {
     @Transactional
-    fun register(userId: Long, tickers: List<String>) {
-        val distinctTickers = tickers.distinct()
-        val stocks = stockRepository.findAllByTickerIn(distinctTickers)
-        if (stocks.size != distinctTickers.size) {
+    fun register(userId: Long, stockIds: List<Long>) {
+        val distinctStockIds = stockIds.distinct()
+        val stocks = stockRepository.findAllByIdIn(distinctStockIds)
+        if (stocks.size != distinctStockIds.size) {
             throw CustomException(ResultCode.STOCK_NOT_FOUND)
         }
 
-        val stockIds = mutableListOf<Long>()
-        for (stock in stocks) {
-            stockIds.add(stock.id!!)
-        }
-
         val alreadyRegisteredIds = mutableSetOf<Long>()
-        for (userStock in userStockRepository.findAllByUserIdAndStockIdIn(userId, stockIds)) {
+        for (userStock in userStockRepository.findAllByUserIdAndStockIdIn(userId, distinctStockIds)) {
             alreadyRegisteredIds.add(userStock.stockId)
         }
 
         val toRegister = mutableListOf<UserStock>()
-        for (stockId in stockIds) {
+        for (stockId in distinctStockIds) {
             if (stockId !in alreadyRegisteredIds) {
                 toRegister.add(UserStock(userId = userId, stockId = stockId))
             }
@@ -53,15 +48,14 @@ class UserStockService(
         val result = mutableListOf<UserStockResponse>()
         for (userStock in userStocks) {
             val stock = stocksById[userStock.stockId] ?: continue
-            result.add(UserStockResponse(ticker = stock.ticker, name = stock.name, theme = stock.theme))
+            result.add(UserStockResponse(id = stock.id!!, ticker = stock.ticker, name = stock.name, theme = stock.theme))
         }
         return result
     }
 
     @Transactional
-    fun unregister(userId: Long, ticker: String) {
-        val stock = stockRepository.findByTicker(ticker) ?: throw CustomException(ResultCode.STOCK_NOT_FOUND)
-        val deleted = userStockRepository.deleteByUserIdAndStockId(userId, stock.id!!)
+    fun unregister(userId: Long, stockId: Long) {
+        val deleted = userStockRepository.deleteByUserIdAndStockId(userId, stockId)
         if (deleted == 0L) {
             throw CustomException(ResultCode.USER_STOCK_NOT_FOUND)
         }
