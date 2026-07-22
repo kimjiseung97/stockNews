@@ -1,9 +1,5 @@
 function HomePage() {
-  return (
-    <main className="home-page">
-      <h1>홈</h1>
-    </main>
-  );
+  return <main id="homePage" className="home-page"></main>
 }
 
-export default HomePage;
+export default HomePage

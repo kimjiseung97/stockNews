@@ -1,0 +1,10 @@
+:global(#headerContainer) {
+  &.header-container {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    min-height: 96px;
+    background-color: #fff;
+    border-bottom: 1px solid rgba(2, 7, 17, 0.1);
+  }
+}

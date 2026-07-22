@@ -1,41 +1,40 @@
-import { defineConfig } from "vite";
-import path from "path";
-import { fileURLToPath } from "url";
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import babel from "@rolldown/plugin-babel";
+import { defineConfig } from 'vite'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
+import babel from '@rolldown/plugin-babel'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export default defineConfig(({ mode }) => {
-  const isProduction = mode === "production";
+  const isProduction = mode === 'production'
 
   return {
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "./src"),
+        '@': path.resolve(__dirname, './src'),
       },
     },
 
     // 전역 scss
     css: {
       modules: {
-        generateScopedName: isProduction
-          ? "[hash:base64:7]"
-          : "[name]__[local]__[hash:base64:5]",
+        generateScopedName: isProduction ? '[hash:base64:7]' : '[name]__[local]__[hash:base64:5]',
       },
       preprocessorOptions: {
         scss: {
           additionalData: `
   
           @import "@/assets/styles/common/variable.scss"; 
+          @import "@/assets/styles/mixIn/btnMixin.scss"; 
         
           `,
         },
       },
     },
     build: {
-      minify: "terser", // 기본 esbuild보다 강력한 terser 사용
+      minify: 'terser', // 기본 esbuild보다 강력한 terser 사용
       terserOptions: {
         compress: {
           drop_console: true, // 운영 환경에서 console.log 제거
@@ -49,5 +48,5 @@ export default defineConfig(({ mode }) => {
       sourcemap: false, // 빌드 시 소스 맵 생성을 방지하여 원본 코드 노출 차단
     },
     plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
-  };
-});
+  }
+})
