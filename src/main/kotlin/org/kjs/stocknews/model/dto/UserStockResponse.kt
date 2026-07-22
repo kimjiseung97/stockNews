@@ -7,4 +7,5 @@ data class UserStockResponse(
     val ticker: String,
     val name: String,
     val theme: StockTheme?,
+    val koreanName: String?,
 )

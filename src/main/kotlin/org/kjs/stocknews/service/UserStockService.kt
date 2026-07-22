@@ -48,7 +48,15 @@ class UserStockService(
         val result = mutableListOf<UserStockResponse>()
         for (userStock in userStocks) {
             val stock = stocksById[userStock.stockId] ?: continue
-            result.add(UserStockResponse(id = stock.id!!, ticker = stock.ticker, name = stock.name, theme = stock.theme))
+            result.add(
+                UserStockResponse(
+                    id = stock.id!!,
+                    ticker = stock.ticker,
+                    name = stock.name,
+                    theme = stock.theme,
+                    koreanName = stock.koreanName,
+                ),
+            )
         }
         return result
     }

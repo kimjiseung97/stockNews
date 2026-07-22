@@ -25,6 +25,9 @@ class Stock(
     @Enumerated(EnumType.STRING)
     @Column(name = "THEME", nullable = true, length = 30)
     var theme: StockTheme? = null,
+
+    @Column(name = "KOREAN_NAME", nullable = true, length = 50)
+    var koreanName: String? = null,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
