@@ -33,12 +33,39 @@
 npm install sass
 ```
 
-SCSS 문법을 사용하기 위한 라이브러리입니다.
+SCSS 문법을 사용하기 위한 라이브러리
 
 - 공통 변수 관리
 - 공통 믹스인 관리
 - 페이지별 스타일 관리
 - 중첩 문법 사용
+
+#### 현재 프로젝트의 Sass 설치
+
+현재 프로젝트는 Vite에서 권장하는 `sass-embedded`를 사용
+
+```bash
+npm install -D sass-embedded
+```
+
+`sass`와 `sass-embedded`는 같은 SCSS 파일을 처리하므로 둘 다 설치하지 않음
+
+실제 스타일을 만드는 전역 SCSS는 `main.tsx`에서 한 번만 불러옵니다.
+
+```tsx
+import "@/assets/styles/common/reset.scss";
+import "@/assets/styles/common/common.scss";
+```
+
+변수와 믹스인처럼 SCSS 작성을 도와주는 파일은 Vite의 `additionalData`에 등록
+
+```ts
+additionalData: `
+  @use "@/assets/styles/common/variable.scss" as *;
+`,
+```
+
+나중에 `mixin.scss`를 만들면 같은 방법으로 `additionalData`에 등록
 
 ### Axios
 
@@ -58,7 +85,7 @@ axios.get("/api/news");
 npm install lucide-react
 ```
 
-React 컴포넌트 방식으로 아이콘을 사용하기 위한 라이브러리입니다.
+React 컴포넌트 방식으로 아이콘을 사용하기 위한 라이브러리
 
 ```tsx
 import { Search } from "lucide-react";
@@ -242,7 +269,7 @@ npm run build
 
 ## Git 제외 파일
 
-다음 파일과 폴더는 Git에 올리지 않습니다.
+다음 파일과 폴더는 Git에 올리지 않음
 
 ```gitignore
 node_modules/

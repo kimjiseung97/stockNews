@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
@@ -23,6 +24,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "oxlint": "^1.71.0",
     "prettier": "^3.9.6",
+    "sass-embedded": "^1.100.0",
     "terser": "^5.49.0",
     "typescript": "~6.0.2",
     "vite": "^8.1.5"

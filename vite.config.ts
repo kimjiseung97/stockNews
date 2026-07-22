@@ -20,15 +20,16 @@ export default defineConfig(({ mode }) => {
     // 전역 scss
     css: {
       modules: {
-        generateScopedName: isProduction ? "[hash:base64:7]" : "[name]__[local]__[hash:base64:5]",
+        generateScopedName: isProduction
+          ? "[hash:base64:7]"
+          : "[name]__[local]__[hash:base64:5]",
       },
       preprocessorOptions: {
         scss: {
           additionalData: `
+  
           @import "@/assets/styles/common/variable.scss"; 
-          @import "@/assets/styles/common/mixin/flexMixIn.scss";
-          @import "@/assets/styles/common/mixin/btnMixin.scss";
-          @import "@/assets/styles/common/mixin/ModalMixIn.scss";
+        
           `,
         },
       },
