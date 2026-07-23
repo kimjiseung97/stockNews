@@ -1,7 +1,7 @@
 :global(#mainLayout) {
   &.main-layout {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 550px));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 550px);
     column-gap: 120px;
     max-width: 1220px;
     min-height: 100vh;
@@ -10,15 +10,14 @@
     .main-layout__left {
       position: sticky;
       top: 0;
-      height: 100vh;
     }
 
     .main-layout__right {
       background-color: #fff;
+      box-shadow: 0 24px 70px rgb(46 72 130 / 17%);
     }
 
     .main-layout__content {
-      min-height: calc(100vh - 96px);
       padding: 16px;
     }
   }
