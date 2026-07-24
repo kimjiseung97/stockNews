@@ -1,11 +1,11 @@
-:global(#loginPage) {
-  &.login-page {
+:global(#findEmailPage) {
+  &.find-email-page {
     @include flex(center, center);
     min-height: calc(100vh - 176px);
 
     color: $color-text-primary;
 
-    .login-page__card {
+    .find-email-page__card {
       width: 90%;
       padding: 34px 28px 30px;
       background-color: $color-surface;
@@ -14,8 +14,22 @@
       box-shadow: 0 12px 28px $color-shadow;
     }
 
-    .login-page__heading {
-      margin-bottom: 28px;
+    .find-email-page__back {
+      @include flex(null, center, 7px);
+      width: fit-content;
+      height: auto;
+      margin-bottom: 34px;
+      color: $color-text-label;
+      font-size: 1.3rem;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .find-email-page__heading {
+      margin-bottom: 24px;
 
       h1 {
         margin-bottom: 10px;
@@ -31,19 +45,25 @@
       }
     }
 
-    .login-page__form {
+    .find-email-page__form {
       @include flex-col();
     }
 
-    .login-page__field {
+    .find-email-page__field {
       @include flex-col(null, null, 8px);
       margin-bottom: 18px;
       color: $color-text-label;
       font-size: 1.3rem;
       font-weight: 600;
+
+      small {
+        color: $main-color;
+        font-size: 1.3rem;
+        font-weight: 400;
+      }
     }
 
-    .login-page__input-box {
+    .find-email-page__input-box {
       @include flex(null, center);
       height: 44px;
       padding: 0 13px;
@@ -80,22 +100,9 @@
       }
     }
 
-    .login-page__password-toggle {
-      @include btn(icon);
-    }
-
-    .login-page__forgot-password {
-      @include btn(text);
-      align-self: flex-end;
-      margin-top: -6px;
-      color: $main-color;
-      font-size: 1.3rem;
-    }
-
-    .login-page__submit {
+    .find-email-page__submit {
       @include btn(full);
       height: 46px;
-      margin-top: 22px;
       color: $color-on-primary;
       background-color: $main-color;
       box-shadow: 0 5px 12px $color-primary-shadow;
@@ -110,7 +117,63 @@
       }
     }
 
-    .login-page__divider {
+    .find-email-page__notice {
+      @include flex(null, center, 7px);
+      margin-bottom: 22px;
+      padding: 13px 14px;
+      color: $color-complete;
+      background-color: rgba($color-complete, 0.1);
+      border: 1px solid rgba($color-complete, 0.3);
+      border-radius: 9px;
+      font-size: 1.3rem;
+
+      img {
+        flex: 0 0 auto;
+        width: 25px;
+        object-fit: contain;
+      }
+
+      strong {
+        font-weight: 600;
+      }
+    }
+
+    .find-email-page__notice-warning {
+      color: $color-warning;
+      background-color: rgba($color-warning, 0.1);
+      border-color: rgba($color-warning, 0.3);
+    }
+
+    .find-email-page__text-button {
+      @include btn(text);
+      align-self: center;
+      margin-top: 20px;
+      color: $color-text-muted;
+      font-size: 1.3rem;
+      font-weight: 400;
+    }
+
+    .find-email-page__result {
+      margin-bottom: 18px;
+      padding: 18px;
+      background-color: rgb(56 103 214 / 5%);
+      border: 1px solid $color-divider;
+      border-radius: 10px;
+
+      dt {
+        margin-bottom: 8px;
+        color: $color-text-secondary;
+        font-size: 1.3rem;
+      }
+
+      dd {
+        color: $main-color;
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+    }
+
+    .find-email-page__divider {
       @include grid(1fr auto 1fr, null, 14px, center);
       margin: 28px 0;
 
@@ -126,7 +189,7 @@
       }
     }
 
-    .login-page__sign-up {
+    .find-email-page__forgot-password {
       @include btn(full);
       height: 46px;
       color: $main-color;
@@ -135,21 +198,6 @@
 
       &:hover {
         background-color: $color-secondary-hover;
-      }
-    }
-
-    .login-page__find-email {
-      @include btn(text);
-      @include flex(center, center, 4px);
-      margin-top: 24px;
-      margin-right: auto;
-      margin-left: auto;
-      color: $color-text-muted;
-      font-size: 1.3rem;
-
-      span {
-        color: $main-color;
-        font-weight: 600;
       }
     }
   }

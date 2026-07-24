@@ -34,6 +34,7 @@ function SignUpPage() {
                   name="email"
                   placeholder="example@email.com"
                   autoComplete="email"
+                  maxLength={50}
                   required
                 />
                 <Mail aria-hidden="true"></Mail>
@@ -52,6 +53,8 @@ function SignUpPage() {
                 name="password"
                 placeholder="비밀번호를 입력하세요"
                 autoComplete="new-password"
+                minLength={8}
+                maxLength={20}
                 required
               />
               <button
@@ -67,7 +70,7 @@ function SignUpPage() {
                 )}
               </button>
             </span>
-            <small>영문, 숫자, 특수문자 포함 8자 이상</small>
+            <small>영문, 숫자, 특수문자 포함 8~20자</small>
           </label>
 
           <label className={styles['sign-up-page__field']}>
@@ -78,6 +81,8 @@ function SignUpPage() {
                 name="passwordConfirm"
                 placeholder="비밀번호를 다시 입력하세요"
                 autoComplete="new-password"
+                minLength={8}
+                maxLength={20}
                 required
               />
               <button
@@ -107,6 +112,7 @@ function SignUpPage() {
                 name="recoveryEmail"
                 placeholder="비상 연락용 이메일"
                 autoComplete="email"
+                maxLength={50}
               />
               <Mail aria-hidden="true"></Mail>
             </span>

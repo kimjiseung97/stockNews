@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from '@/assets/styles/pages/login/login.module.scss'
 import mediaStyles from '@/assets/styles/pages/login/loginMedia.module.scss'
 
 function LoginPage() {
+  const navigate = useNavigate()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
   // 로그인 폼 제출
@@ -13,13 +14,8 @@ function LoginPage() {
   }
 
   return (
-    <main
-      id="loginPage"
-      className={`${styles['login-page']} ${mediaStyles['login-page']}`}
-    >
-      <article
-        className={`${styles['login-page__card']} ${mediaStyles['login-page__card']}`}
-      >
+    <main id="loginPage" className={`${styles['login-page']} ${mediaStyles['login-page']}`}>
+      <article className={`${styles['login-page__card']} ${mediaStyles['login-page__card']}`}>
         <section className={styles['login-page__heading']}>
           <h1>로그인</h1>
           <p>관심 종목의 뉴스를 지금 바로 확인하세요.</p>
@@ -34,6 +30,7 @@ function LoginPage() {
                 name="email"
                 placeholder="example@email.com"
                 autoComplete="email"
+                maxLength={50}
                 required
               />
               <Mail aria-hidden="true"></Mail>
@@ -48,6 +45,8 @@ function LoginPage() {
                 name="password"
                 placeholder="비밀번호를 입력하세요"
                 autoComplete="current-password"
+                minLength={8}
+                maxLength={20}
                 required
               />
               <button
@@ -65,7 +64,11 @@ function LoginPage() {
             </span>
           </label>
 
-          <button type="button" className={styles['login-page__forgot-password']}>
+          <button
+            type="button"
+            className={styles['login-page__forgot-password']}
+            onClick={() => navigate('/forgot-password')}
+          >
             비밀번호를 잊으셨나요?
           </button>
 
@@ -84,10 +87,14 @@ function LoginPage() {
           회원가입
         </Link>
 
-        <p className={styles['login-page__find-email']}>
+        <button
+          type="button"
+          className={styles['login-page__find-email']}
+          onClick={() => navigate('/find-email')}
+        >
           아이디(이메일) 찾기
-          <button type="button">여기</button>
-        </p>
+          <span>여기</span>
+        </button>
       </article>
     </main>
   )

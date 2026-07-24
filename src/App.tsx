@@ -7,6 +7,8 @@ import StockSearchPage from './pages/stock-search/StockSearchPage'
 import WatchlistPage from './pages/watchlist/WatchlistPage'
 import MainLayout from './layouts/MainLayout'
 import LoginPage from './pages/login/LoginPage'
+import ForgotPasswordPage from './pages/forgot-password/ForgotPasswordPage'
+import FindEmailPage from './pages/find-email/FindEmailPage'
 
 function App() {
   return (
@@ -19,6 +21,11 @@ function App() {
         <Route path="/email-settings" element={<EmailSettingsPage></EmailSettingsPage>}></Route>
         <Route path="/login" element={<LoginPage></LoginPage>}></Route>
         <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
+        <Route
+          path="/forgot-password"
+          element={<ForgotPasswordPage></ForgotPasswordPage>}
+        ></Route>
+        <Route path="/find-email" element={<FindEmailPage></FindEmailPage>}></Route>
       </Route>
     </Routes>
   )
