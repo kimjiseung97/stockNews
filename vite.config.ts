@@ -27,6 +27,8 @@ export default defineConfig(({ mode }) => {
           additionalData: `
   
           @import "@/assets/styles/common/variable.scss"; 
+          @import "@/assets/styles/mixIn/flexMixIn.scss";
+          @import "@/assets/styles/mixIn/gridMixIn.scss";
           @import "@/assets/styles/mixIn/btnMixin.scss"; 
         
           `,

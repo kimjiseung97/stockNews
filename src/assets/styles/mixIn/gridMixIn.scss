@@ -1,0 +1,29 @@
+@mixin grid(
+  $columns: null,
+  $rows: null,
+  $gap: null,
+  $align-items: null,
+  $justify-items: null
+) {
+  display: grid;
+
+  @if $columns {
+    grid-template-columns: $columns;
+  }
+
+  @if $rows {
+    grid-template-rows: $rows;
+  }
+
+  @if $gap {
+    gap: $gap;
+  }
+
+  @if $align-items {
+    align-items: $align-items;
+  }
+
+  @if $justify-items {
+    justify-items: $justify-items;
+  }
+}

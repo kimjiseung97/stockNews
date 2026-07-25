@@ -6,7 +6,6 @@
 
     .left-contents-container__inner {
       width: 100%;
-      max-width: 340px;
       margin: 0 auto;
 
       > h1 {
@@ -18,7 +17,6 @@
       article {
         h2 {
           margin-bottom: 18px;
-          color: #fff;
           font-weight: 700;
           line-height: 1.1;
           letter-spacing: -0.03em;
@@ -37,10 +35,10 @@
         border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: 14px;
         box-shadow: 0 8px 40px rgba($left-point-color, 0.15);
+        max-width: 450px;
 
         li:first-child {
           margin-bottom: 14px;
-          color: #fff;
           font-weight: 600;
         }
 
@@ -63,7 +61,6 @@
           input {
             flex: 1;
             min-width: 0;
-            height: 100%;
             color: #fff;
 
             &::placeholder {

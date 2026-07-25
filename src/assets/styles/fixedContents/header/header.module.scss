@@ -3,8 +3,79 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    min-height: 96px;
     background-color: #fff;
-    border-bottom: 1px solid rgba(2, 7, 17, 0.1);
+
+    .header-container__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 80px;
+      padding: 0 24px;
+    }
+
+    .header-container__brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      width: fit-content;
+      height: auto;
+      color: #171923;
+
+      span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        color: #fff;
+        background-color: $main-color;
+        border-radius: 11px;
+        font-weight: 700;
+      }
+
+      strong {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+    }
+
+    .header-container__account {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 44px;
+        padding: 0 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        transition:
+          background-color 0.2s,
+          color 0.2s;
+      }
+    }
+
+    .header-container__login {
+      color: $main-color;
+      border: 1px solid rgba($main-color, 0.28);
+
+      &:hover {
+        background-color: rgba($main-color, 0.06);
+      }
+    }
+
+    .header-container__sign-up {
+      color: #fff;
+      background-color: $main-color;
+
+      &:hover {
+        background-color: #315cc2;
+      }
+    }
   }
 }

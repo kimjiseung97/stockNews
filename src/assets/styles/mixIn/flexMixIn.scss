@@ -1,0 +1,20 @@
+@mixin flex($justify-content: null, $align-items: null, $gap: null) {
+  display: flex;
+
+  @if $justify-content {
+    justify-content: $justify-content;
+  }
+
+  @if $align-items {
+    align-items: $align-items;
+  }
+
+  @if $gap {
+    gap: $gap;
+  }
+}
+
+@mixin flex-col($justify-content: null, $align-items: null, $gap: null) {
+  @include flex($justify-content, $align-items, $gap);
+  flex-direction: column;
+}

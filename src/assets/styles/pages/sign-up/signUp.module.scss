@@ -1,0 +1,172 @@
+:global(#signUpPage) {
+  &.sign-up-page {
+    @include flex(center, center);
+    min-height: calc(100vh - 176px);
+
+    color: $color-text-primary;
+
+    .sign-up-page__card {
+      width: 90%;
+      padding: 32px 28px 28px;
+      background-color: $color-surface;
+      border: 1px solid $color-border;
+      border-radius: 16px;
+      box-shadow: 0 12px 28px $color-shadow;
+    }
+
+    .sign-up-page__heading {
+      margin-bottom: 24px;
+
+      h1 {
+        margin-bottom: 8px;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+      }
+
+      p {
+        color: $color-text-secondary;
+        font-size: 1.4rem;
+        line-height: 1.5;
+      }
+    }
+
+    .sign-up-page__form {
+      @include flex-col();
+    }
+
+    .sign-up-page__field {
+      @include flex-col(null, null, 7px);
+      margin-bottom: 16px;
+      color: $color-text-label;
+      font-size: 1.3rem;
+      font-weight: 600;
+
+      small {
+        color: $color-text-help;
+        font-size: 1.2rem;
+        font-weight: 400;
+        line-height: 1.4;
+      }
+    }
+
+    .sign-up-page__email-row {
+      @include grid(minmax(0, 1fr) 68px, null, 8px);
+    }
+
+    .sign-up-page__input-box {
+      @include flex(null, center);
+      height: 42px;
+      padding: 0 12px;
+      border: 1px solid $color-input-border;
+      border-radius: 9px;
+      box-shadow: 0 1px 3px $color-input-shadow;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+
+      &:focus-within {
+        border-color: $main-color;
+        box-shadow: 0 0 0 3px $color-focus-ring;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        color: $color-input-text;
+        font-size: 1.4rem;
+      }
+
+      input::placeholder {
+        color: $color-placeholder;
+        font-size: 1.4rem;
+      }
+
+      svg {
+        flex: 0 0 auto;
+        width: 15px;
+        color: $color-icon;
+        stroke-width: 1.7;
+      }
+    }
+
+    .sign-up-page__password-toggle {
+      @include btn(icon);
+    }
+
+    .sign-up-page__verify {
+      @include btn(s);
+      max-width: none;
+      height: 42px;
+      color: $color-on-primary;
+      background-color: $main-color;
+      font-size: 1.3rem;
+
+      &:hover {
+        background-color: $color-primary-hover;
+      }
+    }
+
+    .sign-up-page__submit {
+      @include btn(full);
+      height: 44px;
+      margin-top: 4px;
+      color: $color-on-primary;
+      background-color: $main-color;
+      box-shadow: 0 5px 12px $color-primary-shadow;
+      font-size: 1.3rem;
+
+      &:hover {
+        background-color: $color-primary-hover;
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+
+    .sign-up-page__divider {
+      @include grid(1fr auto 1fr, null, 14px, center);
+      margin: 22px 0;
+
+      span {
+        height: 1px;
+        background-color: $color-divider;
+      }
+
+      em {
+        color: $color-divider-text;
+        font-size: 1.2rem;
+        font-style: normal;
+      }
+    }
+
+    .sign-up-page__login {
+      @include btn(full);
+      height: 44px;
+      color: $main-color;
+      border: 1px solid $color-secondary-border;
+      font-size: 1.3rem;
+
+      &:hover {
+        background-color: $color-secondary-hover;
+      }
+    }
+
+    .sign-up-page__account-guide {
+      @include flex(center, center, 4px);
+      margin-top: 22px;
+      color: $color-text-muted;
+      font-size: 1.3rem;
+
+      a {
+        width: auto;
+        height: auto;
+        color: $main-color;
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+    }
+  }
+}

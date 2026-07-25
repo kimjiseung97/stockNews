@@ -1,7 +1,5 @@
 @mixin btn($size: m) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include flex(center, center);
   border-radius: 10px;
   font-weight: 600;
   line-height: 1;
@@ -26,6 +24,17 @@
     max-width: 96px;
     padding: 0 20px;
     font-size: 15px;
+  } @else if $size == full {
+    max-width: none;
+  } @else if $size == icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 0;
+  } @else if $size == text {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    font-weight: 400;
   }
 
   &:disabled {

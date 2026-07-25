@@ -1,0 +1,12 @@
+@media (max-width: 600px) {
+  :global(#findEmailPage) {
+    &.find-email-page {
+      min-height: calc(100vh - 144px);
+      padding: 24px 8px;
+
+      article {
+        padding: 28px 20px 24px;
+      }
+    }
+  }
+}
