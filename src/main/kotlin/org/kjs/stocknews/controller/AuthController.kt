@@ -1,6 +1,7 @@
 package org.kjs.stocknews.controller
 
 import jakarta.servlet.http.HttpSession
+import jakarta.validation.Valid
 import org.kjs.stocknews.common.SessionKeys
 import org.kjs.stocknews.model.dto.LoginRequest
 import org.kjs.stocknews.model.dto.SignUpRequest
@@ -17,17 +18,17 @@ class AuthController(
     private val authService: AuthService,
 ) {
     @PostMapping("/signup")
-    fun signUp(@RequestBody request: SignUpRequest) {
+    fun signUp(@Valid @RequestBody request: SignUpRequest) {
         authService.signUp(request.email, request.password)
     }
 
     @PostMapping("/verify")
-    fun verifyEmail(@RequestBody request: VerifyEmailRequest) {
+    fun verifyEmail(@Valid @RequestBody request: VerifyEmailRequest) {
         authService.verifyEmail(request.email, request.code)
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequest, session: HttpSession) {
+    fun login(@Valid @RequestBody request: LoginRequest, session: HttpSession) {
         val userId = authService.login(request.email, request.password)
         session.setAttribute(SessionKeys.USER_ID, userId)
     }
