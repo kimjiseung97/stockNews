@@ -12,16 +12,36 @@ class VerificationMailSender(
     @Value("\${mail.from-name}") private val fromName: String,
 ) {
     fun sendVerificationCode(email: String, code: String, expiryMinutes: Long) {
+        send(
+            email = email,
+            subject = "[stockNews] 이메일 인증코드",
+            description = "아래 인증코드를 회원가입 화면에 입력해주세요.",
+            code = code,
+            expiryMinutes = expiryMinutes,
+        )
+    }
+
+    fun sendFindEmailCode(email: String, code: String, expiryMinutes: Long) {
+        send(
+            email = email,
+            subject = "[stockNews] 이메일 찾기 인증코드",
+            description = "아래 인증코드를 이메일 찾기 화면에 입력해주세요.",
+            code = code,
+            expiryMinutes = expiryMinutes,
+        )
+    }
+
+    private fun send(email: String, subject: String, description: String, code: String, expiryMinutes: Long) {
         val mimeMessage = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(mimeMessage)
         helper.setFrom(fromAddress, fromName)
         helper.setTo(email)
-        helper.setSubject("[stockNews] 이메일 인증코드")
-        helper.setText(buildHtml(code, expiryMinutes), true)
+        helper.setSubject(subject)
+        helper.setText(buildHtml(description, code, expiryMinutes), true)
         mailSender.send(mimeMessage)
     }
 
-    private fun buildHtml(code: String, expiryMinutes: Long): String = """
+    private fun buildHtml(description: String, code: String, expiryMinutes: Long): String = """
         <!DOCTYPE html>
         <html>
         <body style="margin:0;padding:0;background-color:#f4f5f7;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
@@ -38,7 +58,7 @@ class VerificationMailSender(
                     <td style="padding:36px 32px 24px 32px;">
                       <p style="margin:0 0 8px 0;color:#111827;font-size:18px;font-weight:600;">이메일 인증코드</p>
                       <p style="margin:0;color:#6b7280;font-size:14px;line-height:1.6;">
-                        아래 인증코드를 회원가입 화면에 입력해주세요.<br/>
+                        $description<br/>
                         인증코드는 <strong>${expiryMinutes}분</strong> 동안 유효합니다.
                       </p>
                     </td>

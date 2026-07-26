@@ -7,17 +7,11 @@ import jakarta.persistence.Table
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "TB_EMAIL_VERIFICATION")
-class EmailVerification(
+@Table(name = "TB_FIND_EMAIL_VERIFICATION")
+class FindEmailVerification(
     @Id
-    @Column(name = "EMAIL", nullable = false, length = 254)
-    val email: String,
-
-    @Column(name = "PASSWORD", nullable = false, length = 100)
-    var password: String,
-
-    @Column(name = "RECOVERY_EMAIL", nullable = true, length = 254)
-    var recoveryEmail: String? = null,
+    @Column(name = "RECOVERY_EMAIL", nullable = false, length = 254)
+    val recoveryEmail: String,
 
     @Column(name = "CODE", nullable = false, length = 10)
     var code: String,

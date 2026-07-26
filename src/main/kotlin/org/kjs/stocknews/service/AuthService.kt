@@ -3,8 +3,10 @@ package org.kjs.stocknews.service
 import org.kjs.stocknews.common.BusinessException
 import org.kjs.stocknews.common.ResultCode
 import org.kjs.stocknews.model.table.EmailVerification
+import org.kjs.stocknews.model.table.FindEmailVerification
 import org.kjs.stocknews.model.table.User
 import org.kjs.stocknews.repository.EmailVerificationRepository
+import org.kjs.stocknews.repository.FindEmailVerificationRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -17,23 +19,32 @@ import kotlin.random.Random
 class AuthService(
     private val userRepository: UserRepository,
     private val emailVerificationRepository: EmailVerificationRepository,
+    private val findEmailVerificationRepository: FindEmailVerificationRepository,
     private val passwordEncoder: PasswordEncoder,
     private val verificationMailSender: VerificationMailSender,
     @Value("\${auth.verification.code-length}") private val codeLength: Int,
     @Value("\${auth.verification.expiry-minutes}") private val expiryMinutes: Long,
 ) {
     @Transactional
-    fun signUp(email: String, rawPassword: String) {
+    fun signUp(email: String, rawPassword: String, recoveryEmail: String) {
         validateEmail(email)
         validatePassword(rawPassword)
+        validateRecoveryEmail(recoveryEmail)
+        if (recoveryEmail == email) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_SAME_AS_EMAIL)
+        }
         if (userRepository.existsByEmail(email)) {
             throw BusinessException(ResultCode.EMAIL_ALREADY_REGISTERED)
+        }
+        if (userRepository.existsByRecoveryEmail(recoveryEmail)) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_ALREADY_REGISTERED)
         }
 
         val code = generateCode()
         val verification = EmailVerification(
             email = email,
             password = passwordEncoder.encode(rawPassword)!!,
+            recoveryEmail = recoveryEmail,
             code = code,
             expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes),
         )
@@ -56,8 +67,52 @@ class AuthService(
             throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
-        userRepository.save(User(email = verification.email, password = verification.password))
+        userRepository.save(
+            User(
+                email = verification.email,
+                password = verification.password,
+                recoveryEmail = verification.recoveryEmail,
+            ),
+        )
         emailVerificationRepository.delete(verification)
+    }
+
+    @Transactional
+    fun requestFindEmail(recoveryEmail: String) {
+        validateRecoveryEmail(recoveryEmail)
+        if (!userRepository.existsByRecoveryEmail(recoveryEmail)) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
+        }
+
+        val code = generateCode()
+        val verification = FindEmailVerification(
+            recoveryEmail = recoveryEmail,
+            code = code,
+            expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes),
+        )
+        findEmailVerificationRepository.save(verification)
+        verificationMailSender.sendFindEmailCode(recoveryEmail, code, expiryMinutes)
+    }
+
+    @Transactional
+    fun verifyFindEmail(recoveryEmail: String, code: String): String {
+        validateRecoveryEmail(recoveryEmail)
+        validateCode(code)
+        val verification = findEmailVerificationRepository.findById(recoveryEmail)
+            .orElseThrow { BusinessException(ResultCode.VERIFICATION_NOT_FOUND) }
+
+        if (verification.expiresAt.isBefore(LocalDateTime.now())) {
+            findEmailVerificationRepository.delete(verification)
+            throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
+        }
+        if (verification.code != code) {
+            throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
+        }
+
+        val user = userRepository.findByRecoveryEmail(recoveryEmail)
+            ?: throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
+        findEmailVerificationRepository.delete(verification)
+        return user.email
     }
 
     fun login(email: String, rawPassword: String): Long {
@@ -74,6 +129,12 @@ class AuthService(
         if (email.isBlank()) throw BusinessException(ResultCode.EMAIL_REQUIRED)
         if (!EMAIL_REGEX.matches(email)) throw BusinessException(ResultCode.INVALID_EMAIL_FORMAT)
         if (email.length > 50) throw BusinessException(ResultCode.EMAIL_TOO_LONG)
+    }
+
+    private fun validateRecoveryEmail(recoveryEmail: String) {
+        if (recoveryEmail.isBlank()) throw BusinessException(ResultCode.RECOVERY_EMAIL_REQUIRED)
+        if (!EMAIL_REGEX.matches(recoveryEmail)) throw BusinessException(ResultCode.INVALID_RECOVERY_EMAIL_FORMAT)
+        if (recoveryEmail.length > 50) throw BusinessException(ResultCode.RECOVERY_EMAIL_TOO_LONG)
     }
 
     private fun validatePassword(password: String) {

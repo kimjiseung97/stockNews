@@ -17,6 +17,9 @@ class User(
     @Column(name = "PASSWORD", nullable = false, length = 100)
     var password: String,
 
+    @Column(name = "RECOVERY_EMAIL", nullable = true, unique = true, length = 254)
+    var recoveryEmail: String? = null,
+
     @Column(name = "ACTIVE", nullable = false)
     var active: Boolean = true,
 
