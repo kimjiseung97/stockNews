@@ -6,6 +6,7 @@ import org.kjs.stocknews.model.table.User
 import org.kjs.stocknews.repository.StockRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.kjs.stocknews.repository.UserStockRepository
+import org.kjs.stocknews.service.NaverNewsClient
 import org.kjs.stocknews.service.NewsClient
 import org.kjs.stocknews.service.NewsMailSender
 import org.springframework.batch.core.configuration.annotation.StepScope
@@ -31,6 +32,7 @@ class NewsDispatchJobConfig(
     private val userStockRepository: UserStockRepository,
     private val stockRepository: StockRepository,
     private val newsClient: NewsClient,
+    private val naverNewsClient: NaverNewsClient,
     private val newsMailSender: NewsMailSender,
 ) {
 
@@ -65,7 +67,7 @@ class NewsDispatchJobConfig(
 
         val articlesByTicker = linkedMapOf<String, List<NewsArticle>>()
         for (stock in stocks) {
-            val articles = newsClient.fetchNews(stock.ticker)
+            val articles = naverNewsClient.fetchNews(stock.ticker)
             if (articles.isNotEmpty()) {
                 articlesByTicker[stock.ticker] = articles
             }
