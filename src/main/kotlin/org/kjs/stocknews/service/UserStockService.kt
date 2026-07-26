@@ -6,6 +6,8 @@ import org.kjs.stocknews.model.dto.UserStockResponse
 import org.kjs.stocknews.model.table.UserStock
 import org.kjs.stocknews.repository.StockRepository
 import org.kjs.stocknews.repository.UserStockRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -36,30 +38,8 @@ class UserStockService(
         userStockRepository.saveAll(toRegister)
     }
 
-    fun list(userId: Long): List<UserStockResponse> {
-        val userStocks = userStockRepository.findAllByUserId(userId)
-
-        val stockIds = mutableListOf<Long>()
-        for (userStock in userStocks) {
-            stockIds.add(userStock.stockId)
-        }
-        val stocksById = stockRepository.findAllById(stockIds).associateBy { it.id }
-
-        val result = mutableListOf<UserStockResponse>()
-        for (userStock in userStocks) {
-            val stock = stocksById[userStock.stockId] ?: continue
-            result.add(
-                UserStockResponse(
-                    id = stock.id!!,
-                    ticker = stock.ticker,
-                    name = stock.name,
-                    theme = stock.theme,
-                    koreanName = stock.koreanName,
-                ),
-            )
-        }
-        return result
-    }
+    fun list(userId: Long, pageable: Pageable): Page<UserStockResponse> =
+        userStockRepository.search(userId, pageable)
 
     @Transactional
     fun unregister(userId: Long, stockId: Long) {

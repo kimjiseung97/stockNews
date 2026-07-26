@@ -5,6 +5,8 @@ import org.kjs.stocknews.common.currentUserId
 import org.kjs.stocknews.model.dto.RegisterUserStockRequest
 import org.kjs.stocknews.model.dto.UserStockResponse
 import org.kjs.stocknews.service.UserStockService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,8 +26,8 @@ class UserStockController(
     }
 
     @GetMapping
-    fun list(session: HttpSession): List<UserStockResponse> =
-        userStockService.list(session.currentUserId())
+    fun list(session: HttpSession, pageable: Pageable): Page<UserStockResponse> =
+        userStockService.list(session.currentUserId(), pageable)
 
     @DeleteMapping("/{stockId}")
     fun unregister(@PathVariable stockId: Long, session: HttpSession) {
