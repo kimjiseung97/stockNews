@@ -57,7 +57,7 @@ class NaverNewsClient(
                         .path("/v1/search/news.json")
                         .queryParam("query", query)
                         .queryParam("display", maxArticlesPerQuery)
-                        .queryParam("sort", "date")
+                        .queryParam("sort", "sim")
                         .build()
                 }
                 .header("X-Naver-Client-Id", clientId)

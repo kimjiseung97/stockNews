@@ -67,7 +67,7 @@ class NewsDispatchJobConfig(
 
         val articlesByTicker = linkedMapOf<String, List<NewsArticle>>()
         for (stock in stocks) {
-            val articles = naverNewsClient.fetchNews(stock.ticker)
+            val articles = naverNewsClient.fetchNews(stock.koreanName ?: stock.name)
             if (articles.isNotEmpty()) {
                 articlesByTicker[stock.ticker] = articles
             }
