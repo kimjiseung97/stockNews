@@ -1,6 +1,6 @@
 package org.kjs.stocknews.service
 
-import org.kjs.stocknews.common.CustomException
+import org.kjs.stocknews.common.BusinessException
 import org.kjs.stocknews.common.ResultCode
 import org.kjs.stocknews.model.dto.UserStockResponse
 import org.kjs.stocknews.model.table.UserStock
@@ -19,7 +19,7 @@ class UserStockService(
         val distinctStockIds = stockIds.distinct()
         val stocks = stockRepository.findAllByIdIn(distinctStockIds)
         if (stocks.size != distinctStockIds.size) {
-            throw CustomException(ResultCode.STOCK_NOT_FOUND)
+            throw BusinessException(ResultCode.STOCK_NOT_FOUND)
         }
 
         val alreadyRegisteredIds = mutableSetOf<Long>()
@@ -65,7 +65,7 @@ class UserStockService(
     fun unregister(userId: Long, stockId: Long) {
         val deleted = userStockRepository.deleteByUserIdAndStockId(userId, stockId)
         if (deleted == 0L) {
-            throw CustomException(ResultCode.USER_STOCK_NOT_FOUND)
+            throw BusinessException(ResultCode.USER_STOCK_NOT_FOUND)
         }
     }
 }

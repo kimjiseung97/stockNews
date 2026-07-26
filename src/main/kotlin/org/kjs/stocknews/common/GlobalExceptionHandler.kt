@@ -1,7 +1,6 @@
 package org.kjs.stocknews.common
 
 import org.slf4j.LoggerFactory
-import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -9,16 +8,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler {
     private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
-    @ExceptionHandler(CustomException::class)
-    fun handleCustomException(e: CustomException): ApiResponse<Nothing> =
+    @ExceptionHandler(BusinessException::class)
+    fun handleBusinessException(e: BusinessException): ApiResponse<Nothing> =
         ApiResponse.fail(e.resultCode)
-
-    @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidationFailed(e: MethodArgumentNotValidException): ApiResponse<Nothing> {
-        val message = e.bindingResult.fieldErrors
-            .joinToString("; ") { "${it.field}: ${it.defaultMessage}" }
-        return ApiResponse(code = ResultCode.BAD_REQUEST.code, message = message, data = null)
-    }
 
     @ExceptionHandler(NoSuchElementException::class)
     fun handleNotFound(e: NoSuchElementException): ApiResponse<Nothing> =

@@ -29,7 +29,7 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
   - `model/table/` - JPA 엔티티
   - `model/dto/` - 요청/응답 DTO, 외부 API 응답 DTO
   - `batch/` - Spring Batch Job/Step 설정 + 스케줄러
-  - `common/` - `ApiResponse`, `GlobalExceptionHandler`, `CustomException`, 세션 유틸
+  - `common/` - `ApiResponse`, `GlobalExceptionHandler`, `BusinessException`, 세션 유틸
   - `config/` - CORS, QueryDSL, PasswordEncoder 설정
 - `src/main.tsx`, `src/App.tsx`, `src/pages/`, `src/components/`, `src/layouts/`, `src/assets/styles/` - React 프론트 (Vite)
 - `src/test/kotlin/org/kjs/stocknews/` - 백엔드 테스트
@@ -77,5 +77,5 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
 - DB 식별자는 upper-snake-case (`@Table(name = "TB_STOCK")`, `@Column(name = "TICKER")`), Kotlin 프로퍼티는 camelCase 유지.
 - 테이블은 `TB_` 프리픽스 사용 (`TB_STOCK`, `TB_USER`, `TB_USER_STOCK`, `TB_EMAIL_VERIFICATION`) — 신규 테이블도 동일하게 적용.
 - 외부 API 응답을 역직렬화하는 DTO는 `@JsonIgnoreProperties(ignoreUnknown = true)` 사용, 실제 사용하는 필드만 선언.
-- 컨트롤러는 직접 `ApiResponse`를 만들지 않고 원본 값/DTO만 반환 — 래핑은 `ApiResponseAdvice`가 담당. 예상 가능한 실패는 `CustomException(ResultCode.X)`로 던질 것.
+- 컨트롤러는 직접 `ApiResponse`를 만들지 않고 원본 값/DTO만 반환 — 래핑은 `ApiResponseAdvice`가 담당. 예상 가능한 실패는 `BusinessException(ResultCode.X)`로 던질 것.
 - 프론트 페이지는 `src/pages/<케밥-케이스-이름>/<파스칼케이스Page>.tsx` 단위로 기능별 하나씩 위치하고, `src/App.tsx`에서 공통 `MainLayout` 안에 라우팅. 스타일은 CSS 모듈 SCSS(`*.module.scss`)로 컴포넌트 경로를 그대로 미러링해 `src/assets/styles/...` 아래 위치.

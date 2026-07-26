@@ -1,6 +1,6 @@
 package org.kjs.stocknews.service
 
-import org.kjs.stocknews.common.CustomException
+import org.kjs.stocknews.common.BusinessException
 import org.kjs.stocknews.common.ResultCode
 import org.kjs.stocknews.model.table.EmailVerification
 import org.kjs.stocknews.model.table.User
@@ -24,8 +24,10 @@ class AuthService(
 ) {
     @Transactional
     fun signUp(email: String, rawPassword: String) {
+        validateEmail(email)
+        validatePassword(rawPassword)
         if (userRepository.existsByEmail(email)) {
-            throw CustomException(ResultCode.EMAIL_ALREADY_REGISTERED)
+            throw BusinessException(ResultCode.EMAIL_ALREADY_REGISTERED)
         }
 
         val code = generateCode()
@@ -41,15 +43,17 @@ class AuthService(
 
     @Transactional
     fun verifyEmail(email: String, code: String) {
+        validateEmail(email)
+        validateCode(code)
         val verification = emailVerificationRepository.findById(email)
-            .orElseThrow { CustomException(ResultCode.VERIFICATION_NOT_FOUND) }
+            .orElseThrow { BusinessException(ResultCode.VERIFICATION_NOT_FOUND) }
 
         if (verification.expiresAt.isBefore(LocalDateTime.now())) {
             emailVerificationRepository.delete(verification)
-            throw CustomException(ResultCode.VERIFICATION_EXPIRED)
+            throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
         }
         if (verification.code != code) {
-            throw CustomException(ResultCode.VERIFICATION_CODE_MISMATCH)
+            throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
         userRepository.save(User(email = verification.email, password = verification.password))
@@ -57,13 +61,35 @@ class AuthService(
     }
 
     fun login(email: String, rawPassword: String): Long {
-        val user = userRepository.findByEmail(email) ?: throw CustomException(ResultCode.INVALID_CREDENTIALS)
+        validateEmail(email)
+        validatePassword(rawPassword)
+        val user = userRepository.findByEmail(email) ?: throw BusinessException(ResultCode.INVALID_CREDENTIALS)
         if (!passwordEncoder.matches(rawPassword, user.password)) {
-            throw CustomException(ResultCode.INVALID_CREDENTIALS)
+            throw BusinessException(ResultCode.INVALID_CREDENTIALS)
         }
         return user.id!!
     }
 
+    private fun validateEmail(email: String) {
+        if (email.isBlank()) throw BusinessException(ResultCode.EMAIL_REQUIRED)
+        if (!EMAIL_REGEX.matches(email)) throw BusinessException(ResultCode.INVALID_EMAIL_FORMAT)
+        if (email.length > 50) throw BusinessException(ResultCode.EMAIL_TOO_LONG)
+    }
+
+    private fun validatePassword(password: String) {
+        if (password.isBlank()) throw BusinessException(ResultCode.PASSWORD_REQUIRED)
+        if (password.length !in 8..20) throw BusinessException(ResultCode.INVALID_PASSWORD_LENGTH)
+    }
+
+    private fun validateCode(code: String) {
+        if (code.isBlank()) throw BusinessException(ResultCode.VERIFICATION_CODE_REQUIRED)
+        if (code.length != codeLength) throw BusinessException(ResultCode.INVALID_VERIFICATION_CODE_LENGTH)
+    }
+
     private fun generateCode(): String =
         (1..codeLength).map { Random.nextInt(0, 10) }.joinToString("")
+
+    companion object {
+        private val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
+    }
 }

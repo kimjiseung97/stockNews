@@ -7,4 +7,4 @@ object SessionKeys {
 }
 
 fun HttpSession.currentUserId(): Long =
-    getAttribute(SessionKeys.USER_ID) as? Long ?: throw CustomException(ResultCode.UNAUTHORIZED)
+    getAttribute(SessionKeys.USER_ID) as? Long ?: throw BusinessException(ResultCode.UNAUTHORIZED)

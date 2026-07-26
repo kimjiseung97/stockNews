@@ -1,6 +1,6 @@
 package org.kjs.stocknews.common
 
-class CustomException(
+class BusinessException(
     val resultCode: ResultCode,
     message: String = resultCode.message,
 ) : RuntimeException(message)
