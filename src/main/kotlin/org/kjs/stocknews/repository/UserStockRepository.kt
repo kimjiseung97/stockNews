@@ -7,5 +7,4 @@ interface UserStockRepository : JpaRepository<UserStock, Long>, UserStockReposit
     fun existsByUserIdAndStockId(userId: Long, stockId: Long): Boolean
     fun findAllByUserId(userId: Long): List<UserStock>
     fun findAllByUserIdAndStockIdIn(userId: Long, stockIds: List<Long>): List<UserStock>
-    fun deleteByUserIdAndStockId(userId: Long, stockId: Long): Long
 }

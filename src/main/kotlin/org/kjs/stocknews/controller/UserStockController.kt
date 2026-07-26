@@ -3,13 +3,13 @@ package org.kjs.stocknews.controller
 import jakarta.servlet.http.HttpSession
 import org.kjs.stocknews.common.currentUserId
 import org.kjs.stocknews.model.dto.RegisterUserStockRequest
+import org.kjs.stocknews.model.dto.UnregisterUserStockRequest
 import org.kjs.stocknews.model.dto.UserStockResponse
 import org.kjs.stocknews.service.UserStockService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -29,8 +29,8 @@ class UserStockController(
     fun list(session: HttpSession, pageable: Pageable): Page<UserStockResponse> =
         userStockService.list(session.currentUserId(), pageable)
 
-    @DeleteMapping("/{stockId}")
-    fun unregister(@PathVariable stockId: Long, session: HttpSession) {
-        userStockService.unregister(session.currentUserId(), stockId)
+    @DeleteMapping
+    fun unregister(@RequestBody request: UnregisterUserStockRequest, session: HttpSession) {
+        userStockService.unregister(session.currentUserId(), request.stockIds)
     }
 }

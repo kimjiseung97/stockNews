@@ -54,6 +54,12 @@ class UserStockRepositoryCustomImpl(
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
 
+    override fun deleteByUserIdAndStockIdIn(userId: Long, stockIds: List<Long>): Long =
+        queryFactory
+            .delete(userStock)
+            .where(userStock.userId.eq(userId), userStock.stockId.`in`(stockIds))
+            .execute()
+
     private fun orderSpecifiers(sort: Sort): List<OrderSpecifier<*>> =
         sort.map { order ->
             val direction = if (order.isAscending) Order.ASC else Order.DESC

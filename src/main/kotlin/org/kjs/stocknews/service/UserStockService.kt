@@ -42,8 +42,8 @@ class UserStockService(
         userStockRepository.search(userId, pageable)
 
     @Transactional
-    fun unregister(userId: Long, stockId: Long) {
-        val deleted = userStockRepository.deleteByUserIdAndStockId(userId, stockId)
+    fun unregister(userId: Long, stockIds: List<Long>) {
+        val deleted = userStockRepository.deleteByUserIdAndStockIdIn(userId, stockIds.distinct())
         if (deleted == 0L) {
             throw BusinessException(ResultCode.USER_STOCK_NOT_FOUND)
         }
