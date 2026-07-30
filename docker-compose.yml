@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image: ghcr.io/kimjiseung97/stocknews:latest
     restart: unless-stopped
     env_file:
       - .env
