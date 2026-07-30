@@ -41,6 +41,7 @@ out/
 
 ### Local secrets ###
 .env
+src/main/resources/application-local.yml
 
 # 프론트엔드 작업 제외 폴더
 /gradle/
