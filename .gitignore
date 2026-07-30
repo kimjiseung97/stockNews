@@ -40,7 +40,6 @@ out/
 .kotlin
 
 ### Local secrets ###
-src/main/resources/application.yml
 .env
 
 # 프론트엔드 작업 제외 폴더
