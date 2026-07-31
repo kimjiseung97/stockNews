@@ -56,7 +56,8 @@ stock:
 
 news:
   dispatch:
-    cron: "0 0 8 * * *"
+    cron: "0 0 15 * * *"
+    thread-pool-size: 8
 
 finnhub:
   base-url: ${FINNHUB_BASE_URL:https://finnhub.io}
