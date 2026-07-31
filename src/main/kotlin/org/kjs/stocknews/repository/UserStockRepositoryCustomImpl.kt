@@ -6,6 +6,7 @@ import com.querydsl.core.types.Projections
 import com.querydsl.core.types.dsl.ComparablePath
 import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
+import org.kjs.stocknews.model.dto.UserStockNewsView
 import org.kjs.stocknews.model.dto.UserStockResponse
 import org.kjs.stocknews.model.table.QStock.stock
 import org.kjs.stocknews.model.table.QUserStock.userStock
@@ -53,6 +54,24 @@ class UserStockRepositoryCustomImpl(
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
+
+    // 청크에 포함된 유저 ID 전체를 한번에 join 조회해 유저별 개별 쿼리(N+1)를 없앤다.
+    // 유저마다 종목이 달라도 상관없이 결과 행을 userId로 groupBy하면 각자 자기 종목만 골라 갖는다.
+    override fun findNewsViewsByUserIdIn(userIds: List<Long>): List<UserStockNewsView> =
+        queryFactory
+            .select(
+                Projections.constructor(
+                    UserStockNewsView::class.java,
+                    userStock.userId,
+                    stock.ticker,
+                    stock.name,
+                    stock.koreanName,
+                ),
+            )
+            .from(userStock)
+            .join(stock).on(userStock.stockId.eq(stock.id))
+            .where(userStock.userId.`in`(userIds))
+            .fetch()
 
     override fun deleteByUserIdAndStockIdIn(userId: Long, stockIds: List<Long>): Long =
         queryFactory

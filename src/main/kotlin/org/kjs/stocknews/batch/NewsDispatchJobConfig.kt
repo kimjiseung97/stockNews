@@ -2,8 +2,8 @@ package org.kjs.stocknews.batch
 
 import org.kjs.stocknews.model.dto.NewsArticle
 import org.kjs.stocknews.model.dto.UserNewsMail
+import org.kjs.stocknews.model.dto.UserStockNewsView
 import org.kjs.stocknews.model.table.User
-import org.kjs.stocknews.repository.StockRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.kjs.stocknews.repository.UserStockRepository
 import org.kjs.stocknews.service.NaverNewsClient
@@ -36,7 +36,6 @@ class NewsDispatchJobConfig(
     private val transactionManager: PlatformTransactionManager,
     private val userRepository: UserRepository,
     private val userStockRepository: UserStockRepository,
-    private val stockRepository: StockRepository,
     private val newsClient: NewsClient,
     private val naverNewsClient: NaverNewsClient,
     private val newsMailSender: NewsMailSender,
@@ -82,32 +81,35 @@ class NewsDispatchJobConfig(
 
     // Processor: 유저의 관심종목별로 네이버 뉴스를 조회해 모으고, 발송할 메일 DTO(UserNewsMail)로 변환한다.
     // 관심종목이 없거나 뉴스가 하나도 없으면 null을 반환해 해당 유저를 발송 대상에서 제외한다.
+    //
+    // 유저마다 findAllByUserId + findAllById를 개별 호출하던 N+1 쿼리를 없애기 위해,
+    // 스텝 시작 시점(@StepScope 빈 생성 1회)에 활성 유저 전체의 관심종목을 userStock-stock join 쿼리 1번으로 가져와
+    // userId -> 종목 목록 Map으로 그룹핑해둔다. 이후 각 유저 처리 시점엔 DB 호출 없이 이 Map에서 꺼내 쓰기만 한다.
     @Bean
     @StepScope
-    fun newsDispatchProcessor(): ItemProcessor<User, UserNewsMail> = ItemProcessor { user ->
-        val userId = user.id ?: return@ItemProcessor null
+    fun newsDispatchProcessor(): ItemProcessor<User, UserNewsMail> {
+        val activeUserIds = userRepository.findAllByActiveTrue().mapNotNull { it.id }
+        val stockViewsByUserId: Map<Long, List<UserStockNewsView>> =
+            userStockRepository.findNewsViewsByUserIdIn(activeUserIds).groupBy { it.userId }
 
-        val userStocks = userStockRepository.findAllByUserId(userId)
-        if (userStocks.isEmpty()) return@ItemProcessor null
+        return ItemProcessor { user ->
+            val userId = user.id ?: return@ItemProcessor null
+            val stockViews = stockViewsByUserId[userId]
+            if (stockViews.isNullOrEmpty()) return@ItemProcessor null
 
-        val stockIds = mutableListOf<Long>()
-        for (userStock in userStocks) {
-            stockIds.add(userStock.stockId)
-        }
-        val stocks = stockRepository.findAllById(stockIds)
-
-        val articlesByTicker = linkedMapOf<String, List<NewsArticle>>()
-        for (stock in stocks) {
-            val articles = naverNewsClient.fetchNews(stock.koreanName ?: stock.name)
-            if (articles.isNotEmpty()) {
-                articlesByTicker[stock.ticker] = articles
+            val articlesByTicker = linkedMapOf<String, List<NewsArticle>>()
+            for (view in stockViews) {
+                val articles = naverNewsClient.fetchNews(view.koreanName ?: view.name)
+                if (articles.isNotEmpty()) {
+                    articlesByTicker[view.ticker] = articles
+                }
             }
-        }
 
-        if (articlesByTicker.isEmpty()) {
-            null
-        } else {
-            UserNewsMail(user.email, articlesByTicker)
+            if (articlesByTicker.isEmpty()) {
+                null
+            } else {
+                UserNewsMail(user.email, articlesByTicker)
+            }
         }
     }
 

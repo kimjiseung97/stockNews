@@ -1,9 +1,11 @@
 package org.kjs.stocknews.batch
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import org.kjs.stocknews.model.dto.NewsArticle
+import org.kjs.stocknews.model.dto.UserStockNewsView
 import org.kjs.stocknews.model.table.User
-import org.kjs.stocknews.repository.StockRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.kjs.stocknews.repository.UserStockRepository
 import org.kjs.stocknews.service.NaverNewsClient
@@ -28,7 +30,6 @@ class NewsDispatchJobConfigTest {
             transactionManager = mock(PlatformTransactionManager::class.java),
             userRepository = mock(UserRepository::class.java),
             userStockRepository = mock(UserStockRepository::class.java),
-            stockRepository = mock(StockRepository::class.java),
             newsClient = mock(NewsClient::class.java),
             naverNewsClient = mock(NaverNewsClient::class.java),
             newsMailSender = mock(NewsMailSender::class.java),
@@ -57,7 +58,6 @@ class NewsDispatchJobConfigTest {
             transactionManager = mock(PlatformTransactionManager::class.java),
             userRepository = backingRepository,
             userStockRepository = mock(UserStockRepository::class.java),
-            stockRepository = mock(StockRepository::class.java),
             newsClient = mock(NewsClient::class.java),
             naverNewsClient = mock(NaverNewsClient::class.java),
             newsMailSender = mock(NewsMailSender::class.java),
@@ -89,5 +89,52 @@ class NewsDispatchJobConfigTest {
         assertEquals(USER_COUNT, collected.size)
         assertEquals(USER_COUNT, collected.distinct().size)
         assertEquals(users.toSet(), collected.toSet())
+    }
+
+    @Test
+    fun `newsDispatchProcessor는 유저별 관심종목을 배치 join 결과에서 조회해 뉴스가 있는 종목만 메일로 담는다`() {
+        val userA = User(email = "a@example.com", password = "encoded").apply { setTestId(1L) }
+        val userB = User(email = "b@example.com", password = "encoded").apply { setTestId(2L) }
+
+        val userRepository = mock(UserRepository::class.java)
+        `when`(userRepository.findAllByActiveTrue()).thenReturn(listOf(userA, userB))
+
+        val userStockRepository = mock(UserStockRepository::class.java)
+        `when`(userStockRepository.findNewsViewsByUserIdIn(listOf(1L, 2L))).thenReturn(
+            listOf(
+                UserStockNewsView(userId = 1L, ticker = "AAPL", name = "Apple", koreanName = "애플"),
+                UserStockNewsView(userId = 1L, ticker = "MSFT", name = "Microsoft", koreanName = null),
+            ),
+            // userB(2L)는 관심종목이 없는 케이스
+        )
+
+        val naverNewsClient = mock(NaverNewsClient::class.java)
+        `when`(naverNewsClient.fetchNews("애플")).thenReturn(listOf(NewsArticle(title = "애플 뉴스", url = "https://example.com/apple")))
+        `when`(naverNewsClient.fetchNews("Microsoft")).thenReturn(emptyList())
+
+        val config = NewsDispatchJobConfig(
+            jobRepository = mock(JobRepository::class.java),
+            transactionManager = mock(PlatformTransactionManager::class.java),
+            userRepository = userRepository,
+            userStockRepository = userStockRepository,
+            newsClient = mock(NewsClient::class.java),
+            naverNewsClient = naverNewsClient,
+            newsMailSender = mock(NewsMailSender::class.java),
+            threadPoolSize = THREAD_POOL_SIZE,
+        )
+        val processor = config.newsDispatchProcessor()
+
+        val mailForA = processor.process(userA)
+        assertEquals("a@example.com", mailForA?.email)
+        assertEquals(setOf("AAPL"), mailForA?.articlesByTicker?.keys)
+
+        val mailForB = processor.process(userB)
+        assertNull(mailForB)
+    }
+
+    private fun User.setTestId(id: Long) {
+        val field = User::class.java.getDeclaredField("id")
+        field.isAccessible = true
+        field.set(this, id)
     }
 }
