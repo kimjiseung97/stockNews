@@ -70,7 +70,7 @@ naver:
   news:
     client-id: ${NAVER_CLIENT_ID}
     client-secret: ${NAVER_CLIENT_SECRET}
-    max-articles-per-query: 2
+    max-articles-per-query: 1
     cache-ttl-minutes: 60
 
 auth:
