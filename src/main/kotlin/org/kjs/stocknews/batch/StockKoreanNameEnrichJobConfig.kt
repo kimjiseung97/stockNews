@@ -32,12 +32,14 @@ class StockKoreanNameEnrichJobConfig(
 ) {
     private val log = LoggerFactory.getLogger(StockKoreanNameEnrichJobConfig::class.java)
 
+    // Job: stockKoreanNameEnrichStep 단일 스텝으로 구성된 한글명 보강 배치 잡.
     @Bean
     fun stockKoreanNameEnrichJob(stockKoreanNameEnrichStep: Step): Job =
         JobBuilder("stockKoreanNameEnrichJob", jobRepository)
             .start(stockKoreanNameEnrichStep)
             .build()
 
+    // Reader: koreanName이 비어있는 종목을 batch-size만큼 조회해 한 건씩 꺼낸다.
     @Bean
     @StepScope
     fun stockKoreanNameEnrichReader(): ItemReader<Stock> {
@@ -50,6 +52,7 @@ class StockKoreanNameEnrichJobConfig(
         }
     }
 
+    // Processor: 네이버에서 종목의 한글명을 조회해 채운다. 조회 실패/미해결이면 null을 반환해 이번 배치에서 제외한다(다음 실행 때 재시도).
     @Bean
     fun stockKoreanNameEnrichProcessor(): ItemProcessor<Stock, Stock> = ItemProcessor { stock ->
         try {
@@ -68,6 +71,7 @@ class StockKoreanNameEnrichJobConfig(
         }
     }
 
+    // Writer: 한글명이 채워진 종목들을 그대로 저장한다.
     @Bean
     fun stockKoreanNameEnrichWriter(): ItemWriter<Stock> = ItemWriter { stocks ->
         stockRepository.saveAll(stocks.items)

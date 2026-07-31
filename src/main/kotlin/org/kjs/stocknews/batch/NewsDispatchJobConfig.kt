@@ -59,12 +59,14 @@ class NewsDispatchJobConfig(
             initialize()
         }
 
+    // Job: newsDispatchStep 단일 스텝으로 구성된 뉴스 발송 배치 잡.
     @Bean
     fun newsDispatchJob(newsDispatchStep: Step): Job =
         JobBuilder("newsDispatchJob", jobRepository)
             .start(newsDispatchStep)
             .build()
 
+    // Reader: 활성 유저를 한 명씩 순서대로 꺼낸다.
     @Bean
     @StepScope
     fun newsDispatchReader(): ItemReader<User> {
@@ -78,6 +80,8 @@ class NewsDispatchJobConfig(
         }
     }
 
+    // Processor: 유저의 관심종목별로 네이버 뉴스를 조회해 모으고, 발송할 메일 DTO(UserNewsMail)로 변환한다.
+    // 관심종목이 없거나 뉴스가 하나도 없으면 null을 반환해 해당 유저를 발송 대상에서 제외한다.
     @Bean
     @StepScope
     fun newsDispatchProcessor(): ItemProcessor<User, UserNewsMail> = ItemProcessor { user ->
@@ -107,6 +111,7 @@ class NewsDispatchJobConfig(
         }
     }
 
+    // Writer: 청크로 모인 UserNewsMail을 순회하며 실제 다이제스트 메일을 발송한다.
     @Bean
     fun newsDispatchWriter(): ItemWriter<UserNewsMail> = ItemWriter { mails ->
         for (mail in mails.items) {

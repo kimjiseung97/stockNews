@@ -32,12 +32,14 @@ class StockThemeEnrichJobConfig(
 ) {
     private val log = LoggerFactory.getLogger(StockThemeEnrichJobConfig::class.java)
 
+    // Job: stockThemeEnrichStep 단일 스텝으로 구성된 테마 보강 배치 잡.
     @Bean
     fun stockThemeEnrichJob(stockThemeEnrichStep: Step): Job =
         JobBuilder("stockThemeEnrichJob", jobRepository)
             .start(stockThemeEnrichStep)
             .build()
 
+    // Reader: theme이 비어있는 종목을 batch-size만큼 조회해 한 건씩 꺼낸다.
     @Bean
     @StepScope
     fun stockThemeEnrichReader(): ItemReader<Stock> {
@@ -50,6 +52,8 @@ class StockThemeEnrichJobConfig(
         }
     }
 
+    // Processor: SEC 기업 프로필의 SIC 코드를 조회해 SicThemeMapper로 StockTheme에 매핑, 채운다.
+    // 조회 실패/미매핑이면 null을 반환해 이번 배치에서 제외한다(다음 실행 때 재시도).
     @Bean
     fun stockThemeEnrichProcessor(): ItemProcessor<Stock, Stock> = ItemProcessor { stock ->
         try {
@@ -68,6 +72,7 @@ class StockThemeEnrichJobConfig(
         }
     }
 
+    // Writer: 테마가 채워진 종목들을 그대로 저장한다.
     @Bean
     fun stockThemeEnrichWriter(): ItemWriter<Stock> = ItemWriter { stocks ->
         stockRepository.saveAll(stocks.items)

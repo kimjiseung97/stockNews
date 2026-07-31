@@ -27,12 +27,15 @@ class StockSeedJobConfig(
 ) {
     private val log = LoggerFactory.getLogger(StockSeedJobConfig::class.java)
 
+    // Job: stockSeedStep 단일 스텝으로 구성된 종목 시딩 배치 잡.
     @Bean
     fun stockSeedJob(stockSeedStep: Step): Job =
         JobBuilder("stockSeedJob", jobRepository)
             .start(stockSeedStep)
             .build()
 
+    // Tasklet(Reader+Processor+Writer 역할 겸용): SEC 티커 전체 목록을 조회해 DB에 없는 신규 종목만 골라
+    // batch-size만큼 잘라 기본 정보(ticker/name/cik)로 저장한다.
     @Bean
     fun stockSeedStep(): Step =
         StepBuilder("stockSeedStep", jobRepository)
