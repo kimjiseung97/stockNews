@@ -4,6 +4,7 @@ services:
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      TZ: Asia/Seoul
     env_file:
       - .env
     expose:

@@ -17,7 +17,7 @@ class StockThemeEnrichScheduler(
 ) {
     private val log = LoggerFactory.getLogger(StockThemeEnrichScheduler::class.java)
 
-    @Scheduled(cron = "\${stock.theme-enrich.cron}")
+    @Scheduled(cron = "\${stock.theme-enrich.cron}", zone = "Asia/Seoul")
     fun run() {
         if (jobRepository.findRunningJobExecutions("stockThemeEnrichJob").isNotEmpty()) {
             log.info("stockThemeEnrichJob already running, skipping this trigger")

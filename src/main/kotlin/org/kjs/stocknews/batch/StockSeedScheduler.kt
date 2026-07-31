@@ -17,7 +17,7 @@ class StockSeedScheduler(
 ) {
     private val log = LoggerFactory.getLogger(StockSeedScheduler::class.java)
 
-    @Scheduled(cron = "\${stock.seed.cron}")
+    @Scheduled(cron = "\${stock.seed.cron}", zone = "Asia/Seoul")
     fun run() {
         if (jobRepository.findRunningJobExecutions("stockSeedJob").isNotEmpty()) {
             log.info("stockSeedJob already running, skipping this trigger")

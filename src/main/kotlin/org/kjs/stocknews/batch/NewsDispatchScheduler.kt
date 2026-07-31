@@ -17,7 +17,7 @@ class NewsDispatchScheduler(
 ) {
     private val log = LoggerFactory.getLogger(NewsDispatchScheduler::class.java)
 
-    @Scheduled(cron = "\${news.dispatch.cron}")
+    @Scheduled(cron = "\${news.dispatch.cron}", zone = "Asia/Seoul")
     fun run() {
         if (jobRepository.findRunningJobExecutions("newsDispatchJob").isNotEmpty()) {
             log.info("newsDispatchJob already running, skipping this trigger")

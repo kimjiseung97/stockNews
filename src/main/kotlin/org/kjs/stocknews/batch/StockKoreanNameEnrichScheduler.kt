@@ -17,7 +17,7 @@ class StockKoreanNameEnrichScheduler(
 ) {
     private val log = LoggerFactory.getLogger(StockKoreanNameEnrichScheduler::class.java)
 
-    @Scheduled(cron = "\${stock.korean-name-enrich.cron}")
+    @Scheduled(cron = "\${stock.korean-name-enrich.cron}", zone = "Asia/Seoul")
     fun run() {
         if (jobRepository.findRunningJobExecutions("stockKoreanNameEnrichJob").isNotEmpty()) {
             log.info("stockKoreanNameEnrichJob already running, skipping this trigger")
