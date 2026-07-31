@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
+// [배치] stockThemeEnrichJob을 정해진 주기(stock.theme-enrich.cron)로 트리거하는 스케줄러. 이미 실행 중이면 스킵.
 @Component
 class StockThemeEnrichScheduler(
     private val jobOperator: JobOperator,

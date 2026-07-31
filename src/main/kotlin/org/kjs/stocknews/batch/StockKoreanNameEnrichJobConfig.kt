@@ -20,6 +20,8 @@ import org.springframework.transaction.PlatformTransactionManager
 
 private const val ENRICH_CHUNK_SIZE = 20
 
+// [배치] koreanName이 비어있는 종목을 대상으로 네이버에서 한글명을 조회해 채운다.
+// 청크 스텝(20건) - 조회 실패/미해결 건은 null 반환으로 스킵하고 다음 배치 실행 때 재시도된다.
 @Configuration
 class StockKoreanNameEnrichJobConfig(
     private val jobRepository: JobRepository,

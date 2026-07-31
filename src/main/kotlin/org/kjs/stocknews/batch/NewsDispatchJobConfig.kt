@@ -28,6 +28,8 @@ import org.springframework.transaction.PlatformTransactionManager
 
 private const val NEWS_DISPATCH_CHUNK_SIZE = 20
 
+// [배치] 활성 유저별 관심종목 뉴스를 모아 다이제스트 메일로 발송한다.
+// 멀티스레드 청크 스텝 - 유저를 20명씩 청크로 묶어 스레드풀(newsDispatchTaskExecutor)에서 병렬 처리.
 @Configuration
 class NewsDispatchJobConfig(
     private val jobRepository: JobRepository,

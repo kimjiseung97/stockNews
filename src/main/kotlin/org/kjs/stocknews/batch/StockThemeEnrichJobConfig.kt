@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory
 
 private const val ENRICH_CHUNK_SIZE = 20
 
+// [배치] theme이 비어있는 종목을 대상으로 SEC 기업 프로필의 SIC 코드를 조회해 StockTheme으로 매핑, 채운다.
+// 청크 스텝(20건) - SIC 매핑 규칙은 SicThemeMapper 참고, 미해결/실패 건은 다음 배치 실행 때 재시도된다.
 @Configuration
 class StockThemeEnrichJobConfig(
     private val jobRepository: JobRepository,

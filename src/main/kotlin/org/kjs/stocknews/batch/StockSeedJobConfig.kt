@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
 import org.slf4j.LoggerFactory
 
+// [배치] SEC 티커 목록에서 TB_STOCK에 없는 신규 종목을 찾아 기본 정보(ticker/name/cik)만 배치 삽입한다.
+// 단일 tasklet - 테마(theme)는 채우지 않고 이후 stockThemeEnrichJob이 보강.
 @Configuration
 class StockSeedJobConfig(
     private val jobRepository: JobRepository,
