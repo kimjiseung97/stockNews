@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 import tools.jackson.databind.ObjectMapper
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = ["org.kjs.stocknews.controller"])
 class ApiResponseAdvice(
     private val objectMapper: ObjectMapper,
 ) : ResponseBodyAdvice<Any> {

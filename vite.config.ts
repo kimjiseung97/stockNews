@@ -17,6 +17,25 @@ export default defineConfig(({ mode }) => {
       },
     },
 
+    // 로컬 개발 시 프론트(Vite, 3000)와 백엔드(Spring Boot, 8080)가 분리 실행되므로
+    // 백엔드 API 요청을 전달. 운영에서는 Caddy가 같은 오리진으로 서빙해 프록시가 필요 없음.
+    server: {
+      proxy: {
+        '/auth': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+        },
+        '/stocks': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+        },
+        '/users': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+        },
+      },
+    },
+
     // 전역 scss
     css: {
       modules: {

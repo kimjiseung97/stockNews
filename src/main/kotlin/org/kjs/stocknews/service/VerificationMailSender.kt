@@ -31,6 +31,26 @@ class VerificationMailSender(
         )
     }
 
+    fun sendResetPasswordCode(email: String, code: String, expiryMinutes: Long) {
+        send(
+            email = email,
+            subject = "[stockNews] 비밀번호 찾기 인증코드",
+            description = "아래 인증코드를 비밀번호 찾기 화면에 입력해주세요.",
+            code = code,
+            expiryMinutes = expiryMinutes,
+        )
+    }
+
+    fun sendTemporaryPassword(email: String, temporaryPassword: String) {
+        val mimeMessage = mailSender.createMimeMessage()
+        val helper = MimeMessageHelper(mimeMessage)
+        helper.setFrom(fromAddress, fromName)
+        helper.setTo(email)
+        helper.setSubject("[stockNews] 임시 비밀번호 발급")
+        helper.setText(buildTemporaryPasswordHtml(temporaryPassword), true)
+        mailSender.send(mimeMessage)
+    }
+
     private fun send(email: String, subject: String, description: String, code: String, expiryMinutes: Long) {
         val mimeMessage = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(mimeMessage)
@@ -67,6 +87,49 @@ class VerificationMailSender(
                     <td style="padding:0 32px 36px 32px;">
                       <div style="background-color:#f4f5f7;border-radius:8px;padding:20px;text-align:center;">
                         <span style="font-size:32px;font-weight:700;letter-spacing:8px;color:#111827;">$code</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 32px 32px 32px;border-top:1px solid #e5e7eb;">
+                      <p style="margin:20px 0 0 0;color:#9ca3af;font-size:12px;line-height:1.6;">
+                        본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+    """.trimIndent()
+
+    private fun buildTemporaryPasswordHtml(temporaryPassword: String): String = """
+        <!DOCTYPE html>
+        <html>
+        <body style="margin:0;padding:0;background-color:#f4f5f7;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;padding:40px 0;">
+            <tr>
+              <td align="center">
+                <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                  <tr>
+                    <td style="background-color:#111827;padding:28px 32px;">
+                      <span style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:0.5px;">stockNews</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:36px 32px 24px 32px;">
+                      <p style="margin:0 0 8px 0;color:#111827;font-size:18px;font-weight:600;">임시 비밀번호 발급</p>
+                      <p style="margin:0;color:#6b7280;font-size:14px;line-height:1.6;">
+                        아래 임시 비밀번호로 로그인 후 반드시 비밀번호를 변경해주세요.
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 32px 36px 32px;">
+                      <div style="background-color:#f4f5f7;border-radius:8px;padding:20px;text-align:center;">
+                        <span style="font-size:24px;font-weight:700;letter-spacing:2px;color:#111827;">$temporaryPassword</span>
                       </div>
                     </td>
                   </tr>

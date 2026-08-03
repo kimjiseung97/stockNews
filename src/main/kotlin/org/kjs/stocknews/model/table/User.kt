@@ -23,6 +23,9 @@ class User(
     @Column(name = "ACTIVE", nullable = false)
     var active: Boolean = true,
 
+    @Column(name = "TEMPORARY_PASSWORD", nullable = false)
+    var temporaryPassword: Boolean = false,
+
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 ) {

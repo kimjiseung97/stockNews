@@ -1,16 +1,48 @@
 import { useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { apiFetch, ApiError } from '@/lib/api'
+import ChangePasswordModal from './ChangePasswordModal'
 import styles from '@/assets/styles/pages/login/login.module.scss'
 import mediaStyles from '@/assets/styles/pages/login/loginMedia.module.scss'
+import warningIcon from '@/assets/images/icons/x.png'
+
+interface LoginResponseData {
+  requiresPasswordChange: boolean
+}
 
 function LoginPage() {
   const navigate = useNavigate()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [warningMessage, setWarningMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
 
   // 로그인 폼 제출
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setWarningMessage('')
+    setIsSubmitting(true)
+
+    try {
+      const data = await apiFetch<LoginResponseData>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (data?.requiresPasswordChange) {
+        setShowChangePasswordModal(true)
+        return
+      }
+
+      navigate('/')
+    } catch (error) {
+      setWarningMessage(error instanceof ApiError ? error.message : '로그인에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -21,6 +53,13 @@ function LoginPage() {
           <p>관심 종목의 뉴스를 지금 바로 확인하세요.</p>
         </section>
 
+        {warningMessage && (
+          <p className={styles['login-page__notice']} role="alert">
+            <img src={warningIcon} alt=""></img>
+            {warningMessage}
+          </p>
+        )}
+
         <form className={styles['login-page__form']} onSubmit={handleSubmit}>
           <label className={styles['login-page__field']}>
             <span>이메일</span>
@@ -28,9 +67,11 @@ function LoginPage() {
               <input
                 type="email"
                 name="email"
+                value={email}
                 placeholder="example@email.com"
                 autoComplete="email"
                 maxLength={50}
+                onChange={(event) => setEmail(event.target.value)}
                 required
               />
               <Mail aria-hidden="true"></Mail>
@@ -43,10 +84,12 @@ function LoginPage() {
               <input
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
+                value={password}
                 placeholder="비밀번호를 입력하세요"
                 autoComplete="current-password"
                 minLength={8}
                 maxLength={20}
+                onChange={(event) => setPassword(event.target.value)}
                 required
               />
               <button
@@ -72,7 +115,7 @@ function LoginPage() {
             비밀번호를 잊으셨나요?
           </button>
 
-          <button type="submit" className={styles['login-page__submit']}>
+          <button type="submit" className={styles['login-page__submit']} disabled={isSubmitting}>
             로그인
           </button>
         </form>
@@ -96,6 +139,13 @@ function LoginPage() {
           <span>여기</span>
         </button>
       </article>
+
+      {showChangePasswordModal && (
+        <ChangePasswordModal
+          initialCurrentPassword={password}
+          onChanged={() => navigate('/')}
+        ></ChangePasswordModal>
+      )}
     </main>
   )
 }

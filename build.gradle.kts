@@ -31,6 +31,7 @@ dependencies {
     implementation("org.springframework.security:spring-security-crypto")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
     implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
     kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
     kapt("jakarta.persistence:jakarta.persistence-api")
