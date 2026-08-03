@@ -3,7 +3,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 550px);
     column-gap: 120px;
-    max-width: 1220px;
+    max-width: 1280px;
     min-height: 100vh;
     margin: 0 auto;
 
@@ -18,7 +18,9 @@
     }
 
     .main-layout__content {
-      padding: 16px;
+      width: 90%;
+      margin: 0 auto;
+      padding: 40px 0 60px 0;
     }
   }
 }

@@ -8,9 +8,59 @@ function SignUpPage() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] = useState(false)
 
+  const focusInput = (form: HTMLFormElement, name: string) => {
+    const input = form.elements.namedItem(name)
+
+    if (input instanceof HTMLInputElement) {
+      input.focus()
+    }
+  }
+
   // 회원가입 폼 제출
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    const formData = new FormData(event.currentTarget)
+    const email = String(formData.get('email') ?? '').trim()
+    const password = String(formData.get('password') ?? '').trim()
+    const passwordConfirm = String(formData.get('passwordConfirm') ?? '').trim()
+    const recoveryEmail = String(formData.get('recoveryEmail') ?? '').trim()
+
+    if (!email) {
+      alert('이메일을 입력해 주세요.')
+      focusInput(event.currentTarget, 'email')
+      return
+    }
+
+    if (!password) {
+      alert('비밀번호를 입력해 주세요.')
+      focusInput(event.currentTarget, 'password')
+      return
+    }
+
+    if (!passwordConfirm) {
+      alert('비밀번호 확인을 입력해 주세요.')
+      focusInput(event.currentTarget, 'passwordConfirm')
+      return
+    }
+
+    if (!recoveryEmail) {
+      alert('복구 이메일을 입력해 주세요.')
+      focusInput(event.currentTarget, 'recoveryEmail')
+      return
+    }
+  }
+
+  const handleVerify = (event: FormEvent<HTMLButtonElement>) => {
+    const form = event.currentTarget.form
+    const emailInput = form?.elements.namedItem('email')
+    const email = emailInput instanceof HTMLInputElement ? emailInput.value.trim() : ''
+
+    if (!email) {
+      alert('이메일을 입력해 주세요.')
+      emailInput instanceof HTMLInputElement && emailInput.focus()
+      return
+    }
   }
 
   return (
@@ -24,7 +74,7 @@ function SignUpPage() {
           <p>계정을 만들고 관심 종목의 뉴스를 받아보세요.</p>
         </section>
 
-        <form className={styles['sign-up-page__form']} onSubmit={handleSubmit}>
+        <form className={styles['sign-up-page__form']} onSubmit={handleSubmit} noValidate>
           <label className={styles['sign-up-page__field']}>
             <span>이메일</span>
             <span className={styles['sign-up-page__email-row']}>
@@ -39,7 +89,11 @@ function SignUpPage() {
                 />
                 <Mail aria-hidden="true"></Mail>
               </span>
-              <button type="button" className={styles['sign-up-page__verify']}>
+              <button
+                type="button"
+                className={styles['sign-up-page__verify']}
+                onClick={handleVerify}
+              >
                 인증하기
               </button>
             </span>

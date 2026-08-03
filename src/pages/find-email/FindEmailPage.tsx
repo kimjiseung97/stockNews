@@ -13,6 +13,14 @@ function FindEmailPage() {
   const [verificationCode, setVerificationCode] = useState('')
   const [warningMessage, setWarningMessage] = useState('')
 
+  const focusInput = (form: HTMLFormElement, name: string) => {
+    const input = form.elements.namedItem(name)
+
+    if (input instanceof HTMLInputElement) {
+      input.focus()
+    }
+  }
+
   // 다른 탭에서 돌아오면 입력 정보 초기화
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -41,6 +49,8 @@ function FindEmailPage() {
     const trimmedEmail = recoveryEmail.trim()
 
     if (!trimmedEmail) {
+      alert('복구 이메일을 입력해 주세요.')
+      focusInput(event.currentTarget, 'recoveryEmail')
       setWarningMessage('복구용 이메일을 입력해 주세요.')
       return
     }
@@ -58,6 +68,12 @@ function FindEmailPage() {
   // 아이디 확인 단계로 이동
   const handleCodeSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    if (!verificationCode) {
+      alert('인증 코드를 입력해 주세요.')
+      focusInput(event.currentTarget, 'verificationCode')
+      return
+    }
 
     if (verificationCode.length !== 6) {
       setWarningMessage('인증 코드는 숫자 6자리로 입력해 주세요.')

@@ -8,9 +8,33 @@ function LoginPage() {
   const navigate = useNavigate()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
+  const focusInput = (form: HTMLFormElement, name: string) => {
+    const input = form.elements.namedItem(name)
+
+    if (input instanceof HTMLInputElement) {
+      input.focus()
+    }
+  }
+
   // 로그인 폼 제출
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    const formData = new FormData(event.currentTarget)
+    const email = String(formData.get('email') ?? '').trim()
+    const password = String(formData.get('password') ?? '').trim()
+
+    if (!email) {
+      alert('이메일을 입력해 주세요.')
+      focusInput(event.currentTarget, 'email')
+      return
+    }
+
+    if (!password) {
+      alert('비밀번호를 입력해 주세요.')
+      focusInput(event.currentTarget, 'password')
+      return
+    }
   }
 
   return (
@@ -21,7 +45,7 @@ function LoginPage() {
           <p>관심 종목의 뉴스를 지금 바로 확인하세요.</p>
         </section>
 
-        <form className={styles['login-page__form']} onSubmit={handleSubmit}>
+        <form className={styles['login-page__form']} onSubmit={handleSubmit} noValidate>
           <label className={styles['login-page__field']}>
             <span>이메일</span>
             <span className={styles['login-page__input-box']}>

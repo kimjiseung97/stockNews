@@ -85,7 +85,7 @@
 
       svg {
         flex: 0 0 auto;
-        width: 15px;
+        width: 25px;
         color: $color-icon;
         stroke-width: 1.7;
       }
@@ -93,6 +93,10 @@
 
     .sign-up-page__password-toggle {
       @include btn(icon);
+
+      svg {
+        width: 25px;
+      }
     }
 
     .sign-up-page__verify {

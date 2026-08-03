@@ -138,8 +138,8 @@ export default function Menu() {
             메일 예시
           </NavLink>
         </li> */}
-
-        <li>
+        {/* 스와이프 테스트용 */}
+        {/* <li>
           <NavLink
             className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
             to="/stock-search"
@@ -170,7 +170,7 @@ export default function Menu() {
           >
             이메일 설정
           </NavLink>
-        </li>
+        </li> */}
       </ul>
     </nav>
   )
