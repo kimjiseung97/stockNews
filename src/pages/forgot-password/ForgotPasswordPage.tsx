@@ -16,6 +16,14 @@ function ForgotPasswordPage() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [warningMessage, setWarningMessage] = useState('')
 
+  const focusInput = (form: HTMLFormElement, name: string) => {
+    const input = form.elements.namedItem(name)
+
+    if (input instanceof HTMLInputElement) {
+      input.focus()
+    }
+  }
+
   const stepLabels = ['이메일 입력', '코드 인증', '비밀번호 재설정']
 
   // 다른 탭에서 돌아오면 입력 정보 초기화
@@ -49,6 +57,8 @@ function ForgotPasswordPage() {
     const trimmedEmail = email.trim()
 
     if (!trimmedEmail) {
+      alert('이메일을 입력해 주세요.')
+      focusInput(event.currentTarget, 'email')
       setWarningMessage('이메일을 입력해 주세요.')
       return
     }
@@ -67,6 +77,12 @@ function ForgotPasswordPage() {
   const handleCodeSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
+    if (!verificationCode) {
+      alert('인증 코드를 입력해 주세요.')
+      focusInput(event.currentTarget, 'verificationCode')
+      return
+    }
+
     if (verificationCode.length !== 6) {
       setWarningMessage('인증 코드는 숫자 6자리로 입력해 주세요.')
       return
@@ -80,12 +96,20 @@ function ForgotPasswordPage() {
   const handlePasswordSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
+    if (!password) {
+      alert('새 비밀번호를 입력해 주세요.')
+      focusInput(event.currentTarget, 'password')
+      return
+    }
+
     if (password.length < 8 || password.length > 20) {
       setWarningMessage('비밀번호는 8~20자로 입력해 주세요.')
       return
     }
 
     if (!passwordConfirm) {
+      alert('새 비밀번호 확인을 입력해 주세요.')
+      focusInput(event.currentTarget, 'passwordConfirm')
       setWarningMessage('새 비밀번호를 한 번 더 입력해 주세요.')
       return
     }

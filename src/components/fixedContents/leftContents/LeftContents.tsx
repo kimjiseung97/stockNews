@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import { Search } from 'lucide-react'
 import styles from '@/assets/styles/fixedContents/leftContents/leftContents.module.scss'
@@ -5,7 +6,7 @@ import styles from '@/assets/styles/fixedContents/leftContents/leftContents.modu
 interface LeftContentsProps {
   eyebrow: string
   headline: ReactNode
-  description: string
+  description: ReactNode
 }
 
 export default function LeftContents({ eyebrow, headline, description }: LeftContentsProps) {
@@ -46,9 +47,14 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
                 검색
               </button>
             </li>
-            <p>{tiker}</p>
+            {/* <p>{tiker}</p> */}
             <li>태그</li>
           </ul>
+
+          <div className={styles['left-contents-container__account-actions']}>
+            <Link to="/sign-up">시작하기</Link>
+            <Link to="/login">로그인</Link>
+          </div>
         </div>
       </section>
     </>

@@ -3,8 +3,8 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 550px);
     column-gap: 120px;
-    max-width: 1220px;
-    min-height: 100vh;
+    max-width: 1280px;
+    height: 100vh;
     margin: 0 auto;
 
     .main-layout__left {
@@ -13,12 +13,16 @@
     }
 
     .main-layout__right {
+      min-height: 0;
+      overflow-y: auto;
       background-color: #fff;
       box-shadow: 0 24px 70px rgb(46 72 130 / 17%);
     }
 
     .main-layout__content {
-      padding: 16px;
+      width: 90%;
+      margin: 0 auto;
+      padding: 40px 0 60px 0;
     }
   }
 }
