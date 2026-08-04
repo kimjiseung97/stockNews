@@ -11,6 +11,7 @@ import org.kjs.stocknews.repository.EmailVerificationRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.kjs.stocknews.repository.VerificationRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.mail.MailException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,6 +28,11 @@ class AuthService(
     @Value("\${auth.verification.code-length}") private val codeLength: Int,
     @Value("\${auth.verification.expiry-minutes}") private val expiryMinutes: Long,
 ) {
+    fun checkEmailDuplicate(email: String): Boolean {
+        validateEmail(email)
+        return userRepository.existsByEmail(email)
+    }
+
     @Transactional
     fun signUp(email: String, rawPassword: String, recoveryEmail: String) {
         validateEmail(email)
@@ -51,7 +57,11 @@ class AuthService(
             expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes),
         )
         emailVerificationRepository.save(verification)
-        verificationMailSender.sendVerificationCode(email, code, expiryMinutes)
+        try {
+            verificationMailSender.sendVerificationCode(email, code, expiryMinutes)
+        } catch (e: MailException) {
+            throw BusinessException(ResultCode.MAIL_SEND_FAILED)
+        }
     }
 
     @Transactional

@@ -30,6 +30,28 @@ class AuthServiceTest {
     )
 
     @Test
+    fun `이미 가입된 이메일이면 중복 확인 시 true를 반환한다`() {
+        `when`(userRepository.existsByEmail("user@example.com")).thenReturn(true)
+
+        val duplicated = authService.checkEmailDuplicate("user@example.com")
+        assert(duplicated)
+    }
+
+    @Test
+    fun `가입되지 않은 이메일이면 중복 확인 시 false를 반환한다`() {
+        `when`(userRepository.existsByEmail("user@example.com")).thenReturn(false)
+
+        val duplicated = authService.checkEmailDuplicate("user@example.com")
+        assert(!duplicated)
+    }
+
+    @Test
+    fun `이메일 형식이 올바르지 않으면 중복 확인 시 INVALID_EMAIL_FORMAT 예외가 발생한다`() {
+        val exception = assertThrows<BusinessException> { authService.checkEmailDuplicate("not-an-email") }
+        assert(exception.resultCode == ResultCode.INVALID_EMAIL_FORMAT)
+    }
+
+    @Test
     fun `이메일이 공백이면 회원가입 시 EMAIL_REQUIRED 예외가 발생한다`() {
         val exception =
             assertThrows<BusinessException> { authService.signUp(" ", "password1!", "recovery@example.com") }
@@ -89,6 +111,33 @@ class AuthServiceTest {
                 authService.signUp("user@example.com", "password1!", "recovery@example.com")
             }
         assert(exception.resultCode == ResultCode.RECOVERY_EMAIL_ALREADY_REGISTERED)
+    }
+
+    @Test
+    fun `인증코드 메일 발송에 성공하면 회원가입이 정상적으로 완료된다`() {
+        `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
+
+        authService.signUp("user@example.com", "password1!", "recovery@example.com")
+
+        org.mockito.Mockito.verify(emailVerificationRepository).save(org.mockito.ArgumentMatchers.any())
+    }
+
+    @Test
+    fun `인증코드 메일 발송에 실패하면 회원가입 시 MAIL_SEND_FAILED 예외가 발생한다`() {
+        `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
+        org.mockito.Mockito.doThrow(org.springframework.mail.MailSendException("mail server down"))
+            .`when`(verificationMailSender)
+            .sendVerificationCode(
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyLong(),
+            )
+
+        val exception =
+            assertThrows<BusinessException> {
+                authService.signUp("user@example.com", "password1!", "recovery@example.com")
+            }
+        assert(exception.resultCode == ResultCode.MAIL_SEND_FAILED)
     }
 
     @Test

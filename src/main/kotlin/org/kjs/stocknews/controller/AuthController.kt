@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession
 import org.kjs.stocknews.common.SessionKeys
 import org.kjs.stocknews.common.currentUserId
 import org.kjs.stocknews.model.dto.ChangePasswordRequest
+import org.kjs.stocknews.model.dto.EmailExistsResponse
 import org.kjs.stocknews.model.dto.FindEmailRequest
 import org.kjs.stocknews.model.dto.FindEmailResponse
 import org.kjs.stocknews.model.dto.LoginRequest
@@ -16,10 +17,12 @@ import org.kjs.stocknews.model.dto.VerifyEmailRequest
 import org.kjs.stocknews.model.dto.VerifyFindEmailRequest
 import org.kjs.stocknews.model.dto.VerifyResetPasswordRequest
 import org.kjs.stocknews.service.AuthService
-import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Auth", description = "회원가입, 이메일 인증, 로그인/로그아웃, 비밀번호 찾기·변경 API")
@@ -28,7 +31,15 @@ import org.springframework.web.bind.annotation.RestController
 class AuthController(
     private val authService: AuthService,
 ) {
-    @Operation(summary = "회원가입", description = "이메일/비밀번호/복구용 이메일로 회원가입을 신청하고 인증코드를 발송한다.")
+    @Operation(summary = "이메일 중복 확인", description = "입력한 이메일이 이미 가입된 이메일인지 확인해 중복 여부 플래그를 반환한다.")
+    @GetMapping("/email/exists")
+    fun checkEmailDuplicate(@RequestParam email: String): EmailExistsResponse =
+        EmailExistsResponse(authService.checkEmailDuplicate(email))
+
+    @Operation(
+        summary = "회원가입",
+        description = "이메일/비밀번호/복구용 이메일로 회원가입을 신청하고 인증코드를 발송한다. 메일 발송 실패 시 MAIL_SEND_FAILED 에러를 반환한다.",
+    )
     @PostMapping("/signup")
     fun signUp(@RequestBody request: SignUpRequest) {
         authService.signUp(request.email, request.password, request.recoveryEmail)
@@ -72,7 +83,7 @@ class AuthController(
     }
 
     @Operation(summary = "비밀번호 변경", description = "로그인한 사용자의 현재 비밀번호를 확인 후 새 비밀번호로 변경한다.")
-    @PatchMapping("/password")
+    @PutMapping("/password")
     fun changePassword(@RequestBody request: ChangePasswordRequest, session: HttpSession) {
         authService.changePassword(session.currentUserId(), request.currentPassword, request.newPassword)
     }

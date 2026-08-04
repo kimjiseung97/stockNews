@@ -36,7 +36,7 @@ function ChangePasswordModal({ initialCurrentPassword, onChanged }: ChangePasswo
 
     try {
       await apiFetch('/auth/password', {
-        method: 'PATCH',
+        method: 'PUT',
         body: JSON.stringify({ currentPassword, newPassword }),
       })
       onChanged()

@@ -48,3 +48,6 @@ src/main/resources/application-local.yml
 /sql/
 node_modules/
 dist/
+
+# 로컬 디버그/스크래치 파일
+scratch_*

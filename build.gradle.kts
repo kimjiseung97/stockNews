@@ -70,4 +70,7 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    if (file("src/main/resources/application-local.yml").exists()) {
+        systemProperty("spring.profiles.active", "local")
+    }
 }
