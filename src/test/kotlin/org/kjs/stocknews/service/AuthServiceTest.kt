@@ -114,16 +114,15 @@ class AuthServiceTest {
     }
 
     @Test
-    fun `인증코드 메일 발송에 성공하면 회원가입이 정상적으로 완료된다`() {
+    fun `인증코드 메일 발송에 성공하면 회원가입 시 isMailSendSuccess가 true를 반환한다`() {
         `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
 
-        authService.signUp("user@example.com", "password1!", "recovery@example.com")
-
-        org.mockito.Mockito.verify(emailVerificationRepository).save(org.mockito.ArgumentMatchers.any())
+        val isMailSendSuccess = authService.signUp("user@example.com", "password1!", "recovery@example.com")
+        assert(isMailSendSuccess)
     }
 
     @Test
-    fun `인증코드 메일 발송에 실패하면 회원가입 시 MAIL_SEND_FAILED 예외가 발생한다`() {
+    fun `인증코드 메일 발송에 실패하면 회원가입 시 isMailSendSuccess가 false를 반환한다`() {
         `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
         org.mockito.Mockito.doThrow(org.springframework.mail.MailSendException("mail server down"))
             .`when`(verificationMailSender)
@@ -133,11 +132,8 @@ class AuthServiceTest {
                 org.mockito.ArgumentMatchers.anyLong(),
             )
 
-        val exception =
-            assertThrows<BusinessException> {
-                authService.signUp("user@example.com", "password1!", "recovery@example.com")
-            }
-        assert(exception.resultCode == ResultCode.MAIL_SEND_FAILED)
+        val isMailSendSuccess = authService.signUp("user@example.com", "password1!", "recovery@example.com")
+        assert(!isMailSendSuccess)
     }
 
     @Test

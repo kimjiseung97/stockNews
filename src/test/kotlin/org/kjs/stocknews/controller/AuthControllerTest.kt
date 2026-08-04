@@ -26,12 +26,13 @@ class AuthControllerTest(
     private lateinit var authService: AuthService
 
     @Test
-    fun `회원가입 요청은 이메일과 비밀번호, 복구 이메일을 그대로 서비스로 전달한다`() {
+    fun `회원가입 요청은 이메일과 비밀번호, 복구 이메일을 그대로 서비스로 전달하고 메일 발송 성공 여부를 응답한다`() {
         val body = mapOf(
             "email" to "user@example.com",
             "password" to "password1!",
             "recoveryEmail" to "recovery@example.com",
         )
+        `when`(authService.signUp("user@example.com", "password1!", "recovery@example.com")).thenReturn(true)
 
         mockMvc.perform(
             post("/auth/signup")
@@ -39,6 +40,7 @@ class AuthControllerTest(
                 .content(objectMapper.writeValueAsString(body)),
         )
             .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.isMailSendSuccess").value(true))
 
         verify(authService).signUp("user@example.com", "password1!", "recovery@example.com")
     }

@@ -28,5 +28,4 @@ enum class ResultCode(val code: String, val message: String) {
     CURRENT_PASSWORD_MISMATCH("CURRENT_PASSWORD_MISMATCH", "현재 비밀번호가 일치하지 않습니다"),
     STOCK_NOT_FOUND("STOCK_NOT_FOUND", "존재하지 않는 종목입니다"),
     USER_STOCK_NOT_FOUND("USER_STOCK_NOT_FOUND", "등록되지 않은 관심종목입니다"),
-    MAIL_SEND_FAILED("MAIL_SEND_FAILED", "인증코드 메일 발송에 실패했습니다"),
 }

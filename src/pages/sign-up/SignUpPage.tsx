@@ -1,12 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { apiFetch, ApiError } from '@/lib/api'
 import styles from '@/assets/styles/pages/sign-up/signUp.module.scss'
 import mediaStyles from '@/assets/styles/pages/sign-up/signUpMedia.module.scss'
+
+interface SignUpResponseData {
+  isMailSendSuccess: boolean
+}
 
 function SignUpPage() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const focusInput = (form: HTMLFormElement, name: string) => {
     const input = form.elements.namedItem(name)
@@ -17,10 +23,11 @@ function SignUpPage() {
   }
 
   // 회원가입 폼 제출
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const formData = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const formData = new FormData(form)
     const email = String(formData.get('email') ?? '').trim()
     const password = String(formData.get('password') ?? '').trim()
     const passwordConfirm = String(formData.get('passwordConfirm') ?? '').trim()
@@ -28,26 +35,43 @@ function SignUpPage() {
 
     if (!email) {
       alert('이메일을 입력해 주세요.')
-      focusInput(event.currentTarget, 'email')
+      focusInput(form, 'email')
       return
     }
 
     if (!password) {
       alert('비밀번호를 입력해 주세요.')
-      focusInput(event.currentTarget, 'password')
+      focusInput(form, 'password')
       return
     }
 
     if (!passwordConfirm) {
       alert('비밀번호 확인을 입력해 주세요.')
-      focusInput(event.currentTarget, 'passwordConfirm')
+      focusInput(form, 'passwordConfirm')
       return
     }
 
     if (!recoveryEmail) {
       alert('복구 이메일을 입력해 주세요.')
-      focusInput(event.currentTarget, 'recoveryEmail')
+      focusInput(form, 'recoveryEmail')
       return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const data = await apiFetch<SignUpResponseData>('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, recoveryEmail }),
+      })
+
+      if (data?.isMailSendSuccess === false) {
+        alert('인증코드 메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.')
+      }
+    } catch (error) {
+      alert(error instanceof ApiError ? error.message : '회원가입에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -173,7 +197,7 @@ function SignUpPage() {
             <small>비밀번호 분실 시 복구 용도로 사용됩니다.</small>
           </label>
 
-          <button type="submit" className={styles['sign-up-page__submit']}>
+          <button type="submit" className={styles['sign-up-page__submit']} disabled={isSubmitting}>
             회원가입
           </button>
         </form>

@@ -34,7 +34,7 @@ class AuthService(
     }
 
     @Transactional
-    fun signUp(email: String, rawPassword: String, recoveryEmail: String) {
+    fun signUp(email: String, rawPassword: String, recoveryEmail: String): Boolean {
         validateEmail(email)
         validatePassword(rawPassword)
         validateRecoveryEmail(recoveryEmail)
@@ -57,10 +57,11 @@ class AuthService(
             expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes),
         )
         emailVerificationRepository.save(verification)
-        try {
+        return try {
             verificationMailSender.sendVerificationCode(email, code, expiryMinutes)
+            true
         } catch (e: MailException) {
-            throw BusinessException(ResultCode.MAIL_SEND_FAILED)
+            false
         }
     }
 

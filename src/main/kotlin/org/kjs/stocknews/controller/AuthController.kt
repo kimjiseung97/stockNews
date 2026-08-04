@@ -13,6 +13,7 @@ import org.kjs.stocknews.model.dto.LoginRequest
 import org.kjs.stocknews.model.dto.LoginResponse
 import org.kjs.stocknews.model.dto.ResetPasswordRequest
 import org.kjs.stocknews.model.dto.SignUpRequest
+import org.kjs.stocknews.model.dto.SignUpResponse
 import org.kjs.stocknews.model.dto.VerifyEmailRequest
 import org.kjs.stocknews.model.dto.VerifyFindEmailRequest
 import org.kjs.stocknews.model.dto.VerifyResetPasswordRequest
@@ -38,12 +39,11 @@ class AuthController(
 
     @Operation(
         summary = "회원가입",
-        description = "이메일/비밀번호/복구용 이메일로 회원가입을 신청하고 인증코드를 발송한다. 메일 발송 실패 시 MAIL_SEND_FAILED 에러를 반환한다.",
+        description = "이메일/비밀번호/복구용 이메일로 회원가입을 신청하고 인증코드를 발송한다. 인증코드 메일 발송 성공 여부를 isMailSendSuccess로 반환한다.",
     )
     @PostMapping("/signup")
-    fun signUp(@RequestBody request: SignUpRequest) {
-        authService.signUp(request.email, request.password, request.recoveryEmail)
-    }
+    fun signUp(@RequestBody request: SignUpRequest): SignUpResponse =
+        SignUpResponse(authService.signUp(request.email, request.password, request.recoveryEmail))
 
     @Operation(summary = "이메일 인증", description = "회원가입 시 발송된 인증코드를 검증하여 계정을 활성화한다.")
     @PostMapping("/verify")
