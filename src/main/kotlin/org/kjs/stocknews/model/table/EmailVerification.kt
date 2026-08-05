@@ -13,15 +13,12 @@ class EmailVerification(
     @Column(name = "EMAIL", nullable = false, length = 254)
     val email: String,
 
-    @Column(name = "PASSWORD", nullable = false, length = 100)
-    var password: String,
-
-    @Column(name = "RECOVERY_EMAIL", nullable = true, length = 254)
-    var recoveryEmail: String? = null,
-
     @Column(name = "CODE", nullable = false, length = 10)
     var code: String,
 
     @Column(name = "EXPIRES_AT", nullable = false)
     var expiresAt: LocalDateTime,
+
+    @Column(name = "VERIFIED", nullable = false)
+    var verified: Boolean = false,
 )

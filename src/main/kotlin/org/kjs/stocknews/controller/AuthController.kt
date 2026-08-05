@@ -13,7 +13,6 @@ import org.kjs.stocknews.model.dto.LoginRequest
 import org.kjs.stocknews.model.dto.LoginResponse
 import org.kjs.stocknews.model.dto.ResetPasswordRequest
 import org.kjs.stocknews.model.dto.SignUpRequest
-import org.kjs.stocknews.model.dto.SignUpResponse
 import org.kjs.stocknews.model.dto.VerifyEmailRequest
 import org.kjs.stocknews.model.dto.VerifyFindEmailRequest
 import org.kjs.stocknews.model.dto.VerifyResetPasswordRequest
@@ -32,23 +31,29 @@ import org.springframework.web.bind.annotation.RestController
 class AuthController(
     private val authService: AuthService,
 ) {
-    @Operation(summary = "이메일 중복 확인", description = "입력한 이메일이 이미 가입된 이메일인지 확인해 중복 여부 플래그를 반환한다.")
-    @GetMapping("/email/exists")
-    fun checkEmailDuplicate(@RequestParam email: String): EmailExistsResponse =
-        EmailExistsResponse(authService.checkEmailDuplicate(email))
-
     @Operation(
-        summary = "회원가입",
-        description = "이메일/비밀번호/복구용 이메일로 회원가입을 신청하고 인증코드를 발송한다. 인증코드 메일 발송 성공 여부를 isMailSendSuccess로 반환한다.",
+        summary = "이메일 중복 확인 및 인증코드 발송",
+        description = "이메일 중복 여부를 확인하고, 사용 가능한 이메일이면 곧바로 인증코드를 발송한다. 메일 발송 성공 여부를 isMailSendSuccess로 반환한다.",
     )
-    @PostMapping("/signup")
-    fun signUp(@RequestBody request: SignUpRequest): SignUpResponse =
-        SignUpResponse(authService.signUp(request.email, request.password, request.recoveryEmail))
+    @GetMapping("/email/exists")
+    fun checkEmailDuplicate(@RequestParam email: String): EmailExistsResponse {
+        val result = authService.checkEmailDuplicate(email)
+        return EmailExistsResponse(result.duplicated, result.isMailSendSuccess)
+    }
 
-    @Operation(summary = "이메일 인증", description = "회원가입 시 발송된 인증코드를 검증하여 계정을 활성화한다.")
+    @Operation(summary = "회원가입 - 이메일 인증코드 확인", description = "이메일과 인증코드를 함께 검증하여 이메일 인증을 완료 처리한다(계정은 아직 생성하지 않음).")
     @PostMapping("/verify")
     fun verifyEmail(@RequestBody request: VerifyEmailRequest) {
         authService.verifyEmail(request.email, request.code)
+    }
+
+    @Operation(
+        summary = "회원가입 - 최종 완료",
+        description = "이메일 인증이 완료된 이메일에 대해 비밀번호/복구용 이메일을 받아 계정 생성을 완료한다.",
+    )
+    @PostMapping("/signup/complete")
+    fun completeSignUp(@RequestBody request: SignUpRequest) {
+        authService.completeSignUp(request.email, request.password, request.recoveryEmail)
     }
 
     @Operation(summary = "이메일 찾기 요청", description = "복구용 이메일로 가입된 이메일 확인용 인증코드를 발송한다.")
