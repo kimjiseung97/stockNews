@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { apiFetch, ApiError } from '@/lib/api'
+import { apiFetch, ApiError } from '@/api/common/commonApi'
 import styles from '@/assets/styles/pages/watchlist/watchlist.module.scss'
 import warningIcon from '@/assets/images/icons/x.png'
 

@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => {
       minify: 'terser', // 기본 esbuild보다 강력한 terser 사용
       terserOptions: {
         compress: {
-          drop_console: true, // 운영 환경에서 console.log 제거
+          // drop_console: true, // 운영 환경에서 console.log 제거
           drop_debugger: true,
         },
         mangle: true, // 변수명, 함수명 난독화

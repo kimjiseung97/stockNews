@@ -1,3 +1,4 @@
+// 공통 API 요청
 interface ApiResponse<T> {
   code: string
   message: string

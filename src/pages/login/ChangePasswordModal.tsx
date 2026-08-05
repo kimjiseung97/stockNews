@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
-import { apiFetch, ApiError } from '@/lib/api'
+import { apiFetch, ApiError } from '@/api/common/commonApi'
 import styles from '@/assets/styles/pages/login/changePasswordModal.module.scss'
 import warningIcon from '@/assets/images/icons/x.png'
 

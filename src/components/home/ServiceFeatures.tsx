@@ -24,7 +24,8 @@ const serviceFeatures = [
   {
     icon: listIcon,
     title: '관심 목록 관리',
-    description: '자주 확인하는 종목만 따로 등록하고 필요하지 않은 종목은 언제든지 정리할 수 있습니다.',
+    description:
+      '자주 확인하는 종목만 따로 등록하고 필요하지 않은 종목은 언제든지 정리할 수 있습니다.',
   },
 ]
 
@@ -35,8 +36,11 @@ export default function ServiceFeatures() {
       aria-labelledby="featureTitle"
     >
       <h2 id="featureTitle" className={styles['home-page__section-guide']}>
-        반복해서 뉴스를 찾는 과정을 더 간단하게 만들었습니다.
+        StockNews로 할 수 있는 일
       </h2>
+      <p className={styles['home-page__feature-description']}>
+        반복해서 뉴스를 찾는 과정을 더 간단하게 만들었습니다.
+      </p>
       <ul
         className={`${styles['home-page__feature-list']} ${mediaStyles['home-page__feature-list']}`}
       >

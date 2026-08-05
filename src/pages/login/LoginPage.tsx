@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { apiFetch, ApiError } from '@/lib/api'
+import { apiFetch, ApiError } from '@/api/common/commonApi'
 import ChangePasswordModal from './ChangePasswordModal'
 import styles from '@/assets/styles/pages/login/login.module.scss'
 import mediaStyles from '@/assets/styles/pages/login/loginMedia.module.scss'

@@ -1,18 +1,21 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { apiFetch, ApiError } from '@/lib/api'
+import { signUp } from '@/api/sign/sign'
+import { duplicateCheck } from '@/api/sign/duplicatChaeck/duplicateCheck'
 import styles from '@/assets/styles/pages/sign-up/signUp.module.scss'
 import mediaStyles from '@/assets/styles/pages/sign-up/signUpMedia.module.scss'
-
-interface SignUpResponseData {
-  isMailSendSuccess: boolean
-}
 
 function SignUpPage() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isEmailVerified, setIsEmailVerified] = useState(false)
+  const [passwordValue, setPasswordValue] = useState('')
+  const [passwordConfirmValue, setPasswordConfirmValue] = useState('')
+
+  const isPasswordMismatch =
+    passwordConfirmValue.length > 0 && passwordValue !== passwordConfirmValue
 
   const focusInput = (form: HTMLFormElement, name: string) => {
     const input = form.elements.namedItem(name)
@@ -39,6 +42,12 @@ function SignUpPage() {
       return
     }
 
+    if (!isEmailVerified) {
+      alert('이메일 중복확인을 완료해 주세요.')
+      focusInput(form, 'email')
+      return
+    }
+
     if (!password) {
       alert('비밀번호를 입력해 주세요.')
       focusInput(form, 'password')
@@ -47,6 +56,11 @@ function SignUpPage() {
 
     if (!passwordConfirm) {
       alert('비밀번호 확인을 입력해 주세요.')
+      focusInput(form, 'passwordConfirm')
+      return
+    }
+
+    if (password !== passwordConfirm) {
       focusInput(form, 'passwordConfirm')
       return
     }
@@ -60,38 +74,50 @@ function SignUpPage() {
     setIsSubmitting(true)
 
     try {
-      const data = await apiFetch<SignUpResponseData>('/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({ email, password, recoveryEmail }),
-      })
-
-      if (data?.isMailSendSuccess === false) {
-        alert('인증코드 메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.')
-      }
+      await signUp({ email, password, recoveryEmail })
+      alert('회원가입 요청이 완료되었습니다.')
     } catch (error) {
-      alert(error instanceof ApiError ? error.message : '회원가입에 실패했습니다.')
+      alert('회원가입에 실패했습니다.')
     } finally {
       setIsSubmitting(false)
     }
   }
-
-  const handleVerify = (event: FormEvent<HTMLButtonElement>) => {
-    const form = event.currentTarget.form
-    const emailInput = form?.elements.namedItem('email')
-    const email = emailInput instanceof HTMLInputElement ? emailInput.value.trim() : ''
-
-    if (!email) {
-      alert('이메일을 입력해 주세요.')
-      emailInput instanceof HTMLInputElement && emailInput.focus()
+  const handleDuplicateCheck = async (event: ReactMouseEvent<HTMLButtonElement>) => {
+    if (isEmailVerified) {
       return
     }
-  }
 
+    const form = event.currentTarget.form
+
+    if (!form) {
+      return
+    }
+
+    const formData = new FormData(form)
+    const email = String(formData.get('email') ?? '').trim()
+
+    if (!email) {
+      alert('이메일을 입력해주세요.')
+      focusInput(form, 'email')
+      return
+    }
+
+    try {
+      const result = await duplicateCheck(email)
+
+      if (result.duplicated) {
+        alert('이미 가입된 이메일입니다.')
+        return
+      }
+
+      setIsEmailVerified(true)
+      alert('사용 가능한 이메일입니다.')
+    } catch (e) {
+      alert('이메일 중복 확인에 실패했습니다.')
+    }
+  }
   return (
-    <main
-      id="signUpPage"
-      className={`${styles['sign-up-page']} ${mediaStyles['sign-up-page']}`}
-    >
+    <main id="signUpPage" className={`${styles['sign-up-page']} ${mediaStyles['sign-up-page']}`}>
       <article className={styles['sign-up-page__card']}>
         <section className={styles['sign-up-page__heading']}>
           <h1>회원가입</h1>
@@ -109,16 +135,19 @@ function SignUpPage() {
                   placeholder="example@email.com"
                   autoComplete="email"
                   maxLength={50}
+                  readOnly={isEmailVerified}
                   required
                 />
                 <Mail aria-hidden="true"></Mail>
               </span>
               <button
                 type="button"
+                tabIndex={-1}
                 className={styles['sign-up-page__verify']}
-                onClick={handleVerify}
+                onClick={handleDuplicateCheck}
+                aria-disabled={isEmailVerified}
               >
-                인증하기
+                {isEmailVerified ? '확인완료' : '중복확인'}
               </button>
             </span>
           </label>
@@ -129,6 +158,8 @@ function SignUpPage() {
               <input
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
+                value={passwordValue}
+                onChange={(event) => setPasswordValue(event.target.value)}
                 placeholder="비밀번호를 입력하세요"
                 autoComplete="new-password"
                 minLength={8}
@@ -137,6 +168,7 @@ function SignUpPage() {
               />
               <button
                 type="button"
+                tabIndex={-1}
                 className={styles['sign-up-page__password-toggle']}
                 onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                 aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
@@ -157,6 +189,8 @@ function SignUpPage() {
               <input
                 type={isPasswordConfirmVisible ? 'text' : 'password'}
                 name="passwordConfirm"
+                value={passwordConfirmValue}
+                onChange={(event) => setPasswordConfirmValue(event.target.value)}
                 placeholder="비밀번호를 다시 입력하세요"
                 autoComplete="new-password"
                 minLength={8}
@@ -165,12 +199,11 @@ function SignUpPage() {
               />
               <button
                 type="button"
+                tabIndex={-1}
                 className={styles['sign-up-page__password-toggle']}
                 onClick={() => setIsPasswordConfirmVisible(!isPasswordConfirmVisible)}
                 aria-label={
-                  isPasswordConfirmVisible
-                    ? '비밀번호 확인 숨기기'
-                    : '비밀번호 확인 보기'
+                  isPasswordConfirmVisible ? '비밀번호 확인 숨기기' : '비밀번호 확인 보기'
                 }
               >
                 {isPasswordConfirmVisible ? (
@@ -180,6 +213,11 @@ function SignUpPage() {
                 )}
               </button>
             </span>
+            {isPasswordMismatch && (
+              <small className={styles['sign-up-page__password-error']} role="alert">
+                비밀번호가 일치하지 않습니다.
+              </small>
+            )}
           </label>
 
           <label className={styles['sign-up-page__field']}>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Search } from 'lucide-react'
-import { apiFetch, ApiError } from '@/lib/api'
+import { apiFetch, ApiError } from '@/api/common/commonApi'
 import styles from '@/assets/styles/pages/stock-search/stockSearch.module.scss'
 import warningIcon from '@/assets/images/icons/x.png'
 
