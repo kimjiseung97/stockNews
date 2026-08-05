@@ -30,19 +30,50 @@ class AuthServiceTest {
     )
 
     @Test
-    fun `이미 가입된 이메일이면 중복 확인 시 true를 반환한다`() {
+    fun `이미 가입된 이메일이면 중복 확인 시 duplicated가 true이고 인증코드는 발송되지 않는다`() {
         `when`(userRepository.existsByEmail("user@example.com")).thenReturn(true)
 
-        val duplicated = authService.checkEmailDuplicate("user@example.com")
-        assert(duplicated)
+        val result = authService.checkEmailDuplicate("user@example.com")
+
+        assert(result.duplicated)
+        assert(!result.isMailSendSuccess)
+        org.mockito.Mockito.verify(verificationMailSender, org.mockito.Mockito.never()).sendVerificationCode(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyLong(),
+        )
     }
 
     @Test
-    fun `가입되지 않은 이메일이면 중복 확인 시 false를 반환한다`() {
+    fun `가입되지 않은 이메일이면 중복 확인 시 duplicated가 false이고 인증코드가 발송된다`() {
         `when`(userRepository.existsByEmail("user@example.com")).thenReturn(false)
 
-        val duplicated = authService.checkEmailDuplicate("user@example.com")
-        assert(!duplicated)
+        val result = authService.checkEmailDuplicate("user@example.com")
+
+        assert(!result.duplicated)
+        assert(result.isMailSendSuccess)
+        org.mockito.Mockito.verify(verificationMailSender).sendVerificationCode(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyLong(),
+        )
+    }
+
+    @Test
+    fun `인증코드 메일 발송에 실패하면 중복 확인 시 isMailSendSuccess가 false를 반환한다`() {
+        `when`(userRepository.existsByEmail("user@example.com")).thenReturn(false)
+        org.mockito.Mockito.doThrow(org.springframework.mail.MailSendException("mail server down"))
+            .`when`(verificationMailSender)
+            .sendVerificationCode(
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyLong(),
+            )
+
+        val result = authService.checkEmailDuplicate("user@example.com")
+
+        assert(!result.duplicated)
+        assert(!result.isMailSendSuccess)
     }
 
     @Test
@@ -52,88 +83,16 @@ class AuthServiceTest {
     }
 
     @Test
-    fun `이메일이 공백이면 회원가입 시 EMAIL_REQUIRED 예외가 발생한다`() {
-        val exception =
-            assertThrows<BusinessException> { authService.signUp(" ", "password1!", "recovery@example.com") }
+    fun `이메일이 공백이면 중복 확인 시 EMAIL_REQUIRED 예외가 발생한다`() {
+        val exception = assertThrows<BusinessException> { authService.checkEmailDuplicate(" ") }
         assert(exception.resultCode == ResultCode.EMAIL_REQUIRED)
     }
 
     @Test
-    fun `이메일 형식이 올바르지 않으면 회원가입 시 INVALID_EMAIL_FORMAT 예외가 발생한다`() {
-        val exception =
-            assertThrows<BusinessException> {
-                authService.signUp("not-an-email", "password1!", "recovery@example.com")
-            }
-        assert(exception.resultCode == ResultCode.INVALID_EMAIL_FORMAT)
-    }
-
-    @Test
-    fun `이메일이 50자를 초과하면 회원가입 시 EMAIL_TOO_LONG 예외가 발생한다`() {
+    fun `이메일이 50자를 초과하면 중복 확인 시 EMAIL_TOO_LONG 예외가 발생한다`() {
         val tooLongEmail = "a".repeat(45) + "@test.com"
-        val exception =
-            assertThrows<BusinessException> {
-                authService.signUp(tooLongEmail, "password1!", "recovery@example.com")
-            }
+        val exception = assertThrows<BusinessException> { authService.checkEmailDuplicate(tooLongEmail) }
         assert(exception.resultCode == ResultCode.EMAIL_TOO_LONG)
-    }
-
-    @Test
-    fun `비밀번호가 최대 길이를 초과하면 회원가입 시 INVALID_PASSWORD_LENGTH 예외가 발생한다`() {
-        val tooLongPassword = "a".repeat(21)
-        val exception =
-            assertThrows<BusinessException> {
-                authService.signUp("user@example.com", tooLongPassword, "recovery@example.com")
-            }
-        assert(exception.resultCode == ResultCode.INVALID_PASSWORD_LENGTH)
-    }
-
-    @Test
-    fun `복구 이메일이 공백이면 회원가입 시 RECOVERY_EMAIL_REQUIRED 예외가 발생한다`() {
-        val exception = assertThrows<BusinessException> { authService.signUp("user@example.com", "password1!", " ") }
-        assert(exception.resultCode == ResultCode.RECOVERY_EMAIL_REQUIRED)
-    }
-
-    @Test
-    fun `복구 이메일이 로그인 이메일과 같으면 회원가입 시 RECOVERY_EMAIL_SAME_AS_EMAIL 예외가 발생한다`() {
-        val exception =
-            assertThrows<BusinessException> {
-                authService.signUp("user@example.com", "password1!", "user@example.com")
-            }
-        assert(exception.resultCode == ResultCode.RECOVERY_EMAIL_SAME_AS_EMAIL)
-    }
-
-    @Test
-    fun `이미 사용 중인 복구 이메일이면 회원가입 시 RECOVERY_EMAIL_ALREADY_REGISTERED 예외가 발생한다`() {
-        `when`(userRepository.existsByRecoveryEmail("recovery@example.com")).thenReturn(true)
-
-        val exception =
-            assertThrows<BusinessException> {
-                authService.signUp("user@example.com", "password1!", "recovery@example.com")
-            }
-        assert(exception.resultCode == ResultCode.RECOVERY_EMAIL_ALREADY_REGISTERED)
-    }
-
-    @Test
-    fun `인증코드 메일 발송에 성공하면 회원가입 시 isMailSendSuccess가 true를 반환한다`() {
-        `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
-
-        val isMailSendSuccess = authService.signUp("user@example.com", "password1!", "recovery@example.com")
-        assert(isMailSendSuccess)
-    }
-
-    @Test
-    fun `인증코드 메일 발송에 실패하면 회원가입 시 isMailSendSuccess가 false를 반환한다`() {
-        `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
-        org.mockito.Mockito.doThrow(org.springframework.mail.MailSendException("mail server down"))
-            .`when`(verificationMailSender)
-            .sendVerificationCode(
-                org.mockito.ArgumentMatchers.anyString(),
-                org.mockito.ArgumentMatchers.anyString(),
-                org.mockito.ArgumentMatchers.anyLong(),
-            )
-
-        val isMailSendSuccess = authService.signUp("user@example.com", "password1!", "recovery@example.com")
-        assert(!isMailSendSuccess)
     }
 
     @Test
@@ -146,6 +105,59 @@ class AuthServiceTest {
     fun `인증코드 길이가 올바르지 않으면 이메일 인증 시 INVALID_VERIFICATION_CODE_LENGTH 예외가 발생한다`() {
         val exception = assertThrows<BusinessException> { authService.verifyEmail("user@example.com", "12") }
         assert(exception.resultCode == ResultCode.INVALID_VERIFICATION_CODE_LENGTH)
+    }
+
+    @Test
+    fun `인증코드가 일치하면 이메일 인증 시 verified 상태로 저장되고 계정은 생성되지 않는다`() {
+        val email = "user@example.com"
+        val verification = org.kjs.stocknews.model.table.EmailVerification(
+            email = email,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+        )
+        `when`(emailVerificationRepository.findById(email)).thenReturn(java.util.Optional.of(verification))
+
+        authService.verifyEmail(email, "123456")
+
+        assert(verification.verified)
+        org.mockito.Mockito.verify(userRepository, org.mockito.Mockito.never()).save(org.mockito.ArgumentMatchers.any())
+        org.mockito.Mockito.verify(emailVerificationRepository, org.mockito.Mockito.never()).delete(verification)
+    }
+
+    @Test
+    fun `이메일 인증을 완료하지 않았으면 회원가입 완료 시 EMAIL_NOT_VERIFIED 예외가 발생한다`() {
+        val email = "user@example.com"
+        val verification = org.kjs.stocknews.model.table.EmailVerification(
+            email = email,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+            verified = false,
+        )
+        `when`(emailVerificationRepository.findById(email)).thenReturn(java.util.Optional.of(verification))
+
+        val exception =
+            assertThrows<BusinessException> {
+                authService.completeSignUp(email, "password1!", "recovery@example.com")
+            }
+        assert(exception.resultCode == ResultCode.EMAIL_NOT_VERIFIED)
+    }
+
+    @Test
+    fun `이메일 인증이 완료되어 있으면 회원가입 완료 시 계정이 생성된다`() {
+        val email = "user@example.com"
+        val verification = org.kjs.stocknews.model.table.EmailVerification(
+            email = email,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+            verified = true,
+        )
+        `when`(emailVerificationRepository.findById(email)).thenReturn(java.util.Optional.of(verification))
+        `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
+
+        authService.completeSignUp(email, "password1!", "recovery@example.com")
+
+        org.mockito.Mockito.verify(userRepository).save(org.mockito.ArgumentMatchers.any())
+        org.mockito.Mockito.verify(emailVerificationRepository).delete(verification)
     }
 
     @Test

@@ -2,6 +2,7 @@ package org.kjs.stocknews.service
 
 import org.kjs.stocknews.common.BusinessException
 import org.kjs.stocknews.common.ResultCode
+import org.kjs.stocknews.model.dto.EmailAvailabilityResult
 import org.kjs.stocknews.model.dto.LoginResult
 import org.kjs.stocknews.model.table.EmailVerification
 import org.kjs.stocknews.model.table.User
@@ -28,41 +29,28 @@ class AuthService(
     @Value("\${auth.verification.code-length}") private val codeLength: Int,
     @Value("\${auth.verification.expiry-minutes}") private val expiryMinutes: Long,
 ) {
-    fun checkEmailDuplicate(email: String): Boolean {
-        validateEmail(email)
-        return userRepository.existsByEmail(email)
-    }
-
+    // 이메일 중복 확인 후 사용 가능하면 곧바로 인증코드를 발송한다.
     @Transactional
-    fun signUp(email: String, rawPassword: String, recoveryEmail: String): Boolean {
+    fun checkEmailDuplicate(email: String): EmailAvailabilityResult {
         validateEmail(email)
-        validatePassword(rawPassword)
-        validateRecoveryEmail(recoveryEmail)
-        if (recoveryEmail == email) {
-            throw BusinessException(ResultCode.RECOVERY_EMAIL_SAME_AS_EMAIL)
-        }
         if (userRepository.existsByEmail(email)) {
-            throw BusinessException(ResultCode.EMAIL_ALREADY_REGISTERED)
-        }
-        if (userRepository.existsByRecoveryEmail(recoveryEmail)) {
-            throw BusinessException(ResultCode.RECOVERY_EMAIL_ALREADY_REGISTERED)
+            return EmailAvailabilityResult(duplicated = true, isMailSendSuccess = false)
         }
 
         val code = generateCode()
         val verification = EmailVerification(
             email = email,
-            password = passwordEncoder.encode(rawPassword)!!,
-            recoveryEmail = recoveryEmail,
             code = code,
             expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes),
         )
         emailVerificationRepository.save(verification)
-        return try {
+        val isMailSendSuccess = try {
             verificationMailSender.sendVerificationCode(email, code, expiryMinutes)
             true
         } catch (e: MailException) {
             false
         }
+        return EmailAvailabilityResult(duplicated = false, isMailSendSuccess = isMailSendSuccess)
     }
 
     @Transactional
@@ -80,11 +68,41 @@ class AuthService(
             throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
+        verification.verified = true
+        verification.expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes)
+        emailVerificationRepository.save(verification)
+    }
+
+    @Transactional
+    fun completeSignUp(email: String, rawPassword: String, recoveryEmail: String) {
+        validateEmail(email)
+        validatePassword(rawPassword)
+        validateRecoveryEmail(recoveryEmail)
+        if (recoveryEmail == email) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_SAME_AS_EMAIL)
+        }
+
+        val verification = emailVerificationRepository.findById(email)
+            .orElseThrow { BusinessException(ResultCode.VERIFICATION_NOT_FOUND) }
+        if (verification.expiresAt.isBefore(LocalDateTime.now())) {
+            emailVerificationRepository.delete(verification)
+            throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
+        }
+        if (!verification.verified) {
+            throw BusinessException(ResultCode.EMAIL_NOT_VERIFIED)
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw BusinessException(ResultCode.EMAIL_ALREADY_REGISTERED)
+        }
+        if (userRepository.existsByRecoveryEmail(recoveryEmail)) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_ALREADY_REGISTERED)
+        }
+
         userRepository.save(
             User(
-                email = verification.email,
-                password = verification.password,
-                recoveryEmail = verification.recoveryEmail,
+                email = email,
+                password = passwordEncoder.encode(rawPassword)!!,
+                recoveryEmail = recoveryEmail,
             ),
         )
         emailVerificationRepository.delete(verification)
