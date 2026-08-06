@@ -285,6 +285,7 @@ class AuthServiceTest {
     fun `임시 비밀번호로 로그인하면 requiresPasswordChange가 true로 반환된다`() {
         val user = mock(User::class.java)
         `when`(user.id).thenReturn(1L)
+        `when`(user.email).thenReturn("user@example.com")
         `when`(user.password).thenReturn("encoded")
         `when`(user.temporaryPassword).thenReturn(true)
         `when`(userRepository.findByEmail("user@example.com")).thenReturn(user)
@@ -299,6 +300,7 @@ class AuthServiceTest {
     fun `일반 비밀번호로 로그인하면 requiresPasswordChange가 false로 반환된다`() {
         val user = mock(User::class.java)
         `when`(user.id).thenReturn(1L)
+        `when`(user.email).thenReturn("user@example.com")
         `when`(user.password).thenReturn("encoded")
         `when`(user.temporaryPassword).thenReturn(false)
         `when`(userRepository.findByEmail("user@example.com")).thenReturn(user)
