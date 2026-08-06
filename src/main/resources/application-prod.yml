@@ -59,6 +59,10 @@ news:
     cron: "0 0 9 * * *"
     thread-pool-size: 8
 
+verification:
+  cleanup:
+    cron: "0 0 * * * *"
+
 finnhub:
   base-url: ${FINNHUB_BASE_URL:https://finnhub.io}
   api-key: ${FINNHUB_API_KEY:}
