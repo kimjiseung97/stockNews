@@ -53,6 +53,12 @@ function SignUpPage() {
       return
     }
 
+    if (!isEmailVerified) {
+      alert('이메일 인증을 완료해 주세요.')
+      focusInput(form, 'verificationCode')
+      return
+    }
+
     if (!password) {
       alert('비밀번호를 입력해 주세요.')
       focusInput(form, 'password')
@@ -79,15 +85,8 @@ function SignUpPage() {
     setIsSubmitting(true)
 
     try {
-      const result = await signUp({ email, password, recoveryEmail })
-
-      if (!result.isMailSendSuccess) {
-        alert('인증코드 메일 발송에 실패했습니다.')
-        return
-      }
-
-      setIsVerificationCodeSent(true)
-      alert('인증코드가 이메일로 발송되었습니다.')
+      await signUp({ email, password, recoveryEmail })
+      alert('회원가입이 완료되었습니다.')
     } catch (error) {
       alert('회원가입에 실패했습니다.')
     } finally {
@@ -122,9 +121,15 @@ function SignUpPage() {
         return
       }
 
+      if (!result.isMailSendSuccess) {
+        alert('인증코드 메일 발송에 실패했습니다.')
+        return
+      }
+
       setIsEmailDuplicateChecked(true)
       setIsVerificationCodeVisible(true)
-      alert('사용 가능한 이메일입니다. 회원가입 버튼을 누르면 인증코드가 발송됩니다.')
+      setIsVerificationCodeSent(true)
+      alert('사용 가능한 이메일입니다. 인증코드가 발송되었습니다.')
     } catch (e) {
       alert('이메일 중복 확인에 실패했습니다.')
     }
@@ -138,8 +143,8 @@ function SignUpPage() {
       return
     }
 
-    if (!isVerificationCodeSent) {
-      alert('회원가입 버튼을 눌러 인증코드를 먼저 받아주세요.')
+    if (!verificationCode) {
+      focusInput(form, 'verificationCode')
       return
     }
 
@@ -229,9 +234,6 @@ function SignUpPage() {
                   {isEmailVerified ? '인증완료' : '확인'}
                 </button>
               </span>
-              {!isVerificationCodeSent && (
-                <small>회원가입 버튼을 누르면 인증코드가 발송됩니다.</small>
-              )}
             </label>
           )}
 
@@ -321,9 +323,13 @@ function SignUpPage() {
           <button
             type="submit"
             className={styles['sign-up-page__submit']}
-            disabled={isSubmitting || isVerificationCodeSent}
+            disabled={isSubmitting || (isVerificationCodeSent && !isEmailVerified)}
           >
-            {isVerificationCodeSent ? '인증 대기중' : '회원가입'}
+            {isSubmitting
+              ? '가입 중'
+              : isVerificationCodeSent && !isEmailVerified
+                ? '인증 대기중'
+                : '회원가입'}
           </button>
         </form>
 

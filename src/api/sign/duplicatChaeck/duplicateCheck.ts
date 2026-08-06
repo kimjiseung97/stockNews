@@ -3,6 +3,7 @@ import { apiFetch } from '@/api/common/commonApi'
 
 interface duplicateCheck {
   duplicated: boolean
+  isMailSendSuccess: boolean
 }
 
 export async function duplicateCheck(email: string): Promise<duplicateCheck> {
