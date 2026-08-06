@@ -197,7 +197,7 @@ class AuthService(
         if (!passwordEncoder.matches(rawPassword, user.password)) {
             throw BusinessException(ResultCode.INVALID_CREDENTIALS)
         }
-        return LoginResult(userId = user.id!!, requiresPasswordChange = user.temporaryPassword)
+        return LoginResult(userId = user.id!!, email = user.email, requiresPasswordChange = user.temporaryPassword)
     }
 
     @Transactional

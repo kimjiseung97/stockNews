@@ -84,7 +84,7 @@ class AuthController(
     fun login(@RequestBody request: LoginRequest, session: HttpSession): LoginResponse {
         val result = authService.login(request.email, request.password)
         session.setAttribute(SessionKeys.USER_ID, result.userId)
-        return LoginResponse(result.requiresPasswordChange)
+        return LoginResponse(result.email, result.requiresPasswordChange)
     }
 
     @Operation(summary = "비밀번호 변경", description = "로그인한 사용자의 현재 비밀번호를 확인 후 새 비밀번호로 변경한다.")
