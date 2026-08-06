@@ -1,15 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { apiFetch, ApiError } from '@/api/common/commonApi'
-import ChangePasswordModal from './ChangePasswordModal'
+import { ApiError } from '@/api/common/commonApi'
+import { login } from '@/api/login/login'
 import styles from '@/assets/styles/pages/login/login.module.scss'
 import mediaStyles from '@/assets/styles/pages/login/loginMedia.module.scss'
 import warningIcon from '@/assets/images/icons/x.png'
-
-interface LoginResponseData {
-  requiresPasswordChange: boolean
-}
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -18,7 +14,6 @@ function LoginPage() {
   const [password, setPassword] = useState('')
   const [warningMessage, setWarningMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
 
   // 로그인 폼 제출
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -27,16 +22,7 @@ function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const data = await apiFetch<LoginResponseData>('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      })
-
-      if (data?.requiresPasswordChange) {
-        setShowChangePasswordModal(true)
-        return
-      }
-
+      await login({ email, password })
       navigate('/')
     } catch (error) {
       setWarningMessage(error instanceof ApiError ? error.message : '로그인에 실패했습니다.')
@@ -139,13 +125,6 @@ function LoginPage() {
           <span>여기</span>
         </button>
       </article>
-
-      {showChangePasswordModal && (
-        <ChangePasswordModal
-          initialCurrentPassword={password}
-          onChanged={() => navigate('/')}
-        ></ChangePasswordModal>
-      )}
     </main>
   )
 }
