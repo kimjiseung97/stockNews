@@ -7,23 +7,12 @@ interface signUp {
   recoveryEmail: string
 }
 
-interface SignUpResponse {
-  isMailSendSuccess: boolean
-}
-
-export async function signUp(data: signUp): Promise<SignUpResponse> {
+export async function signUp(data: signUp): Promise<void> {
   try {
-    const response = await apiFetch<SignUpResponse>('/auth/signup', {
+    await apiFetch('/auth/signup/complete', {
       method: 'POST',
       body: JSON.stringify(data),
     })
-    console.log('보낸데이터', response)
-
-    if (!response) {
-      throw new Error('회원가입 응답이 없습니다.')
-    }
-
-    return response
   } catch (e) {
     console.log('에러', e)
     throw e
