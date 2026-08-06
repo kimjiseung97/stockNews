@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '@/api/sign/sign'
 import { duplicateCheck } from '@/api/sign/duplicatChaeck/duplicateCheck'
 import { emailAuth } from '@/api/emailAuth/emailAuth'
@@ -8,6 +8,7 @@ import styles from '@/assets/styles/pages/sign-up/signUp.module.scss'
 import mediaStyles from '@/assets/styles/pages/sign-up/signUpMedia.module.scss'
 
 function SignUpPage() {
+  const navigate = useNavigate()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -87,6 +88,7 @@ function SignUpPage() {
     try {
       await signUp({ email, password, recoveryEmail })
       alert('회원가입이 완료되었습니다.')
+      navigate('/login')
     } catch (error) {
       alert('회원가입에 실패했습니다.')
     } finally {
