@@ -2,7 +2,7 @@ import { useState, type FormEvent, type MouseEvent as ReactMouseEvent } from 're
 import { Eye, EyeOff, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '@/api/sign/sign'
-import { duplicateCheck } from '@/api/sign/duplicatChaeck/duplicateCheck'
+import { duplicateCheck } from '@/api/sign/duplicateCheck'
 import { emailAuth } from '@/api/emailAuth/emailAuth'
 import styles from '@/assets/styles/pages/sign-up/signUp.module.scss'
 import mediaStyles from '@/assets/styles/pages/sign-up/signUpMedia.module.scss'

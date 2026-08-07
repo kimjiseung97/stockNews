@@ -96,7 +96,7 @@ function LoginPage() {
           <button
             type="button"
             className={styles['login-page__forgot-password']}
-            onClick={() => navigate('/forgot-password')}
+            onClick={() => navigate('/find-password')}
           >
             비밀번호를 잊으셨나요?
           </button>
