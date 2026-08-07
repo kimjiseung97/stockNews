@@ -6,7 +6,7 @@ interface watchListSearch {
   isMailSendSuccess: boolean
 }
 
-export async function watchListSearch(data: watchListSearch): Promise<void> {
+export async function watchListSearch(): Promise<void> {
   try {
     const response = await apiFetch<watchListSearch>(`/users/me/stocks`)
 
