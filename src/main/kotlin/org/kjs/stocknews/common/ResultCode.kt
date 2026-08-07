@@ -26,6 +26,7 @@ enum class ResultCode(val code: String, val message: String) {
     RECOVERY_EMAIL_NOT_FOUND("RECOVERY_EMAIL_NOT_FOUND", "등록되지 않은 복구 이메일입니다"),
     EMAIL_NOT_FOUND("EMAIL_NOT_FOUND", "등록되지 않은 이메일입니다"),
     EMAIL_NOT_VERIFIED("EMAIL_NOT_VERIFIED", "이메일 인증을 완료해주세요"),
+    RESET_PASSWORD_NOT_VERIFIED("RESET_PASSWORD_NOT_VERIFIED", "비밀번호 재설정 인증을 완료해주세요"),
     CURRENT_PASSWORD_MISMATCH("CURRENT_PASSWORD_MISMATCH", "현재 비밀번호가 일치하지 않습니다"),
     STOCK_NOT_FOUND("STOCK_NOT_FOUND", "존재하지 않는 종목입니다"),
     USER_STOCK_NOT_FOUND("USER_STOCK_NOT_FOUND", "등록되지 않은 관심종목입니다"),
