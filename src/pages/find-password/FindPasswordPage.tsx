@@ -1,12 +1,14 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowLeft, Check, Eye, EyeOff, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ApiError } from '@/api/common/commonApi'
+import { requestResetPassword } from '@/api/infoFind/findPw'
 import styles from '@/assets/styles/pages/forgot-password/forgotPassword.module.scss'
 import mediaStyles from '@/assets/styles/pages/forgot-password/forgotPasswordMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
 import warningIcon from '@/assets/images/icons/x.png'
 
-function ForgotPasswordPage() {
+function FindPasswordPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [email, setEmail] = useState('')
@@ -15,6 +17,7 @@ function ForgotPasswordPage() {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [warningMessage, setWarningMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const focusInput = (form: HTMLFormElement, name: string) => {
     const input = form.elements.namedItem(name)
@@ -50,7 +53,7 @@ function ForgotPasswordPage() {
   }, [])
 
   // 이메일 인증 단계로 이동
-  const handleEmailSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleEmailSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -68,9 +71,20 @@ function ForgotPasswordPage() {
       return
     }
 
-    setEmail(trimmedEmail)
-    setWarningMessage('')
-    setStep(2)
+    setIsSubmitting(true)
+
+    try {
+      await requestResetPassword({ email: trimmedEmail })
+      setEmail(trimmedEmail)
+      setWarningMessage('')
+      setStep(2)
+    } catch (error) {
+      setWarningMessage(
+        error instanceof ApiError ? error.message : '인증 코드 발송에 실패했습니다.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // 새 비밀번호 입력 단계로 이동
@@ -214,8 +228,12 @@ function ForgotPasswordPage() {
               </span>
             </label>
 
-            <button type="submit" className={styles['forgot-password-page__submit']}>
-              인증 코드 발송
+            <button
+              type="submit"
+              className={styles['forgot-password-page__submit']}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '발송 중...' : '인증 코드 발송'}
             </button>
           </form>
         )}
@@ -237,9 +255,7 @@ function ForgotPasswordPage() {
                     placeholder="6자리 코드 입력"
                     inputMode="numeric"
                     onChange={(event) => {
-                      setVerificationCode(
-                        event.target.value.replace(/[^0-9]/g, '').slice(0, 6),
-                      )
+                      setVerificationCode(event.target.value.replace(/[^0-9]/g, '').slice(0, 6))
                       setWarningMessage('')
                     }}
                     required
@@ -332,4 +348,4 @@ function ForgotPasswordPage() {
   )
 }
 
-export default ForgotPasswordPage
+export default FindPasswordPage
