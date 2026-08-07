@@ -204,12 +204,17 @@ class AuthServiceTest {
     }
 
     @Test
-    fun `등록되지 않은 이메일로 비밀번호 재설정을 요청하면 EMAIL_NOT_FOUND 예외가 발생한다`() {
+    fun `등록되지 않은 이메일로 비밀번호 재설정을 요청하면 registered false를 반환한다`() {
         `when`(userRepository.findByEmail("user@example.com")).thenReturn(null)
 
-        val exception =
-            assertThrows<BusinessException> { authService.requestResetPassword("user@example.com") }
-        assert(exception.resultCode == ResultCode.EMAIL_NOT_FOUND)
+        val registered = authService.requestResetPassword("user@example.com")
+
+        assert(!registered)
+        org.mockito.Mockito.verify(verificationMailSender, org.mockito.Mockito.never()).sendResetPasswordCode(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyLong(),
+        )
     }
 
     @Test
@@ -229,8 +234,9 @@ class AuthServiceTest {
             User(email = "user@example.com", password = "encoded", recoveryEmail = "recovery@example.com"),
         )
 
-        authService.requestResetPassword("user@example.com")
+        val registered = authService.requestResetPassword("user@example.com")
 
+        assert(registered)
         org.mockito.Mockito.verify(verificationMailSender).sendResetPasswordCode(
             org.mockito.ArgumentMatchers.anyString(),
             org.mockito.ArgumentMatchers.anyString(),
