@@ -70,7 +70,6 @@ class AuthService(
 
         verification.verified = true
         verification.expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes)
-        emailVerificationRepository.save(verification)
     }
 
     @Transactional
@@ -179,15 +178,29 @@ class AuthService(
             throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
-        val user = userRepository.findByEmail(email) ?: throw BusinessException(ResultCode.EMAIL_NOT_FOUND)
-        val recoveryEmail = user.recoveryEmail ?: throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
+        verification.verified = true
+        verification.expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes)
+    }
 
-        val temporaryPassword = generateTemporaryPassword()
-        user.password = passwordEncoder.encode(temporaryPassword)!!
-        user.temporaryPassword = true
-        userRepository.save(user)
+    @Transactional
+    fun completeResetPassword(email: String, newPassword: String) {
+        validateEmail(email)
+        validatePassword(newPassword)
+        val verification = verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD)
+            ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
+
+        if (verification.expiresAt.isBefore(LocalDateTime.now())) {
+            verificationRepository.delete(verification)
+            throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
+        }
+        if (!verification.verified) {
+            throw BusinessException(ResultCode.RESET_PASSWORD_NOT_VERIFIED)
+        }
+
+        val user = userRepository.findByEmail(email) ?: throw BusinessException(ResultCode.EMAIL_NOT_FOUND)
+        user.password = passwordEncoder.encode(newPassword)!!
+        user.temporaryPassword = false
         verificationRepository.delete(verification)
-        verificationMailSender.sendTemporaryPassword(recoveryEmail, temporaryPassword)
     }
 
     fun login(email: String, rawPassword: String): LoginResult {
@@ -211,7 +224,6 @@ class AuthService(
 
         user.password = passwordEncoder.encode(newPassword)!!
         user.temporaryPassword = false
-        userRepository.save(user)
     }
 
     private fun validateEmail(email: String) {
@@ -239,13 +251,7 @@ class AuthService(
     private fun generateCode(): String =
         (1..codeLength).map { Random.nextInt(0, 10) }.joinToString("")
 
-    private fun generateTemporaryPassword(): String =
-        (1..TEMPORARY_PASSWORD_LENGTH).map { TEMPORARY_PASSWORD_CHARS.random() }.joinToString("")
-
     companion object {
         private val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
-        private const val TEMPORARY_PASSWORD_CHARS =
-            "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%"
-        private const val TEMPORARY_PASSWORD_LENGTH = 12
     }
 }

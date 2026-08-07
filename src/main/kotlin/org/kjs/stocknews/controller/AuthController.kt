@@ -11,6 +11,7 @@ import org.kjs.stocknews.model.dto.FindEmailRequest
 import org.kjs.stocknews.model.dto.FindEmailResponse
 import org.kjs.stocknews.model.dto.LoginRequest
 import org.kjs.stocknews.model.dto.LoginResponse
+import org.kjs.stocknews.model.dto.ResetPasswordCompleteRequest
 import org.kjs.stocknews.model.dto.ResetPasswordRequest
 import org.kjs.stocknews.model.dto.SignUpRequest
 import org.kjs.stocknews.model.dto.VerifyEmailRequest
@@ -56,13 +57,13 @@ class AuthController(
         authService.completeSignUp(request.email, request.password, request.recoveryEmail)
     }
 
-    @Operation(summary = "이메일 찾기 요청", description = "복구용 이메일로 가입된 이메일 확인용 인증코드를 발송한다.")
+    @Operation(summary = "이메일 찾기 인증 요청", description = "복구용 이메일로 가입된 이메일 확인용 인증코드를 발송한다.")
     @PostMapping("/find-email/request")
     fun requestFindEmail(@RequestBody request: FindEmailRequest) {
         authService.requestFindEmail(request.recoveryEmail)
     }
 
-    @Operation(summary = "이메일 찾기 인증", description = "인증코드를 검증하고 마스킹된 가입 이메일을 반환한다.")
+    @Operation(summary = "이메일 찾기 인증 확인", description = "인증코드를 검증하고 가입 이메일을 반환한다.")
     @PostMapping("/find-email/verify")
     fun verifyFindEmail(@RequestBody request: VerifyFindEmailRequest): FindEmailResponse =
         FindEmailResponse(authService.verifyFindEmail(request.recoveryEmail, request.code))
@@ -73,10 +74,16 @@ class AuthController(
         authService.requestResetPassword(request.email)
     }
 
-    @Operation(summary = "비밀번호 재설정 확인", description = "인증코드를 검증하고 임시 비밀번호를 발급해 재설정을 완료한다.")
+    @Operation(summary = "비밀번호 재설정 인증 확인", description = "인증코드를 검증하고 성공 여부를 반환한다(비밀번호는 아직 변경하지 않음).")
     @PostMapping("/reset-password/confirm")
     fun confirmResetPassword(@RequestBody request: VerifyResetPasswordRequest) {
         authService.confirmResetPassword(request.email, request.code)
+    }
+
+    @Operation(summary = "비밀번호 재설정 완료", description = "인증이 완료된 이메일에 대해 새 비밀번호를 받아 재설정을 완료한다.")
+    @PostMapping("/reset-password/complete")
+    fun completeResetPassword(@RequestBody request: ResetPasswordCompleteRequest) {
+        authService.completeResetPassword(request.email, request.newPassword)
     }
 
     @Operation(summary = "로그인", description = "이메일/비밀번호로 로그인하고 세션을 생성한다.")

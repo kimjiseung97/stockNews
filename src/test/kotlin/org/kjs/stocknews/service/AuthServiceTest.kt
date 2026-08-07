@@ -239,7 +239,7 @@ class AuthServiceTest {
     }
 
     @Test
-    fun `인증코드가 일치하면 비밀번호 재설정 확인 시 임시 비밀번호가 발급되고 발송된다`() {
+    fun `인증코드가 일치하면 비밀번호 재설정 확인 시 인증 완료 상태로 표시된다`() {
         val email = "user@example.com"
         val code = "123456"
         val verification = org.kjs.stocknews.model.table.Verification(
@@ -248,20 +248,54 @@ class AuthServiceTest {
             code = code,
             expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
         )
+        `when`(verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD))
+            .thenReturn(verification)
+
+        authService.confirmResetPassword(email, code)
+
+        assert(verification.verified)
+    }
+
+    @Test
+    fun `인증이 완료되지 않은 상태로 비밀번호 재설정 완료를 요청하면 RESET_PASSWORD_NOT_VERIFIED 예외가 발생한다`() {
+        val email = "user@example.com"
+        val verification = org.kjs.stocknews.model.table.Verification(
+            identifier = email,
+            purpose = VerificationPurpose.RESET_PASSWORD,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+            verified = false,
+        )
+        `when`(verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD))
+            .thenReturn(verification)
+
+        val exception =
+            assertThrows<BusinessException> { authService.completeResetPassword(email, "newPassword1!") }
+        assert(exception.resultCode == ResultCode.RESET_PASSWORD_NOT_VERIFIED)
+    }
+
+    @Test
+    fun `인증이 완료된 상태로 비밀번호 재설정 완료를 요청하면 새 비밀번호로 변경된다`() {
+        val email = "user@example.com"
+        val verification = org.kjs.stocknews.model.table.Verification(
+            identifier = email,
+            purpose = VerificationPurpose.RESET_PASSWORD,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+            verified = true,
+        )
         val user = User(email = email, password = "encoded", recoveryEmail = "recovery@example.com")
+        user.temporaryPassword = true
         `when`(verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD))
             .thenReturn(verification)
         `when`(userRepository.findByEmail(email)).thenReturn(user)
         `when`(passwordEncoder.encode(org.mockito.ArgumentMatchers.anyString())).thenReturn("new-encoded")
 
-        authService.confirmResetPassword(email, code)
+        authService.completeResetPassword(email, "newPassword1!")
 
         assert(user.password == "new-encoded")
-        assert(user.temporaryPassword)
-        org.mockito.Mockito.verify(verificationMailSender).sendTemporaryPassword(
-            org.mockito.ArgumentMatchers.anyString(),
-            org.mockito.ArgumentMatchers.anyString(),
-        )
+        assert(!user.temporaryPassword)
+        org.mockito.Mockito.verify(verificationRepository).delete(verification)
     }
 
     @Test
