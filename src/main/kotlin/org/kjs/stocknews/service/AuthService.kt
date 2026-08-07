@@ -147,9 +147,9 @@ class AuthService(
     }
 
     @Transactional
-    fun requestResetPassword(email: String) {
+    fun requestResetPassword(email: String): Boolean {
         validateEmail(email)
-        val user = userRepository.findByEmail(email) ?: throw BusinessException(ResultCode.EMAIL_NOT_FOUND)
+        val user = userRepository.findByEmail(email) ?: return false
         val recoveryEmail = user.recoveryEmail ?: throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
 
         val code = generateCode()
@@ -161,6 +161,7 @@ class AuthService(
         )
         verificationRepository.save(verification)
         verificationMailSender.sendResetPasswordCode(recoveryEmail, code, expiryMinutes)
+        return true
     }
 
     @Transactional

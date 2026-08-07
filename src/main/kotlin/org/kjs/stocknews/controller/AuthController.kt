@@ -68,11 +68,13 @@ class AuthController(
     fun verifyFindEmail(@RequestBody request: VerifyFindEmailRequest): FindEmailResponse =
         FindEmailResponse(authService.verifyFindEmail(request.recoveryEmail, request.code))
 
-    @Operation(summary = "비밀번호 재설정 요청", description = "가입 이메일로 비밀번호 재설정용 인증코드를 발송한다.")
+    @Operation(
+        summary = "비밀번호 재설정 요청",
+        description = "비밀번호 재설정용 인증코드를 발송하고, 가입 여부를 boolean으로 반환한다.",
+    )
     @PostMapping("/reset-password/request")
-    fun requestResetPassword(@RequestBody request: ResetPasswordRequest) {
+    fun requestResetPassword(@RequestBody request: ResetPasswordRequest): Boolean =
         authService.requestResetPassword(request.email)
-    }
 
     @Operation(summary = "비밀번호 재설정 인증 확인", description = "인증코드를 검증하고 성공 여부를 반환한다(비밀번호는 아직 변경하지 않음).")
     @PostMapping("/reset-password/confirm")
