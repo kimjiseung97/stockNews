@@ -1,8 +1,10 @@
 import { useRef, type MouseEvent, type PointerEvent } from 'react'
 import { NavLink } from 'react-router-dom'
 import styles from '@/assets/styles/fixedContents/header/menu.module.scss'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Menu() {
+  const { email } = useAuth()
   const menuRef = useRef<HTMLElement>(null)
   const isDragging = useRef(false)
   const hasMoved = useRef(false)
@@ -98,14 +100,42 @@ export default function Menu() {
             대시보드
           </NavLink>
         </li> */}
-        <li>
-          <NavLink
-            className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
-            to="/stock-search"
-          >
-            종목 검색
-          </NavLink>
-        </li>
+        {email ? (
+          <>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? styles['header-menu__active'] : undefined
+                }
+                to="/watchlist"
+                end
+              >
+                관심 종목 검색
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? styles['header-menu__active'] : undefined
+                }
+                to="/watchlist/register"
+              >
+                관심 종목 등록
+              </NavLink>
+            </li>
+          </>
+        ) : (
+          <li>
+            <NavLink
+              className={({ isActive }) =>
+                isActive ? styles['header-menu__active'] : undefined
+              }
+              to="/stock-search"
+            >
+              종목 검색
+            </NavLink>
+          </li>
+        )}
         <li>
           <NavLink
             className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}

@@ -1,14 +1,14 @@
-//  관심목록 조회
+// 종목 검색
 import { apiFetch } from '@/api/common/commonApi'
 
-interface watchListSearch {
+interface stockSearch {
   duplicated: boolean
   isMailSendSuccess: boolean
 }
 
-export async function watchListSearch(): Promise<void> {
+export async function stockSearch(): Promise<void> {
   try {
-    const response = await apiFetch<watchListSearch>(`/users/me/stocks`)
+    const response = await apiFetch<stockSearch>(`/users/me/stocks`)
 
     console.log('이메일 중복 확인 응답', response)
 
