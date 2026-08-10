@@ -28,7 +28,7 @@ enum class ResultCode(val code: String, val message: String) {
     EMAIL_NOT_VERIFIED("EMAIL_NOT_VERIFIED", "이메일 인증을 완료해주세요."),
     RESET_PASSWORD_NOT_VERIFIED("RESET_PASSWORD_NOT_VERIFIED", "비밀번호 재설정 인증을 완료해주세요."),
     CURRENT_PASSWORD_MISMATCH("CURRENT_PASSWORD_MISMATCH", "현재 비밀번호가 일치하지 않습니다."),
-    VERIFICATION_REQUEST_LIMIT_EXCEEDED("VERIFICATION_REQUEST_LIMIT_EXCEEDED", "인증코드 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요."),
+    VERIFICATION_REQUEST_LIMIT_EXCEEDED("VERIFICATION_REQUEST_LIMIT_EXCEEDED", "인증코드 요청 횟수를 초과했습니다. 10분 뒤 다시 시도해주세요."),
     VERIFICATION_ATTEMPTS_EXCEEDED("VERIFICATION_ATTEMPTS_EXCEEDED", "인증코드 시도 횟수를 초과했습니다. 인증코드를 다시 요청해주세요."),
     STOCK_NOT_FOUND("STOCK_NOT_FOUND", "존재하지 않는 종목입니다."),
     USER_STOCK_NOT_FOUND("USER_STOCK_NOT_FOUND", "등록되지 않은 관심종목입니다."),
