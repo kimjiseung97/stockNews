@@ -6,12 +6,15 @@ import { duplicateCheck } from '@/api/sign/duplicateCheck'
 import { emailAuth } from '@/api/emailAuth/emailAuth'
 import styles from '@/assets/styles/pages/sign-up/signUp.module.scss'
 import mediaStyles from '@/assets/styles/pages/sign-up/signUpMedia.module.scss'
+import { useStableLoading } from '@/hooks/useStableLoading'
+import LoadingSpinner from '@/components/common/LoadingSpinner'
 
 function SignUpPage() {
   const navigate = useNavigate()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const showSubmitting = useStableLoading(isSubmitting)
   const [isEmailDuplicateChecked, setIsEmailDuplicateChecked] = useState(false)
   const [isVerificationCodeVisible, setIsVerificationCodeVisible] = useState(false)
   const [isVerificationCodeSent, setIsVerificationCodeSent] = useState(false)
@@ -327,8 +330,8 @@ function SignUpPage() {
             className={styles['sign-up-page__submit']}
             disabled={isSubmitting || (isVerificationCodeSent && !isEmailVerified)}
           >
-            {isSubmitting
-              ? '가입 중'
+            {showSubmitting
+              ? <LoadingSpinner label="가입 중" />
               : isVerificationCodeSent && !isEmailVerified
                 ? '인증 대기중'
                 : '회원가입'}

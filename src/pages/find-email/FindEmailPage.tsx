@@ -7,6 +7,8 @@ import styles from '@/assets/styles/pages/find-email/findEmail.module.scss'
 import mediaStyles from '@/assets/styles/pages/find-email/findEmailMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
 import warningIcon from '@/assets/images/icons/x.png'
+import { useStableLoading } from '@/hooks/useStableLoading'
+import LoadingSpinner from '@/components/common/LoadingSpinner'
 
 function FindEmailPage() {
   const navigate = useNavigate()
@@ -15,6 +17,7 @@ function FindEmailPage() {
   const [verificationCode, setVerificationCode] = useState('')
   const [warningMessage, setWarningMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const showSubmitting = useStableLoading(isSubmitting)
 
   const focusInput = (form: HTMLFormElement, name: string) => {
     const input = form.elements.namedItem(name)
@@ -180,7 +183,7 @@ function FindEmailPage() {
               className={styles['find-email-page__submit']}
               disabled={isSubmitting}
             >
-              {isSubmitting ? '발송 중...' : '인증 코드 발송'}
+              {showSubmitting ? <LoadingSpinner label="발송 중" /> : '인증 코드 발송'}
             </button>
           </form>
         )}

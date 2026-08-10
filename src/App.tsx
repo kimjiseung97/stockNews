@@ -9,11 +9,13 @@ import MainLayout from './layouts/MainLayout'
 import LoginPage from './pages/login/LoginPage'
 import FindPasswordPage from './pages/find-password/FindPasswordPage'
 import FindEmailPage from './pages/find-email/FindEmailPage'
+import { AuthProvider } from './contexts/AuthContext'
 
 function App() {
   return (
-    <Routes>
-      <Route element={<MainLayout></MainLayout>}>
+    <AuthProvider>
+      <Routes>
+        <Route element={<MainLayout></MainLayout>}>
         <Route path="/" element={<HomePage></HomePage>}></Route>
         <Route path="/stock-search" element={<StockSearchPage></StockSearchPage>}></Route>
         <Route path="/watchlist" element={<WatchlistPage></WatchlistPage>}></Route>
@@ -26,8 +28,9 @@ function App() {
           element={<FindPasswordPage></FindPasswordPage>}
         ></Route>
         <Route path="/find-email" element={<FindEmailPage></FindEmailPage>}></Route>
-      </Route>
-    </Routes>
+        </Route>
+      </Routes>
+    </AuthProvider>
   )
 }
 

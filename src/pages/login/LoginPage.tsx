@@ -6,14 +6,19 @@ import { login } from '@/api/login/login'
 import styles from '@/assets/styles/pages/login/login.module.scss'
 import mediaStyles from '@/assets/styles/pages/login/loginMedia.module.scss'
 import warningIcon from '@/assets/images/icons/x.png'
+import { useAuth } from '@/contexts/AuthContext'
+import { useStableLoading } from '@/hooks/useStableLoading'
+import LoadingSpinner from '@/components/common/LoadingSpinner'
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { setLoggedInUser } = useAuth()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [warningMessage, setWarningMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const showSubmitting = useStableLoading(isSubmitting)
 
   // 로그인 폼 제출
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -22,7 +27,8 @@ function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      await login({ email, password })
+      const user = await login({ email, password })
+      setLoggedInUser(user.email)
       navigate('/')
     } catch (error) {
       setWarningMessage(error instanceof ApiError ? error.message : '로그인에 실패했습니다.')
@@ -102,7 +108,7 @@ function LoginPage() {
           </button>
 
           <button type="submit" className={styles['login-page__submit']} disabled={isSubmitting}>
-            로그인
+            {showSubmitting ? <LoadingSpinner label="로그인 중" /> : '로그인'}
           </button>
         </form>
 

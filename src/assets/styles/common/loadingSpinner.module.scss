@@ -1,0 +1,24 @@
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    animation: loading-spinner-rotate 0.8s linear infinite;
+  }
+}
+
+@keyframes loading-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner svg {
+    animation-duration: 1.6s;
+  }
+}

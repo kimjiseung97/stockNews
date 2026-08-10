@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import { Search } from 'lucide-react'
 import styles from '@/assets/styles/fixedContents/leftContents/leftContents.module.scss'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface LeftContentsProps {
   eyebrow: string
@@ -10,6 +11,7 @@ interface LeftContentsProps {
 }
 
 export default function LeftContents({ eyebrow, headline, description }: LeftContentsProps) {
+  const { email } = useAuth()
   const [tiker, setTiker] = useState('')
   function tikerOnKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
@@ -51,10 +53,12 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
             <li>태그</li>
           </ul>
 
-          <div className={styles['left-contents-container__account-actions']}>
-            <Link to="/sign-up">시작하기</Link>
-            <Link to="/login">로그인</Link>
-          </div>
+          {!email && (
+            <div className={styles['left-contents-container__account-actions']}>
+              <Link to="/sign-up">시작하기</Link>
+              <Link to="/login">로그인</Link>
+            </div>
+          )}
         </div>
       </section>
     </>
