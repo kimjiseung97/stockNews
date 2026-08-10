@@ -31,5 +31,6 @@ enum class ResultCode(val code: String, val message: String) {
     VERIFICATION_REQUEST_LIMIT_EXCEEDED("VERIFICATION_REQUEST_LIMIT_EXCEEDED", "인증코드 요청 횟수를 초과했습니다. 10분 뒤 다시 시도해주세요."),
     VERIFICATION_ATTEMPTS_EXCEEDED("VERIFICATION_ATTEMPTS_EXCEEDED", "인증코드 시도 횟수를 초과했습니다. 인증코드를 다시 요청해주세요."),
     STOCK_NOT_FOUND("STOCK_NOT_FOUND", "존재하지 않는 종목입니다."),
+    STOCK_DETAIL_NOT_FOUND("STOCK_DETAIL_NOT_FOUND", "종목 상세정보를 찾을 수 없습니다."),
     USER_STOCK_NOT_FOUND("USER_STOCK_NOT_FOUND", "등록되지 않은 관심종목입니다."),
 }
