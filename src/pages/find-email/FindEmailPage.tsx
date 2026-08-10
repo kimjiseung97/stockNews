@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowLeft, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ApiError } from '@/api/common/commonApi'
+import { requestResetPassword } from '@/api/infoFind/findId'
 import styles from '@/assets/styles/pages/find-email/findEmail.module.scss'
 import mediaStyles from '@/assets/styles/pages/find-email/findEmailMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
@@ -12,6 +14,7 @@ function FindEmailPage() {
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [verificationCode, setVerificationCode] = useState('')
   const [warningMessage, setWarningMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const focusInput = (form: HTMLFormElement, name: string) => {
     const input = form.elements.namedItem(name)
@@ -42,7 +45,7 @@ function FindEmailPage() {
   }, [])
 
   // 복구 이메일 인증 단계로 이동
-  const handleEmailSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleEmailSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -60,9 +63,20 @@ function FindEmailPage() {
       return
     }
 
-    setRecoveryEmail(trimmedEmail)
-    setWarningMessage('')
-    setStep(2)
+    setIsSubmitting(true)
+
+    try {
+      await requestResetPassword({ recoveryEmail: trimmedEmail })
+      setRecoveryEmail(trimmedEmail)
+      setWarningMessage('')
+      setStep(2)
+    } catch (error) {
+      setWarningMessage(
+        error instanceof ApiError ? error.message : '인증 코드 발송에 실패했습니다.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // 아이디 확인 단계로 이동
@@ -165,8 +179,12 @@ function FindEmailPage() {
               <small>회원가입 시 입력한 복구용 이메일을 입력하세요.</small>
             </label>
 
-            <button type="submit" className={styles['find-email-page__submit']}>
-              인증 코드 발송
+            <button
+              type="submit"
+              className={styles['find-email-page__submit']}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '발송 중...' : '인증 코드 발송'}
             </button>
           </form>
         )}
