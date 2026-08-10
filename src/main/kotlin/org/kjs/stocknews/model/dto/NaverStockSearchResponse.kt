@@ -12,4 +12,5 @@ data class NaverStockSearchItem(
     val code: String?,
     val name: String?,
     val category: String?,
+    val reutersCode: String?,
 )

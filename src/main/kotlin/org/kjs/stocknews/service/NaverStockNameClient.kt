@@ -1,5 +1,6 @@
 package org.kjs.stocknews.service
 
+import org.kjs.stocknews.model.dto.NaverStockSearchItem
 import org.kjs.stocknews.model.dto.NaverStockSearchResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.client.JdkClientHttpRequestFactory
@@ -18,9 +19,13 @@ class NaverStockNameClient {
         )
         .build()
 
-    fun fetchKoreanName(ticker: String): String? {
-        val name = search(ticker)
-        if (name != null) return name
+    fun fetchKoreanName(ticker: String): String? = searchItem(ticker)?.name
+
+    fun fetchReutersCode(ticker: String): String? = searchItem(ticker)?.reutersCode
+
+    private fun searchItem(ticker: String): NaverStockSearchItem? {
+        val item = search(ticker)
+        if (item != null) return item
 
         // Naver uses "." for share-class tickers (e.g. BRK.B) where our data uses "-" (e.g. BRK-B).
         if (ticker.contains('-')) {
@@ -29,7 +34,7 @@ class NaverStockNameClient {
         return null
     }
 
-    private fun search(ticker: String): String? {
+    private fun search(ticker: String): NaverStockSearchItem? {
         val response = restClient.get()
             .uri { builder ->
                 builder
@@ -46,6 +51,5 @@ class NaverStockNameClient {
 
         return response?.items
             ?.firstOrNull { it.category == "stock" && it.code.equals(ticker, ignoreCase = true) }
-            ?.name
     }
 }

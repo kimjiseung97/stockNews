@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.ComparablePath
 import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.kjs.stocknews.model.table.QStock.stock
+import org.kjs.stocknews.model.table.QStockDetail.stockDetail
 import org.kjs.stocknews.model.table.Stock
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -37,6 +38,14 @@ class StockRepositoryCustomImpl(
         queryFactory
             .selectFrom(stock)
             .where(stock.koreanName.isNull)
+            .limit(limit.toLong())
+            .fetch()
+
+    override fun findWithoutDetail(limit: Int): List<Stock> =
+        queryFactory
+            .selectFrom(stock)
+            .leftJoin(stockDetail).on(stockDetail.stockId.eq(stock.id))
+            .where(stockDetail.id.isNull)
             .limit(limit.toLong())
             .fetch()
 

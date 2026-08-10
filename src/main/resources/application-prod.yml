@@ -53,6 +53,9 @@ stock:
   korean-name-enrich:
     batch-size: 100
     cron: "0 */2 * * * *"
+  detail-enrich:
+    batch-size: 20
+    cron: "0 */2 * * * *"
 
 news:
   dispatch:
