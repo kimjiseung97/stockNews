@@ -13,6 +13,11 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.springframework.security.crypto.password.PasswordEncoder
 
+// Mockito의 eq()/any()는 널을 반환해 Kotlin non-null 파라미터 콜사이트에서 NPE를 유발한다.
+// 로컬 래퍼로 정적 반환 타입을 non-null로 감춰서 우회한다(널리 알려진 Kotlin+Mockito 관용구).
+private fun <T> eqArg(value: T): T = org.mockito.ArgumentMatchers.eq(value)
+private fun <T> anyArg(): T = org.mockito.ArgumentMatchers.any()
+
 class AuthServiceTest {
     private val userRepository = mock(UserRepository::class.java)
     private val emailVerificationRepository = mock(EmailVerificationRepository::class.java)
@@ -27,6 +32,8 @@ class AuthServiceTest {
         verificationMailSender,
         codeLength = 6,
         expiryMinutes = 10,
+        maxRequestsPerWindow = 3,
+        maxAttempts = 3,
     )
 
     @Test
@@ -77,6 +84,25 @@ class AuthServiceTest {
     }
 
     @Test
+    fun `10분 내 인증코드 요청이 3회 이상이면 중복 확인 시 VERIFICATION_REQUEST_LIMIT_EXCEEDED 예외가 발생한다`() {
+        `when`(userRepository.existsByEmail("user@example.com")).thenReturn(false)
+        `when`(
+            emailVerificationRepository.countByEmailAndCreatedAtAfter(
+                eqArg("user@example.com"),
+                anyArg(),
+            ),
+        ).thenReturn(3L)
+
+        val exception = assertThrows<BusinessException> { authService.checkEmailDuplicate("user@example.com") }
+        assert(exception.resultCode == ResultCode.VERIFICATION_REQUEST_LIMIT_EXCEEDED)
+        org.mockito.Mockito.verify(verificationMailSender, org.mockito.Mockito.never()).sendVerificationCode(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyLong(),
+        )
+    }
+
+    @Test
     fun `이메일 형식이 올바르지 않으면 중복 확인 시 INVALID_EMAIL_FORMAT 예외가 발생한다`() {
         val exception = assertThrows<BusinessException> { authService.checkEmailDuplicate("not-an-email") }
         assert(exception.resultCode == ResultCode.INVALID_EMAIL_FORMAT)
@@ -115,13 +141,86 @@ class AuthServiceTest {
             code = "123456",
             expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
         )
-        `when`(emailVerificationRepository.findById(email)).thenReturn(java.util.Optional.of(verification))
+        `when`(emailVerificationRepository.findTopByEmailOrderByCreatedAtDesc(email)).thenReturn(verification)
 
         authService.verifyEmail(email, "123456")
 
         assert(verification.verified)
         org.mockito.Mockito.verify(userRepository, org.mockito.Mockito.never()).save(org.mockito.ArgumentMatchers.any())
         org.mockito.Mockito.verify(emailVerificationRepository, org.mockito.Mockito.never()).delete(verification)
+    }
+
+    @Test
+    fun `인증코드가 일치하지 않으면 이메일 인증 시 attemptCount가 증가하고 VERIFICATION_CODE_MISMATCH 예외가 발생한다`() {
+        val email = "user@example.com"
+        val verification = org.kjs.stocknews.model.table.EmailVerification(
+            email = email,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+        )
+        `when`(emailVerificationRepository.findTopByEmailOrderByCreatedAtDesc(email)).thenReturn(verification)
+
+        val exception = assertThrows<BusinessException> { authService.verifyEmail(email, "000000") }
+
+        assert(exception.resultCode == ResultCode.VERIFICATION_CODE_MISMATCH)
+        assert(verification.attemptCount == 1)
+    }
+
+    @Test
+    fun `이메일 인증 시도 횟수가 초과되면 VERIFICATION_ATTEMPTS_EXCEEDED 예외가 발생한다`() {
+        val email = "user@example.com"
+        val verification = org.kjs.stocknews.model.table.EmailVerification(
+            email = email,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+            attemptCount = 3,
+        )
+        `when`(emailVerificationRepository.findTopByEmailOrderByCreatedAtDesc(email)).thenReturn(verification)
+
+        val exception = assertThrows<BusinessException> { authService.verifyEmail(email, "123456") }
+        assert(exception.resultCode == ResultCode.VERIFICATION_ATTEMPTS_EXCEEDED)
+    }
+
+    @Test
+    fun `이메일 찾기 검증 시도 횟수가 초과되면 VERIFICATION_ATTEMPTS_EXCEEDED 예외가 발생한다`() {
+        val recoveryEmail = "recovery@example.com"
+        val verification = org.kjs.stocknews.model.table.Verification(
+            identifier = recoveryEmail,
+            purpose = VerificationPurpose.FIND_EMAIL,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+            attemptCount = 3,
+        )
+        `when`(
+            verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+                recoveryEmail,
+                VerificationPurpose.FIND_EMAIL,
+            ),
+        ).thenReturn(verification)
+
+        val exception = assertThrows<BusinessException> { authService.verifyFindEmail(recoveryEmail, "123456") }
+        assert(exception.resultCode == ResultCode.VERIFICATION_ATTEMPTS_EXCEEDED)
+    }
+
+    @Test
+    fun `비밀번호 재설정 확인 시도 횟수가 초과되면 VERIFICATION_ATTEMPTS_EXCEEDED 예외가 발생한다`() {
+        val email = "user@example.com"
+        val verification = org.kjs.stocknews.model.table.Verification(
+            identifier = email,
+            purpose = VerificationPurpose.RESET_PASSWORD,
+            code = "123456",
+            expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
+            attemptCount = 3,
+        )
+        `when`(
+            verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+                email,
+                VerificationPurpose.RESET_PASSWORD,
+            ),
+        ).thenReturn(verification)
+
+        val exception = assertThrows<BusinessException> { authService.confirmResetPassword(email, "123456") }
+        assert(exception.resultCode == ResultCode.VERIFICATION_ATTEMPTS_EXCEEDED)
     }
 
     @Test
@@ -133,7 +232,7 @@ class AuthServiceTest {
             expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
             verified = false,
         )
-        `when`(emailVerificationRepository.findById(email)).thenReturn(java.util.Optional.of(verification))
+        `when`(emailVerificationRepository.findTopByEmailOrderByCreatedAtDesc(email)).thenReturn(verification)
 
         val exception =
             assertThrows<BusinessException> {
@@ -151,13 +250,13 @@ class AuthServiceTest {
             expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
             verified = true,
         )
-        `when`(emailVerificationRepository.findById(email)).thenReturn(java.util.Optional.of(verification))
+        `when`(emailVerificationRepository.findTopByEmailOrderByCreatedAtDesc(email)).thenReturn(verification)
         `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
 
         authService.completeSignUp(email, "password1!", "recovery@example.com")
 
         org.mockito.Mockito.verify(userRepository).save(org.mockito.ArgumentMatchers.any())
-        org.mockito.Mockito.verify(emailVerificationRepository).delete(verification)
+        org.mockito.Mockito.verify(emailVerificationRepository).deleteByEmail(email)
     }
 
     @Test
@@ -183,6 +282,27 @@ class AuthServiceTest {
     }
 
     @Test
+    fun `10분 내 이메일 찾기 요청이 3회 이상이면 VERIFICATION_REQUEST_LIMIT_EXCEEDED 예외가 발생한다`() {
+        `when`(userRepository.existsByRecoveryEmail("recovery@example.com")).thenReturn(true)
+        `when`(
+            verificationRepository.countByIdentifierAndPurposeAndCreatedAtAfter(
+                eqArg("recovery@example.com"),
+                eqArg(VerificationPurpose.FIND_EMAIL),
+                anyArg(),
+            ),
+        ).thenReturn(3L)
+
+        val exception =
+            assertThrows<BusinessException> { authService.requestFindEmail("recovery@example.com") }
+        assert(exception.resultCode == ResultCode.VERIFICATION_REQUEST_LIMIT_EXCEEDED)
+        org.mockito.Mockito.verify(verificationMailSender, org.mockito.Mockito.never()).sendFindEmailCode(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyLong(),
+        )
+    }
+
+    @Test
     fun `인증코드가 일치하면 이메일 찾기 검증 시 가입 이메일을 반환한다`() {
         val recoveryEmail = "recovery@example.com"
         val code = "123456"
@@ -192,8 +312,12 @@ class AuthServiceTest {
             code = code,
             expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
         )
-        `when`(verificationRepository.findByIdentifierAndPurpose(recoveryEmail, VerificationPurpose.FIND_EMAIL))
-            .thenReturn(verification)
+        `when`(
+            verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+                recoveryEmail,
+                VerificationPurpose.FIND_EMAIL,
+            ),
+        ).thenReturn(verification)
         `when`(userRepository.findByRecoveryEmail(recoveryEmail)).thenReturn(
             User(email = "user@example.com", password = "encoded", recoveryEmail = recoveryEmail),
         )
@@ -245,6 +369,29 @@ class AuthServiceTest {
     }
 
     @Test
+    fun `10분 내 비밀번호 재설정 요청이 3회 이상이면 VERIFICATION_REQUEST_LIMIT_EXCEEDED 예외가 발생한다`() {
+        `when`(userRepository.findByEmail("user@example.com")).thenReturn(
+            User(email = "user@example.com", password = "encoded", recoveryEmail = "recovery@example.com"),
+        )
+        `when`(
+            verificationRepository.countByIdentifierAndPurposeAndCreatedAtAfter(
+                eqArg("user@example.com"),
+                eqArg(VerificationPurpose.RESET_PASSWORD),
+                anyArg(),
+            ),
+        ).thenReturn(3L)
+
+        val exception =
+            assertThrows<BusinessException> { authService.requestResetPassword("user@example.com") }
+        assert(exception.resultCode == ResultCode.VERIFICATION_REQUEST_LIMIT_EXCEEDED)
+        org.mockito.Mockito.verify(verificationMailSender, org.mockito.Mockito.never()).sendResetPasswordCode(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyLong(),
+        )
+    }
+
+    @Test
     fun `인증코드가 일치하면 비밀번호 재설정 확인 시 인증 완료 상태로 표시된다`() {
         val email = "user@example.com"
         val code = "123456"
@@ -254,8 +401,12 @@ class AuthServiceTest {
             code = code,
             expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
         )
-        `when`(verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD))
-            .thenReturn(verification)
+        `when`(
+            verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+                email,
+                VerificationPurpose.RESET_PASSWORD,
+            ),
+        ).thenReturn(verification)
 
         authService.confirmResetPassword(email, code)
 
@@ -272,8 +423,12 @@ class AuthServiceTest {
             expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
             verified = false,
         )
-        `when`(verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD))
-            .thenReturn(verification)
+        `when`(
+            verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+                email,
+                VerificationPurpose.RESET_PASSWORD,
+            ),
+        ).thenReturn(verification)
 
         val exception =
             assertThrows<BusinessException> { authService.completeResetPassword(email, "newPassword1!") }
@@ -292,8 +447,12 @@ class AuthServiceTest {
         )
         val user = User(email = email, password = "encoded", recoveryEmail = "recovery@example.com")
         user.temporaryPassword = true
-        `when`(verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD))
-            .thenReturn(verification)
+        `when`(
+            verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+                email,
+                VerificationPurpose.RESET_PASSWORD,
+            ),
+        ).thenReturn(verification)
         `when`(userRepository.findByEmail(email)).thenReturn(user)
         `when`(passwordEncoder.encode(org.mockito.ArgumentMatchers.anyString())).thenReturn("new-encoded")
 
@@ -301,7 +460,7 @@ class AuthServiceTest {
 
         assert(user.password == "new-encoded")
         assert(!user.temporaryPassword)
-        org.mockito.Mockito.verify(verificationRepository).delete(verification)
+        org.mockito.Mockito.verify(verificationRepository).deleteByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD)
     }
 
     @Test
@@ -313,8 +472,12 @@ class AuthServiceTest {
             code = "123456",
             expiresAt = java.time.LocalDateTime.now().plusMinutes(5),
         )
-        `when`(verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD))
-            .thenReturn(verification)
+        `when`(
+            verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+                email,
+                VerificationPurpose.RESET_PASSWORD,
+            ),
+        ).thenReturn(verification)
 
         val exception =
             assertThrows<BusinessException> { authService.confirmResetPassword(email, "999999") }

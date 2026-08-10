@@ -28,13 +28,24 @@ class AuthService(
     private val verificationMailSender: VerificationMailSender,
     @Value("\${auth.verification.code-length}") private val codeLength: Int,
     @Value("\${auth.verification.expiry-minutes}") private val expiryMinutes: Long,
+    @Value("\${auth.verification.max-requests:3}") private val maxRequestsPerWindow: Long,
+    @Value("\${auth.verification.max-attempts:3}") private val maxAttempts: Int,
 ) {
     // 이메일 중복 확인 후 사용 가능하면 곧바로 인증코드를 발송한다.
+    // 동일 이메일이 expiry-minutes(기본 10분) 내에 max-requests(기본 3회) 이상 요청하면 차단한다.
     @Transactional
     fun checkEmailDuplicate(email: String): EmailAvailabilityResult {
         validateEmail(email)
         if (userRepository.existsByEmail(email)) {
             return EmailAvailabilityResult(duplicated = true, isMailSendSuccess = false)
+        }
+
+        val recentRequestCount = emailVerificationRepository.countByEmailAndCreatedAtAfter(
+            email,
+            LocalDateTime.now().minusMinutes(expiryMinutes),
+        )
+        if (recentRequestCount >= maxRequestsPerWindow) {
+            throw BusinessException(ResultCode.VERIFICATION_REQUEST_LIMIT_EXCEEDED)
         }
 
         val code = generateCode()
@@ -53,18 +64,23 @@ class AuthService(
         return EmailAvailabilityResult(duplicated = false, isMailSendSuccess = isMailSendSuccess)
     }
 
+    // 동일 코드에 대한 오입력이 max-attempts(기본 5회) 이상이면 차단한다 — 새 코드를 요청하면 초기화된다.
     @Transactional
     fun verifyEmail(email: String, code: String) {
         validateEmail(email)
         validateCode(code)
-        val verification = emailVerificationRepository.findById(email)
-            .orElseThrow { BusinessException(ResultCode.VERIFICATION_NOT_FOUND) }
+        val verification = emailVerificationRepository.findTopByEmailOrderByCreatedAtDesc(email)
+            ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
 
         if (verification.expiresAt.isBefore(LocalDateTime.now())) {
             emailVerificationRepository.delete(verification)
             throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
         }
+        if (verification.attemptCount >= maxAttempts) {
+            throw BusinessException(ResultCode.VERIFICATION_ATTEMPTS_EXCEEDED)
+        }
         if (verification.code != code) {
+            verification.attemptCount += 1
             throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
@@ -81,8 +97,8 @@ class AuthService(
             throw BusinessException(ResultCode.RECOVERY_EMAIL_SAME_AS_EMAIL)
         }
 
-        val verification = emailVerificationRepository.findById(email)
-            .orElseThrow { BusinessException(ResultCode.VERIFICATION_NOT_FOUND) }
+        val verification = emailVerificationRepository.findTopByEmailOrderByCreatedAtDesc(email)
+            ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
         if (verification.expiresAt.isBefore(LocalDateTime.now())) {
             emailVerificationRepository.delete(verification)
             throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
@@ -104,15 +120,17 @@ class AuthService(
                 recoveryEmail = recoveryEmail,
             ),
         )
-        emailVerificationRepository.delete(verification)
+        emailVerificationRepository.deleteByEmail(email)
     }
 
+    // 동일 identifier+purpose가 expiry-minutes(기본 10분) 내에 max-requests(기본 3회) 이상 요청하면 차단한다.
     @Transactional
     fun requestFindEmail(recoveryEmail: String) {
         validateRecoveryEmail(recoveryEmail)
         if (!userRepository.existsByRecoveryEmail(recoveryEmail)) {
             throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
         }
+        assertWithinRequestLimit(recoveryEmail, VerificationPurpose.FIND_EMAIL)
 
         val code = generateCode()
         val verification = Verification(
@@ -129,28 +147,36 @@ class AuthService(
     fun verifyFindEmail(recoveryEmail: String, code: String): String {
         validateRecoveryEmail(recoveryEmail)
         validateCode(code)
-        val verification = verificationRepository.findByIdentifierAndPurpose(recoveryEmail, VerificationPurpose.FIND_EMAIL)
-            ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
+        val verification = verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+            recoveryEmail,
+            VerificationPurpose.FIND_EMAIL,
+        ) ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
 
         if (verification.expiresAt.isBefore(LocalDateTime.now())) {
             verificationRepository.delete(verification)
             throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
         }
+        if (verification.attemptCount >= maxAttempts) {
+            throw BusinessException(ResultCode.VERIFICATION_ATTEMPTS_EXCEEDED)
+        }
         if (verification.code != code) {
+            verification.attemptCount += 1
             throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
         val user = userRepository.findByRecoveryEmail(recoveryEmail)
             ?: throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
-        verificationRepository.delete(verification)
+        verificationRepository.deleteByIdentifierAndPurpose(recoveryEmail, VerificationPurpose.FIND_EMAIL)
         return user.email
     }
 
+    // 동일 identifier+purpose가 expiry-minutes(기본 10분) 내에 max-requests(기본 3회) 이상 요청하면 차단한다.
     @Transactional
     fun requestResetPassword(email: String): Boolean {
         validateEmail(email)
         val user = userRepository.findByEmail(email) ?: return false
         val recoveryEmail = user.recoveryEmail ?: throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
+        assertWithinRequestLimit(email, VerificationPurpose.RESET_PASSWORD)
 
         val code = generateCode()
         val verification = Verification(
@@ -168,14 +194,20 @@ class AuthService(
     fun confirmResetPassword(email: String, code: String) {
         validateEmail(email)
         validateCode(code)
-        val verification = verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD)
-            ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
+        val verification = verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+            email,
+            VerificationPurpose.RESET_PASSWORD,
+        ) ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
 
         if (verification.expiresAt.isBefore(LocalDateTime.now())) {
             verificationRepository.delete(verification)
             throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
         }
+        if (verification.attemptCount >= maxAttempts) {
+            throw BusinessException(ResultCode.VERIFICATION_ATTEMPTS_EXCEEDED)
+        }
         if (verification.code != code) {
+            verification.attemptCount += 1
             throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
@@ -187,8 +219,10 @@ class AuthService(
     fun completeResetPassword(email: String, newPassword: String) {
         validateEmail(email)
         validatePassword(newPassword)
-        val verification = verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD)
-            ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
+        val verification = verificationRepository.findTopByIdentifierAndPurposeOrderByCreatedAtDesc(
+            email,
+            VerificationPurpose.RESET_PASSWORD,
+        ) ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
 
         if (verification.expiresAt.isBefore(LocalDateTime.now())) {
             verificationRepository.delete(verification)
@@ -201,7 +235,7 @@ class AuthService(
         val user = userRepository.findByEmail(email) ?: throw BusinessException(ResultCode.EMAIL_NOT_FOUND)
         user.password = passwordEncoder.encode(newPassword)!!
         user.temporaryPassword = false
-        verificationRepository.delete(verification)
+        verificationRepository.deleteByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD)
     }
 
     fun login(email: String, rawPassword: String): LoginResult {
@@ -251,6 +285,17 @@ class AuthService(
 
     private fun generateCode(): String =
         (1..codeLength).map { Random.nextInt(0, 10) }.joinToString("")
+
+    private fun assertWithinRequestLimit(identifier: String, purpose: VerificationPurpose) {
+        val recentRequestCount = verificationRepository.countByIdentifierAndPurposeAndCreatedAtAfter(
+            identifier,
+            purpose,
+            LocalDateTime.now().minusMinutes(expiryMinutes),
+        )
+        if (recentRequestCount >= maxRequestsPerWindow) {
+            throw BusinessException(ResultCode.VERIFICATION_REQUEST_LIMIT_EXCEEDED)
+        }
+    }
 
     companion object {
         private val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")

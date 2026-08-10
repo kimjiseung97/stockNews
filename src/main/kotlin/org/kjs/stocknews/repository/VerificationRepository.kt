@@ -6,7 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDateTime
 
 interface VerificationRepository : JpaRepository<Verification, Long> {
-    fun findByIdentifierAndPurpose(identifier: String, purpose: VerificationPurpose): Verification?
-    fun deleteByIdentifierAndPurpose(identifier: String, purpose: VerificationPurpose)
+    fun findTopByIdentifierAndPurposeOrderByCreatedAtDesc(identifier: String, purpose: VerificationPurpose): Verification?
+    fun deleteByIdentifierAndPurpose(identifier: String, purpose: VerificationPurpose): Long
     fun deleteByExpiresAtBefore(expiresAt: LocalDateTime): Long
+    fun countByIdentifierAndPurposeAndCreatedAtAfter(
+        identifier: String,
+        purpose: VerificationPurpose,
+        createdAt: LocalDateTime,
+    ): Long
 }

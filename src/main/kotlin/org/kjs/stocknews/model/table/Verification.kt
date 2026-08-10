@@ -8,16 +8,12 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import jakarta.persistence.UniqueConstraint
 import java.time.LocalDateTime
 
+// (IDENTIFIER, PURPOSE) 유니크 제약 제거 — 10분 내 재요청 횟수를 세려면 요청마다 새 row가
+// 쌓여야 하므로 identifier+purpose당 단일 row를 덮어쓰지 않는다.
 @Entity
-@Table(
-    name = "TB_VERIFICATION",
-    uniqueConstraints = [
-        UniqueConstraint(name = "UK_TB_VERIFICATION_IDENTIFIER_PURPOSE", columnNames = ["IDENTIFIER", "PURPOSE"]),
-    ],
-)
+@Table(name = "TB_VERIFICATION")
 class Verification(
     @Column(name = "IDENTIFIER", nullable = false, length = 254)
     val identifier: String,
@@ -34,6 +30,12 @@ class Verification(
 
     @Column(name = "VERIFIED", nullable = false)
     var verified: Boolean = false,
+
+    @Column(name = "CREATED_AT", nullable = false)
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    @Column(name = "ATTEMPT_COUNT", nullable = false)
+    var attemptCount: Int = 0,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
