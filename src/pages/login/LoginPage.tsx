@@ -57,6 +57,7 @@ function LoginPage() {
             <span>이메일</span>
             <span className={styles['login-page__input-box']}>
               <input
+                id="login-email"
                 type="email"
                 name="email"
                 value={email}
@@ -74,6 +75,7 @@ function LoginPage() {
             <span>비밀번호</span>
             <span className={styles['login-page__input-box']}>
               <input
+                id="login-password"
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
                 value={password}

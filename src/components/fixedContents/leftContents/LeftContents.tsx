@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import { Search } from 'lucide-react'
 import styles from '@/assets/styles/fixedContents/leftContents/leftContents.module.scss'
@@ -12,6 +12,7 @@ interface LeftContentsProps {
 
 export default function LeftContents({ eyebrow, headline, description }: LeftContentsProps) {
   const { email } = useAuth()
+  const navigate = useNavigate()
   const [tiker, setTiker] = useState('')
   function tikerOnKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
@@ -20,7 +21,13 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
   }
 
   function tikerSearchBtn(e: KeyboardEvent<HTMLInputElement> | MouseEvent<HTMLButtonElement>) {
-    void e
+    e.preventDefault()
+    const koreaName = tiker.trim()
+
+    navigate({
+      pathname: '/stock-search',
+      search: koreaName ? `?${new URLSearchParams({ koreaName })}` : '',
+    })
   }
   return (
     <>
@@ -38,6 +45,7 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
             <li>
               <Search aria-hidden="true" color="#fff"></Search>
               <input
+                id="sidebar-stock-search-query"
                 type="text"
                 placeholder=" 티커 입력해 주세요."
                 value={tiker}

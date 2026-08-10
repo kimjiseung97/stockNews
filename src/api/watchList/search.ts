@@ -1,4 +1,4 @@
-//  관심목록 조회 및 검색
+//  관심목록 조회
 import { apiFetch } from '@/api/common/commonApi'
 
 interface watchListSearch {

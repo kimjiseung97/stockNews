@@ -50,7 +50,7 @@ export default function StartGuide() {
         <p>
           <strong>검색하고 담아두면 끝.</strong> 이후에는 StockNews가 새로운 소식을 정리해 전달합니다.
         </p>
-        <Link to="/watchlist">관심 종목 등록하기 →</Link>
+        <Link to="/stock-search">관심 종목 등록하기 →</Link>
       </aside>
     </section>
   )

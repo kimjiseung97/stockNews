@@ -161,6 +161,7 @@ function FindEmailPage() {
               <span>복구용 이메일</span>
               <span className={styles['find-email-page__input-box']}>
                 <input
+                  id="find-email-recovery-email"
                   type="email"
                   name="recoveryEmail"
                   value={recoveryEmail}
@@ -199,6 +200,7 @@ function FindEmailPage() {
                 <span>인증 코드</span>
                 <span className={styles['find-email-page__input-box']}>
                   <input
+                    id="find-email-verification-code"
                     type="number"
                     name="verificationCode"
                     value={verificationCode}

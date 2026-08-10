@@ -215,6 +215,7 @@ function FindPasswordPage() {
               <span>가입한 이메일</span>
               <span className={styles['forgot-password-page__input-box']}>
                 <input
+                  id="find-password-email"
                   type="email"
                   name="email"
                   value={email}
@@ -252,6 +253,7 @@ function FindPasswordPage() {
                 <span>인증 코드</span>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
+                    id="find-password-verification-code"
                     type="number"
                     name="verificationCode"
                     value={verificationCode}
@@ -292,6 +294,7 @@ function FindPasswordPage() {
                 <span>새 비밀번호</span>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
+                    id="find-password-new-password"
                     type={isPasswordVisible ? 'text' : 'password'}
                     name="password"
                     value={password}
@@ -324,6 +327,7 @@ function FindPasswordPage() {
                 <span>새 비밀번호 확인</span>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
+                    id="find-password-new-password-confirm"
                     type="password"
                     name="passwordConfirm"
                     value={passwordConfirm}

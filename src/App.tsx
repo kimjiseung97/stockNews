@@ -19,6 +19,7 @@ function App() {
         <Route path="/" element={<HomePage></HomePage>}></Route>
         <Route path="/stock-search" element={<StockSearchPage></StockSearchPage>}></Route>
         <Route path="/watchlist" element={<WatchlistPage></WatchlistPage>}></Route>
+        <Route path="/watchlist/register" element={<StockSearchPage></StockSearchPage>}></Route>
         <Route path="/stock-news" element={<StockNewsPage></StockNewsPage>}></Route>
         <Route path="/email-settings" element={<EmailSettingsPage></EmailSettingsPage>}></Route>
         <Route path="/login" element={<LoginPage></LoginPage>}></Route>
