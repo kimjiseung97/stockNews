@@ -190,6 +190,7 @@ function SignUpPage() {
             <span className={styles['sign-up-page__email-row']}>
               <span className={styles['sign-up-page__input-box']}>
                 <input
+                  id="sign-up-email"
                   type="email"
                   name="email"
                   placeholder="example@email.com"
@@ -218,6 +219,7 @@ function SignUpPage() {
               <span className={styles['sign-up-page__email-row']}>
                 <span className={styles['sign-up-page__input-box']}>
                   <input
+                    id="sign-up-verification-code"
                     type="number"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -246,6 +248,7 @@ function SignUpPage() {
             <span>비밀번호</span>
             <span className={styles['sign-up-page__input-box']}>
               <input
+                id="sign-up-password"
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
                 value={passwordValue}
@@ -277,6 +280,7 @@ function SignUpPage() {
             <span>비밀번호 확인</span>
             <span className={styles['sign-up-page__input-box']}>
               <input
+                id="sign-up-password-confirm"
                 type={isPasswordConfirmVisible ? 'text' : 'password'}
                 name="passwordConfirm"
                 value={passwordConfirmValue}
@@ -314,6 +318,7 @@ function SignUpPage() {
             <span>복구 이메일</span>
             <span className={styles['sign-up-page__input-box']}>
               <input
+                id="sign-up-recovery-email"
                 type="email"
                 name="recoveryEmail"
                 placeholder="비상 연락용 이메일"

@@ -1,10 +1,5 @@
 :global(#stockSearchPage) {
   &.stock-search-page {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 40px 20px;
-    color: $color-text-primary;
-
     .stock-search-page__heading {
       margin-bottom: 24px;
 
@@ -22,10 +17,35 @@
       }
     }
 
+    .stock-search-page__search-form {
+      @include flex(null, center, 10px);
+      margin-bottom: 24px;
+
+      > button {
+        @include btn(m);
+        flex: 0 0 96px;
+        width: 96px;
+        max-width: 96px;
+        height: 48px;
+        white-space: nowrap;
+        color: $color-on-primary;
+        background-color: $main-color;
+        box-shadow: 0 4px 12px $color-primary-shadow;
+
+        &:hover:not(:disabled) {
+          background-color: $color-primary-hover;
+        }
+
+        &:disabled {
+          background-color: $color-disabled-background;
+        }
+      }
+    }
+
     .stock-search-page__search-box {
       @include flex(null, center, 10px);
+      flex: 1;
       height: 48px;
-      margin-bottom: 24px;
       padding: 0 16px;
       background-color: $color-surface;
       border: 1px solid $color-input-border;
@@ -61,6 +81,18 @@
       }
     }
 
+    .stock-search-page__sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     .stock-search-page__notice {
       @include flex(null, center, 7px);
       margin-bottom: 20px;
@@ -85,6 +117,17 @@
       text-align: center;
     }
 
+    .stock-search-page__summary {
+      margin-bottom: 12px;
+      color: $color-text-secondary;
+      font-size: 1.2rem;
+
+      strong {
+        color: $main-color;
+        font-weight: 700;
+      }
+    }
+
     .stock-search-page__list {
       @include flex-col(null, null, 10px);
       list-style: none;
@@ -102,9 +145,9 @@
     .stock-search-page__ticker {
       flex: 0 0 auto;
       padding: 4px 8px;
-      background-color: rgba($main-color, 0.08);
-      border-radius: 6px;
-      color: $main-color;
+      background-color: $color-ticker-background;
+      border-radius: 4px;
+      color: $color-ticker-text;
       font-size: 1.2rem;
       font-weight: 700;
     }
@@ -154,5 +197,7 @@
         font-size: 1.2rem;
       }
     }
+
   }
 }
+

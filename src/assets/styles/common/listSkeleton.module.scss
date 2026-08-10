@@ -1,0 +1,63 @@
+.list-skeleton {
+  @include flex-col(null, null, 10px);
+  width: 100%;
+}
+
+.list-skeleton__item {
+  @include flex(null, center, 14px);
+  width: 100%;
+  min-height: 62px;
+  padding: 16px;
+  background-color: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px $color-shadow;
+}
+
+.list-skeleton__leading,
+.list-skeleton__content i,
+.list-skeleton__trailing {
+  display: block;
+  background: linear-gradient(90deg, #edf0f5 25%, #f7f8fb 50%, #edf0f5 75%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  animation: list-skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+.list-skeleton__leading {
+  flex: 0 0 52px;
+  height: 24px;
+}
+
+.list-skeleton__content {
+  @include flex-col(null, null, 7px);
+  flex: 1;
+  min-width: 0;
+  margin-left: 6px;
+
+  i:first-child {
+    width: 42%;
+    height: 15px;
+  }
+
+  i:last-child {
+    width: 66%;
+    height: 12px;
+  }
+}
+
+.list-skeleton__trailing {
+  flex: 0 0 72px;
+  height: 23px;
+  border-radius: 999px;
+}
+
+@keyframes list-skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
