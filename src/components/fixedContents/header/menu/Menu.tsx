@@ -109,14 +109,6 @@ export default function Menu() {
         <li>
           <NavLink
             className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
-            to="/watchlist"
-          >
-            관심 종목
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
             to="/stock-news"
           >
             종목 뉴스
@@ -145,14 +137,6 @@ export default function Menu() {
             to="/stock-search"
           >
             종목 검색
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
-            to="/watchlist"
-          >
-            관심 종목
           </NavLink>
         </li>
         <li>

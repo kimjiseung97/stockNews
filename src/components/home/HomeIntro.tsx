@@ -19,7 +19,7 @@ export default function HomeIntro() {
         className={`${styles['home-page__intro-actions']} ${mediaStyles['home-page__intro-actions']}`}
         aria-label="StockNews 시작 메뉴"
       >
-        <Link className={styles['home-page__primary-link']} to="/watchlist">
+        <Link className={styles['home-page__primary-link']} to="/stock-search">
           관심 종목 등록
         </Link>
         <Link className={styles['home-page__secondary-link']} to="/email-settings">
