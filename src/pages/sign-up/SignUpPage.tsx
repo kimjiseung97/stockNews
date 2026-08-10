@@ -1,13 +1,14 @@
 import { useState, type FormEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import { Eye, EyeOff, Mail } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { signUp } from '@/api/sign/sign'
-import { duplicateCheck } from '@/api/sign/duplicatChaeck/duplicateCheck'
+import { duplicateCheck } from '@/api/sign/duplicateCheck'
 import { emailAuth } from '@/api/emailAuth/emailAuth'
 import styles from '@/assets/styles/pages/sign-up/signUp.module.scss'
 import mediaStyles from '@/assets/styles/pages/sign-up/signUpMedia.module.scss'
 
 function SignUpPage() {
+  const navigate = useNavigate()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -47,6 +48,12 @@ function SignUpPage() {
       return
     }
 
+    if (!isEmailDuplicateChecked) {
+      alert('이메일 중복확인을 완료해 주세요.')
+      focusInput(form, 'email')
+      return
+    }
+
     if (!isEmailVerified) {
       alert('이메일 인증을 완료해 주세요.')
       focusInput(form, 'verificationCode')
@@ -81,6 +88,7 @@ function SignUpPage() {
     try {
       await signUp({ email, password, recoveryEmail })
       alert('회원가입이 완료되었습니다.')
+      navigate('/login')
     } catch (error) {
       alert('회원가입에 실패했습니다.')
     } finally {
@@ -231,100 +239,100 @@ function SignUpPage() {
             </label>
           )}
 
-          {isEmailVerified && (
-            <>
-              <label className={styles['sign-up-page__field']}>
-                <span>비밀번호</span>
-                <span className={styles['sign-up-page__input-box']}>
-                  <input
-                    type={isPasswordVisible ? 'text' : 'password'}
-                    name="password"
-                    value={passwordValue}
-                    onChange={(event) => setPasswordValue(event.target.value)}
-                    placeholder="비밀번호를 입력하세요"
-                    autoComplete="new-password"
-                    minLength={8}
-                    maxLength={20}
-                    required
-                  />
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    className={styles['sign-up-page__password-toggle']}
-                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                    aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
-                  >
-                    {isPasswordVisible ? (
-                      <EyeOff aria-hidden="true"></EyeOff>
-                    ) : (
-                      <Eye aria-hidden="true"></Eye>
-                    )}
-                  </button>
-                </span>
-                <small>영문, 숫자, 특수문자 포함 8~20자</small>
-              </label>
-
-              <label className={styles['sign-up-page__field']}>
-                <span>비밀번호 확인</span>
-                <span className={styles['sign-up-page__input-box']}>
-                  <input
-                    type={isPasswordConfirmVisible ? 'text' : 'password'}
-                    name="passwordConfirm"
-                    value={passwordConfirmValue}
-                    onChange={(event) => setPasswordConfirmValue(event.target.value)}
-                    placeholder="비밀번호를 다시 입력하세요"
-                    autoComplete="new-password"
-                    minLength={8}
-                    maxLength={20}
-                    required
-                  />
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    className={styles['sign-up-page__password-toggle']}
-                    onClick={() => setIsPasswordConfirmVisible(!isPasswordConfirmVisible)}
-                    aria-label={
-                      isPasswordConfirmVisible ? '비밀번호 확인 숨기기' : '비밀번호 확인 보기'
-                    }
-                  >
-                    {isPasswordConfirmVisible ? (
-                      <EyeOff aria-hidden="true"></EyeOff>
-                    ) : (
-                      <Eye aria-hidden="true"></Eye>
-                    )}
-                  </button>
-                </span>
-                {isPasswordMismatch && (
-                  <small className={styles['sign-up-page__password-error']} role="alert">
-                    비밀번호가 일치하지 않습니다.
-                  </small>
-                )}
-              </label>
-
-              <label className={styles['sign-up-page__field']}>
-                <span>복구 이메일</span>
-                <span className={styles['sign-up-page__input-box']}>
-                  <input
-                    type="email"
-                    name="recoveryEmail"
-                    placeholder="비상 연락용 이메일"
-                    autoComplete="email"
-                    maxLength={50}
-                  />
-                  <Mail aria-hidden="true"></Mail>
-                </span>
-                <small>비밀번호 분실 시 복구 용도로 사용됩니다.</small>
-              </label>
-
+          <label className={styles['sign-up-page__field']}>
+            <span>비밀번호</span>
+            <span className={styles['sign-up-page__input-box']}>
+              <input
+                type={isPasswordVisible ? 'text' : 'password'}
+                name="password"
+                value={passwordValue}
+                onChange={(event) => setPasswordValue(event.target.value)}
+                placeholder="비밀번호를 입력하세요"
+                autoComplete="new-password"
+                minLength={8}
+                maxLength={20}
+                required
+              />
               <button
-                type="submit"
-                className={styles['sign-up-page__submit']}
-                disabled={isSubmitting}
+                type="button"
+                tabIndex={-1}
+                className={styles['sign-up-page__password-toggle']}
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
               >
-                {isSubmitting ? '가입 중' : '회원가입'}
+                {isPasswordVisible ? (
+                  <EyeOff aria-hidden="true"></EyeOff>
+                ) : (
+                  <Eye aria-hidden="true"></Eye>
+                )}
               </button>
-            </>
-          )}
+            </span>
+            <small>영문, 숫자, 특수문자 포함 8~20자</small>
+          </label>
+
+          <label className={styles['sign-up-page__field']}>
+            <span>비밀번호 확인</span>
+            <span className={styles['sign-up-page__input-box']}>
+              <input
+                type={isPasswordConfirmVisible ? 'text' : 'password'}
+                name="passwordConfirm"
+                value={passwordConfirmValue}
+                onChange={(event) => setPasswordConfirmValue(event.target.value)}
+                placeholder="비밀번호를 다시 입력하세요"
+                autoComplete="new-password"
+                minLength={8}
+                maxLength={20}
+                required
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                className={styles['sign-up-page__password-toggle']}
+                onClick={() => setIsPasswordConfirmVisible(!isPasswordConfirmVisible)}
+                aria-label={
+                  isPasswordConfirmVisible ? '비밀번호 확인 숨기기' : '비밀번호 확인 보기'
+                }
+              >
+                {isPasswordConfirmVisible ? (
+                  <EyeOff aria-hidden="true"></EyeOff>
+                ) : (
+                  <Eye aria-hidden="true"></Eye>
+                )}
+              </button>
+            </span>
+            {isPasswordMismatch && (
+              <small className={styles['sign-up-page__password-error']} role="alert">
+                비밀번호가 일치하지 않습니다.
+              </small>
+            )}
+          </label>
+
+          <label className={styles['sign-up-page__field']}>
+            <span>복구 이메일</span>
+            <span className={styles['sign-up-page__input-box']}>
+              <input
+                type="email"
+                name="recoveryEmail"
+                placeholder="비상 연락용 이메일"
+                autoComplete="email"
+                maxLength={50}
+              />
+              <Mail aria-hidden="true"></Mail>
+            </span>
+            <small>비밀번호 분실 시 복구 용도로 사용됩니다.</small>
+          </label>
+
+          <button
+            type="submit"
+            className={styles['sign-up-page__submit']}
+            disabled={isSubmitting || (isVerificationCodeSent && !isEmailVerified)}
+          >
+            {isSubmitting
+              ? '가입 중'
+              : isVerificationCodeSent && !isEmailVerified
+                ? '인증 대기중'
+                : '회원가입'}
+          </button>
         </form>
 
         <section className={styles['sign-up-page__divider']} aria-hidden="true">

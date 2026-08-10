@@ -31,6 +31,9 @@ class Verification(
 
     @Column(name = "EXPIRES_AT", nullable = false)
     var expiresAt: LocalDateTime,
+
+    @Column(name = "VERIFIED", nullable = false)
+    var verified: Boolean = false,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

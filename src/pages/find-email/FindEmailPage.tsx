@@ -153,11 +153,7 @@ function FindEmailPage() {
         )}
 
         {step === 1 && (
-          <form
-            className={styles['find-email-page__form']}
-            onSubmit={handleEmailSubmit}
-            noValidate
-          >
+          <form className={styles['find-email-page__form']} onSubmit={handleEmailSubmit} noValidate>
             <label className={styles['find-email-page__field']}>
               <span>복구용 이메일</span>
               <span className={styles['find-email-page__input-box']}>
@@ -206,9 +202,7 @@ function FindEmailPage() {
                     placeholder="6자리 코드 입력"
                     inputMode="numeric"
                     onChange={(event) => {
-                      setVerificationCode(
-                        event.target.value.replace(/[^0-9]/g, '').slice(0, 6),
-                      )
+                      setVerificationCode(event.target.value.replace(/[^0-9]/g, '').slice(0, 6))
                       setWarningMessage('')
                     }}
                     required
@@ -254,7 +248,7 @@ function FindEmailPage() {
           <span></span>
         </section>
 
-        <Link className={styles['find-email-page__forgot-password']} to="/forgot-password">
+        <Link className={styles['find-email-page__forgot-password']} to="/find-password">
           비밀번호 찾기
         </Link>
       </article>

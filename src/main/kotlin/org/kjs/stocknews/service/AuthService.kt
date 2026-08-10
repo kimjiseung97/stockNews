@@ -2,6 +2,7 @@ package org.kjs.stocknews.service
 
 import org.kjs.stocknews.common.BusinessException
 import org.kjs.stocknews.common.ResultCode
+import org.kjs.stocknews.model.dto.EmailAvailabilityResult
 import org.kjs.stocknews.model.dto.LoginResult
 import org.kjs.stocknews.model.table.EmailVerification
 import org.kjs.stocknews.model.table.User
@@ -28,41 +29,28 @@ class AuthService(
     @Value("\${auth.verification.code-length}") private val codeLength: Int,
     @Value("\${auth.verification.expiry-minutes}") private val expiryMinutes: Long,
 ) {
-    fun checkEmailDuplicate(email: String): Boolean {
-        validateEmail(email)
-        return userRepository.existsByEmail(email)
-    }
-
+    // 이메일 중복 확인 후 사용 가능하면 곧바로 인증코드를 발송한다.
     @Transactional
-    fun signUp(email: String, rawPassword: String, recoveryEmail: String): Boolean {
+    fun checkEmailDuplicate(email: String): EmailAvailabilityResult {
         validateEmail(email)
-        validatePassword(rawPassword)
-        validateRecoveryEmail(recoveryEmail)
-        if (recoveryEmail == email) {
-            throw BusinessException(ResultCode.RECOVERY_EMAIL_SAME_AS_EMAIL)
-        }
         if (userRepository.existsByEmail(email)) {
-            throw BusinessException(ResultCode.EMAIL_ALREADY_REGISTERED)
-        }
-        if (userRepository.existsByRecoveryEmail(recoveryEmail)) {
-            throw BusinessException(ResultCode.RECOVERY_EMAIL_ALREADY_REGISTERED)
+            return EmailAvailabilityResult(duplicated = true, isMailSendSuccess = false)
         }
 
         val code = generateCode()
         val verification = EmailVerification(
             email = email,
-            password = passwordEncoder.encode(rawPassword)!!,
-            recoveryEmail = recoveryEmail,
             code = code,
             expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes),
         )
         emailVerificationRepository.save(verification)
-        return try {
+        val isMailSendSuccess = try {
             verificationMailSender.sendVerificationCode(email, code, expiryMinutes)
             true
         } catch (e: MailException) {
             false
         }
+        return EmailAvailabilityResult(duplicated = false, isMailSendSuccess = isMailSendSuccess)
     }
 
     @Transactional
@@ -80,11 +68,40 @@ class AuthService(
             throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
+        verification.verified = true
+        verification.expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes)
+    }
+
+    @Transactional
+    fun completeSignUp(email: String, rawPassword: String, recoveryEmail: String) {
+        validateEmail(email)
+        validatePassword(rawPassword)
+        validateRecoveryEmail(recoveryEmail)
+        if (recoveryEmail == email) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_SAME_AS_EMAIL)
+        }
+
+        val verification = emailVerificationRepository.findById(email)
+            .orElseThrow { BusinessException(ResultCode.VERIFICATION_NOT_FOUND) }
+        if (verification.expiresAt.isBefore(LocalDateTime.now())) {
+            emailVerificationRepository.delete(verification)
+            throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
+        }
+        if (!verification.verified) {
+            throw BusinessException(ResultCode.EMAIL_NOT_VERIFIED)
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw BusinessException(ResultCode.EMAIL_ALREADY_REGISTERED)
+        }
+        if (userRepository.existsByRecoveryEmail(recoveryEmail)) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_ALREADY_REGISTERED)
+        }
+
         userRepository.save(
             User(
-                email = verification.email,
-                password = verification.password,
-                recoveryEmail = verification.recoveryEmail,
+                email = email,
+                password = passwordEncoder.encode(rawPassword)!!,
+                recoveryEmail = recoveryEmail,
             ),
         )
         emailVerificationRepository.delete(verification)
@@ -130,9 +147,9 @@ class AuthService(
     }
 
     @Transactional
-    fun requestResetPassword(email: String) {
+    fun requestResetPassword(email: String): Boolean {
         validateEmail(email)
-        val user = userRepository.findByEmail(email) ?: throw BusinessException(ResultCode.EMAIL_NOT_FOUND)
+        val user = userRepository.findByEmail(email) ?: return false
         val recoveryEmail = user.recoveryEmail ?: throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
 
         val code = generateCode()
@@ -144,6 +161,7 @@ class AuthService(
         )
         verificationRepository.save(verification)
         verificationMailSender.sendResetPasswordCode(recoveryEmail, code, expiryMinutes)
+        return true
     }
 
     @Transactional
@@ -161,15 +179,29 @@ class AuthService(
             throw BusinessException(ResultCode.VERIFICATION_CODE_MISMATCH)
         }
 
-        val user = userRepository.findByEmail(email) ?: throw BusinessException(ResultCode.EMAIL_NOT_FOUND)
-        val recoveryEmail = user.recoveryEmail ?: throw BusinessException(ResultCode.RECOVERY_EMAIL_NOT_FOUND)
+        verification.verified = true
+        verification.expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes)
+    }
 
-        val temporaryPassword = generateTemporaryPassword()
-        user.password = passwordEncoder.encode(temporaryPassword)!!
-        user.temporaryPassword = true
-        userRepository.save(user)
+    @Transactional
+    fun completeResetPassword(email: String, newPassword: String) {
+        validateEmail(email)
+        validatePassword(newPassword)
+        val verification = verificationRepository.findByIdentifierAndPurpose(email, VerificationPurpose.RESET_PASSWORD)
+            ?: throw BusinessException(ResultCode.VERIFICATION_NOT_FOUND)
+
+        if (verification.expiresAt.isBefore(LocalDateTime.now())) {
+            verificationRepository.delete(verification)
+            throw BusinessException(ResultCode.VERIFICATION_EXPIRED)
+        }
+        if (!verification.verified) {
+            throw BusinessException(ResultCode.RESET_PASSWORD_NOT_VERIFIED)
+        }
+
+        val user = userRepository.findByEmail(email) ?: throw BusinessException(ResultCode.EMAIL_NOT_FOUND)
+        user.password = passwordEncoder.encode(newPassword)!!
+        user.temporaryPassword = false
         verificationRepository.delete(verification)
-        verificationMailSender.sendTemporaryPassword(recoveryEmail, temporaryPassword)
     }
 
     fun login(email: String, rawPassword: String): LoginResult {
@@ -179,7 +211,7 @@ class AuthService(
         if (!passwordEncoder.matches(rawPassword, user.password)) {
             throw BusinessException(ResultCode.INVALID_CREDENTIALS)
         }
-        return LoginResult(userId = user.id!!, requiresPasswordChange = user.temporaryPassword)
+        return LoginResult(userId = user.id!!, email = user.email, requiresPasswordChange = user.temporaryPassword)
     }
 
     @Transactional
@@ -193,7 +225,6 @@ class AuthService(
 
         user.password = passwordEncoder.encode(newPassword)!!
         user.temporaryPassword = false
-        userRepository.save(user)
     }
 
     private fun validateEmail(email: String) {
@@ -221,13 +252,7 @@ class AuthService(
     private fun generateCode(): String =
         (1..codeLength).map { Random.nextInt(0, 10) }.joinToString("")
 
-    private fun generateTemporaryPassword(): String =
-        (1..TEMPORARY_PASSWORD_LENGTH).map { TEMPORARY_PASSWORD_CHARS.random() }.joinToString("")
-
     companion object {
         private val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
-        private const val TEMPORARY_PASSWORD_CHARS =
-            "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%"
-        private const val TEMPORARY_PASSWORD_LENGTH = 12
     }
 }
