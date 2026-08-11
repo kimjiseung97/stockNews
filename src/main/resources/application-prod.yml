@@ -56,6 +56,12 @@ stock:
   detail-enrich:
     batch-size: 20
     cron: "0 */2 * * * *"
+  batch-watchdog:
+    cron: "0 */10 * * * *"
+    stale-minutes: 30
+  batch-history-cleanup:
+    cron: "0 0 3 * * *"
+    retention-days: 30
 
 news:
   dispatch:

@@ -26,7 +26,7 @@ class Stock(
     @Column(name = "THEME", nullable = true, length = 30)
     var theme: StockTheme? = null,
 
-    @Column(name = "KOREAN_NAME", nullable = true, length = 50)
+    @Column(name = "KOREAN_NAME", nullable = true, length = 100)
     var koreanName: String? = null,
 ) {
     @Id
