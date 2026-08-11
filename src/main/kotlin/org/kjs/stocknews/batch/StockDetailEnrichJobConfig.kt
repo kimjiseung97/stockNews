@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 private const val ENRICH_CHUNK_SIZE = 20
@@ -60,6 +61,8 @@ class StockDetailEnrichJobConfig(
 
     // Processor: 네이버에서 reutersCode를 조회한 뒤 기업개요 API로 상세정보를 채운다.
     // reutersCode 미해결/기업개요 조회 실패면 null을 반환해 이번 배치에서 제외한다(다음 실행 때 재시도).
+    // 성공/실패 무관하게 stock.detailAttemptedAt을 갱신해, OTC/상장폐지 등으로 영구 실패하는 종목이
+    // findWithoutDetail의 재시도 우선순위 맨 앞을 계속 차지하지 않도록 한다.
     @Bean
     fun stockDetailEnrichProcessor(): ItemProcessor<Stock, StockDetail> = ItemProcessor { stock ->
         try {
@@ -89,6 +92,9 @@ class StockDetailEnrichJobConfig(
         } catch (e: Exception) {
             log.warn("{} -> failed: {}", stock.ticker, e.message)
             null
+        } finally {
+            stock.detailAttemptedAt = LocalDateTime.now()
+            stockRepository.save(stock)
         }
     }
 
