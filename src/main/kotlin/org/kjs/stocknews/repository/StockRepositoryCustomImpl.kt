@@ -4,6 +4,7 @@ import com.querydsl.core.types.Order
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.ComparablePath
+import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.kjs.stocknews.model.table.QStock.stock
@@ -41,11 +42,13 @@ class StockRepositoryCustomImpl(
             .limit(limit.toLong())
             .fetch()
 
+    // 실패해서 detail이 안 생기는 종목이 id 오름차순 상위를 영구히 점유해 뒤쪽 종목을 못 뽑는 걸 막기 위해 RAND()로 섞는다.
     override fun findWithoutDetail(limit: Int): List<Stock> =
         queryFactory
             .selectFrom(stock)
             .leftJoin(stockDetail).on(stockDetail.stockId.eq(stock.id))
             .where(stockDetail.id.isNull)
+            .orderBy(Expressions.numberTemplate(Double::class.java, "function('rand')").asc())
             .limit(limit.toLong())
             .fetch()
 
