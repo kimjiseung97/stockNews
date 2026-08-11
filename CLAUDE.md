@@ -66,8 +66,8 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
 ## 설정(Configuration)
 
 - `src/main/resources/application.yml`은 git-ignore 대상 — DB, 메일, 외부 API 자격증명 보유. 저장소 루트의 `.env.example`이 Docker 배포용 필수 env 변수(`DB_*`, `MAIL_*`, `CORS_ALLOWED_ORIGINS`, `DOMAIN`) 문서 역할. yml에서는 `${ENV_VAR:default}` 패턴 사용, 실제 비밀값은 절대 커밋 금지.
-- 데이터소스는 Aiven 원격 MySQL. `spring.jpa.hibernate.ddl-auto: update` — Spring Batch 메타데이터 테이블 제외하고 Hibernate 자동 스키마 관리.
-- Spring Batch 메타데이터 테이블(`BATCH_JOB_INSTANCE` 등)은 Spring Boot 4.1 배치 자동설정이 생성하지 않음 — `sql/batch-schema-mysql.sql`을 대상 DB에 1회 수동 실행 필요. `sql/domain-schema-mysql.sql`은 도메인 테이블 DDL 참고용.
+- 데이터소스는 GCP VM 안 Docker Compose로 같이 띄운 MariaDB 컨테이너(내부 네트워크 `db:3306`). 드라이버는 `org.mariadb.jdbc.Driver`(`mariadb-java-client`) 사용 — MySQL Connector/J는 MariaDB 대상으로 `INFORMATION_SCHEMA.KEYWORDS` 등 MySQL 8 전용 메타데이터 쿼리를 날려 Hibernate dialect 감지가 실패하므로 쓰지 말 것. `spring.jpa.hibernate.ddl-auto: update` — Spring Batch 메타데이터 테이블 제외하고 Hibernate 자동 스키마 관리.
+- Spring Batch 메타데이터 테이블(`BATCH_JOB_INSTANCE` 등)은 Spring Boot 4.1 배치 자동설정이 생성하지 않음 — 대상 DB에 1회 수동 실행 필요. **MariaDB 대상이면 `sql/batch-schema-mariadb.sql`, MySQL 대상이면 `sql/batch-schema-mysql.sql`을 사용할 것** (차이는 `BATCH_*_SEQ`: MySQL판은 UPDATE로 흉내낸 테이블, MariaDB판은 네이티브 `CREATE SEQUENCE` — MariaDB에 MySQL판을 실행하면 Spring의 시퀀스 증가 쿼리가 `'... is not a SEQUENCE'` 에러로 실패함). `sql/domain-schema-mysql.sql`은 도메인 테이블 DDL 참고용.
 - `StockNewsApplication`이 `BatchJobLauncherAutoConfiguration`을 명시적으로 제외 — 배치 잡은 시작 시 자동 실행되지 않음.
 - CORS는 설정 기반: `WebConfig`/`CorsProperties`가 `cors.allowed-origins`를 바인딩하고 credential(세션 쿠키) 허용 — 프론트 오리진 추가 시 코드가 아니라 env 값을 수정할 것.
 - 배포: `Dockerfile`이 Spring Boot 앱을 빌드하고, `docker-compose.yml`이 TLS 종료용 `Caddy` 리버스 프록시(`Caddyfile`)와 함께 실행.
