@@ -9,10 +9,12 @@ CREATE TABLE TB_STOCK (
     ID                  BIGINT AUTO_INCREMENT PRIMARY KEY,
     TICKER              VARCHAR(10)  NOT NULL,
     NAME                VARCHAR(100) NOT NULL,
-    CIK                 BIGINT       NOT NULL,
+    CIK                 BIGINT,
     THEME               VARCHAR(30),
     KOREAN_NAME         VARCHAR(100),
     DETAIL_ATTEMPTED_AT DATETIME,
+    STATUS              VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
+    DELISTED_AT         DATETIME,
     CONSTRAINT UK_TB_STOCK_TICKER UNIQUE (TICKER)
 ) ENGINE=InnoDB;
 

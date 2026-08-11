@@ -43,6 +43,10 @@ sec:
   tickers-url: https://www.sec.gov/files/company_tickers.json
   user-agent: stockNews-dev anfajrdms@gmail.com
 
+nasdaq:
+  listed-url: https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt
+  other-listed-url: https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt
+
 stock:
   seed:
     batch-size: 300
@@ -56,6 +60,8 @@ stock:
   detail-enrich:
     batch-size: 20
     cron: "0 */2 * * * *"
+  delist-check:
+    cron: "0 0 4 * * *"
   batch-watchdog:
     cron: "0 */10 * * * *"
     stale-minutes: 30

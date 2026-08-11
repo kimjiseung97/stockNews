@@ -21,10 +21,11 @@ class StockRepositoryCustomImpl(
 ) : StockRepositoryCustom {
     private val pathBuilder = PathBuilder(Stock::class.java, stock.metadata)
 
+    // CIK가 있는 종목만 대상 - SEC 기업 프로필 조회(SecCompanyProfileClient)에 CIK가 필수라 없는 종목은 영구히 실패한다.
     override fun findByThemeIsNull(limit: Int): List<Stock> =
         queryFactory
             .selectFrom(stock)
-            .where(stock.theme.isNull)
+            .where(stock.theme.isNull, stock.cik.isNotNull)
             .limit(limit.toLong())
             .fetch()
 

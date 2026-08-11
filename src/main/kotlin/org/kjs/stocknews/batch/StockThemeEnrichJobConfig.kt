@@ -57,7 +57,7 @@ class StockThemeEnrichJobConfig(
     @Bean
     fun stockThemeEnrichProcessor(): ItemProcessor<Stock, Stock> = ItemProcessor { stock ->
         try {
-            val profile = secCompanyProfileClient.fetchProfile(stock.cik)
+            val profile = secCompanyProfileClient.fetchProfile(requireNotNull(stock.cik))
             val theme = profile?.sic?.toIntOrNull()?.let { SicThemeMapper.themeForSic(it) }
             log.info("{} ({}) -> {}", stock.ticker, profile?.sicDescription, theme ?: "unresolved")
             if (theme != null) {

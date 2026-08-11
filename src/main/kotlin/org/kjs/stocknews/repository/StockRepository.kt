@@ -1,6 +1,7 @@
 package org.kjs.stocknews.repository
 
 import org.kjs.stocknews.model.table.Stock
+import org.kjs.stocknews.model.table.StockStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
@@ -9,4 +10,6 @@ interface StockRepository : JpaRepository<Stock, Long>, StockRepositoryCustom {
 
     @Query("select s.ticker from Stock s")
     fun findAllTickers(): List<String>
+
+    fun findByStatus(status: StockStatus): List<Stock>
 }
