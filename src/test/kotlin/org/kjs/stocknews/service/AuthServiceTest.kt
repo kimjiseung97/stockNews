@@ -342,18 +342,23 @@ class AuthServiceTest {
     }
 
     @Test
-    fun `복구 이메일이 없는 계정이 비밀번호 재설정을 요청하면 RECOVERY_EMAIL_NOT_FOUND 예외가 발생한다`() {
+    fun `복구 이메일이 없는 계정도 비밀번호 재설정을 요청할 수 있다`() {
         `when`(userRepository.findByEmail("user@example.com")).thenReturn(
             User(email = "user@example.com", password = "encoded", recoveryEmail = null),
         )
 
-        val exception =
-            assertThrows<BusinessException> { authService.requestResetPassword("user@example.com") }
-        assert(exception.resultCode == ResultCode.RECOVERY_EMAIL_NOT_FOUND)
+        val registered = authService.requestResetPassword("user@example.com")
+
+        assert(registered)
+        org.mockito.Mockito.verify(verificationMailSender).sendResetPasswordCode(
+            eqArg("user@example.com"),
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.anyLong(),
+        )
     }
 
     @Test
-    fun `등록된 계정이 비밀번호 재설정을 요청하면 복구 이메일로 인증코드가 발송된다`() {
+    fun `등록된 계정이 비밀번호 재설정을 요청하면 입력받은 이메일로 인증코드가 발송된다`() {
         `when`(userRepository.findByEmail("user@example.com")).thenReturn(
             User(email = "user@example.com", password = "encoded", recoveryEmail = "recovery@example.com"),
         )
@@ -362,7 +367,7 @@ class AuthServiceTest {
 
         assert(registered)
         org.mockito.Mockito.verify(verificationMailSender).sendResetPasswordCode(
-            org.mockito.ArgumentMatchers.anyString(),
+            eqArg("user@example.com"),
             org.mockito.ArgumentMatchers.anyString(),
             org.mockito.ArgumentMatchers.anyLong(),
         )
