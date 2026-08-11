@@ -1,4 +1,25 @@
 services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Seoul
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
   app:
     image: ghcr.io/kimjiseung97/stocknews:latest
     restart: unless-stopped
@@ -9,6 +30,9 @@ services:
       - .env
     expose:
       - "8080"
+    depends_on:
+      db:
+        condition: service_healthy
 
   caddy:
     image: caddy:2-alpine
@@ -28,3 +52,4 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  db-data:
