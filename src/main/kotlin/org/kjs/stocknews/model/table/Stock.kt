@@ -18,7 +18,8 @@ class Stock(
     @Column(name = "TICKER", nullable = false, unique = true, length = 10)
     val ticker: String,
 
-    @Column(name = "NAME", nullable = false, length = 100)
+    // 나스닥/기타거래소 종목명은 우선주/워런트 설명이 붙어 최대 245자까지 나옴(SEC는 최대 71자) - 100으로는 부족해 잘림 오류 발생 이력 있음.
+    @Column(name = "NAME", nullable = false, length = 255)
     var name: String,
 
     // 나스닥/그 외 거래소 목록(NasdaqListedClient) 출신 종목은 CIK가 없어 null - 테마 보강(SEC 기반)은 이 값이 있는 종목만 대상.
