@@ -1,11 +1,12 @@
 import styles from '@/assets/styles/fixedContents/header/header.module.scss'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Menu from './menu/Menu'
 import { logout } from '@/api/login/login'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Header() {
   const { email, clearLoggedInUser } = useAuth()
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
     // 화면은 즉시 한 번만 갱신하고, 세션 종료는 별도로 처리한다.
@@ -13,6 +14,7 @@ export default function Header() {
 
     try {
       await logout()
+      navigate('/', { replace: true })
     } catch (error) {
       console.error('로그아웃 요청 실패', error)
     }
@@ -34,7 +36,11 @@ export default function Header() {
             <>
               <li className={styles['header-container__email']}>{email}</li>
               <li>
-                <button className={styles['header-container__logout']} type="button" onClick={handleLogout}>
+                <button
+                  className={styles['header-container__logout']}
+                  type="button"
+                  onClick={handleLogout}
+                >
                   로그아웃
                 </button>
               </li>
