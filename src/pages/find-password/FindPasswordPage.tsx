@@ -1,8 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { ArrowLeft, Check, Eye, EyeOff, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { requestResetPassword } from '@/api/infoFind/findPw'
+import { requsetNumAuth } from '@/api/infoFind/findPw'
 import styles from '@/assets/styles/pages/forgot-password/forgotPassword.module.scss'
 import mediaStyles from '@/assets/styles/pages/forgot-password/forgotPasswordMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
@@ -32,29 +33,6 @@ function FindPasswordPage() {
 
   const stepLabels = ['이메일 입력', '코드 인증', '비밀번호 재설정']
 
-  // 다른 탭에서 돌아오면 입력 정보 초기화
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState !== 'visible') {
-        return
-      }
-
-      setStep(1)
-      setEmail('')
-      setVerificationCode('')
-      setPassword('')
-      setPasswordConfirm('')
-      setIsPasswordVisible(false)
-      setWarningMessage('')
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [])
-
   // 이메일 인증 단계로 이동
   const handleEmailSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -77,7 +55,13 @@ function FindPasswordPage() {
     setIsSubmitting(true)
 
     try {
-      await requestResetPassword({ email: trimmedEmail })
+      const isMailSendSuccess = await requestResetPassword({ email: trimmedEmail })
+
+      if (!isMailSendSuccess) {
+        setWarningMessage('가입되지 않은 이메일이거나 올바르지 않은 이메일입니다.')
+        return
+      }
+
       setEmail(trimmedEmail)
       setWarningMessage('')
       setStep(2)
@@ -91,7 +75,7 @@ function FindPasswordPage() {
   }
 
   // 새 비밀번호 입력 단계로 이동
-  const handleCodeSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleCodeSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!verificationCode) {
@@ -105,8 +89,34 @@ function FindPasswordPage() {
       return
     }
 
-    setWarningMessage('')
-    setStep(3)
+    setIsSubmitting(true)
+
+    try {
+      const isNumAuthSuccess = await requsetNumAuth({
+        email,
+        code: verificationCode,
+      })
+
+      if (!isNumAuthSuccess) {
+        setWarningMessage('인증 코드가 올바르지 않습니다.')
+        return
+      }
+
+      setWarningMessage('')
+      setStep(3)
+    } catch (error) {
+      if (error instanceof ApiError && error.message === '인증코드가 만료되었습니다.') {
+        alert(error.message)
+        window.location.href = '/find-password'
+        return
+      }
+
+      setWarningMessage(
+        error instanceof ApiError ? error.message : '인증 코드 확인에 실패했습니다.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // 비밀번호 변경 완료
@@ -269,8 +279,12 @@ function FindPasswordPage() {
                 <small>이메일에서 받은 코드를 입력하세요.</small>
               </label>
 
-              <button type="submit" className={styles['forgot-password-page__submit']}>
-                인증 확인
+              <button
+                type="submit"
+                className={styles['forgot-password-page__submit']}
+                disabled={isSubmitting}
+              >
+                {showSubmitting ? <LoadingSpinner label="인증 중"></LoadingSpinner> : '인증 확인'}
               </button>
               <button
                 type="button"
