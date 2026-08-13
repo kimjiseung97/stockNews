@@ -1,3 +1,5 @@
+@use './flexMixIn.scss' as *;
+
 @mixin btn($size: m) {
   @include flex(center, center);
   border-radius: 10px;

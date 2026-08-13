@@ -25,7 +25,7 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
     const koreaName = tiker.trim()
 
     navigate({
-      pathname: '/stock-search',
+      pathname: email ? '/watchlist/register' : '/stock-search',
       search: koreaName ? `?${new URLSearchParams({ koreaName })}` : '',
     })
   }
@@ -47,7 +47,9 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
               <input
                 id="sidebar-stock-search-query"
                 type="text"
-                placeholder=" 티커 입력해 주세요."
+                placeholder={
+                  email ? '관심종목을 검색해 주세요.' : '기업명 또는 티커를 입력해 주세요.'
+                }
                 value={tiker}
                 onChange={(e) => setTiker(e.target.value)}
                 onKeyDown={tikerOnKeyDown}

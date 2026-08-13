@@ -15,8 +15,8 @@
     .main-layout__right {
       min-height: 0;
       overflow-y: auto;
-      background-color: #fff;
-      box-shadow: 0 24px 70px rgb(46 72 130 / 17%);
+      background-color: $color-surface;
+      box-shadow: 0 24px 70px rgba($main-color, 0.17);
     }
 
     .main-layout__content {

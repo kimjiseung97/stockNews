@@ -2,8 +2,8 @@
   .header-menu {
     overflow: hidden;
     cursor: grab;
-    border-top: 1px solid #edf0f5;
-    border-bottom: 1px solid #dfe3eb;
+    border-top: 1px solid $color-skeleton-base;
+    border-bottom: 1px solid $color-menu-border;
     user-select: none;
 
     &:active {
@@ -40,7 +40,7 @@
       display: inline-flex;
       align-items: center;
       width: auto;
-      color: #6e7080;
+      color: $color-navigation-text;
       font-size: 1.6rem;
       font-weight: 600;
       white-space: nowrap;

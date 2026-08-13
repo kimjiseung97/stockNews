@@ -1,9 +1,15 @@
+import { useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from '@/components/fixedContents/header/Header'
 import LeftContents from '@/components/fixedContents/leftContents/LeftContents'
+import useScrollToTop from '@/hooks/useScrollToTop'
 import styles from '@/assets/styles/layout/main/mainLayout.module.scss'
 
 export default function MainLayout() {
+  const scrollContainerRef = useRef<HTMLElement>(null)
+
+  useScrollToTop(scrollContainerRef)
+
   return (
     <section id="mainLayout" className={styles['main-layout']}>
       <aside className={styles['main-layout__left']}>
@@ -23,7 +29,7 @@ export default function MainLayout() {
         ></LeftContents>
       </aside>
 
-      <section className={styles['main-layout__right']}>
+      <section ref={scrollContainerRef} className={styles['main-layout__right']}>
         <Header></Header>
 
         <section className={styles['main-layout__content']}>

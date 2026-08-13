@@ -1,119 +1,203 @@
 :global(#watchlistPage) {
   &.watchlist-page {
-    max-width: 720px;
+    max-width: 980px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 40px 20px 64px;
     color: $color-text-primary;
 
     .watchlist-page__heading {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
+
+      .watchlist-page__eyebrow {
+        margin-bottom: 8px;
+        color: $main-color;
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
 
       h1 {
         margin-bottom: 10px;
-        font-size: 2rem;
+        font-size: 2.4rem;
         font-weight: 700;
         letter-spacing: -0.04em;
       }
 
-      p {
+      > p:last-child {
         color: $color-text-secondary;
         font-size: 1.4rem;
-        line-height: 1.5;
+        line-height: 1.6;
       }
+    }
+
+    .watchlist-page__search-form {
+      @include flex(null, center, 10px);
+      margin-bottom: 28px;
+
+      > button {
+        @include btn(m);
+        flex: 0 0 104px;
+        width: 104px;
+        max-width: 104px;
+        height: 48px;
+        white-space: nowrap;
+        color: $color-on-primary;
+        background-color: $main-color;
+
+        &:hover:not(:disabled) {
+          background-color: $color-primary-hover;
+        }
+      }
+    }
+
+    .watchlist-page__search-box {
+      @include search-box();
+    }
+
+    .watchlist-page__sr-only {
+      @include visually-hidden;
     }
 
     .watchlist-page__notice {
-      @include flex(null, center, 7px);
-      margin-bottom: 20px;
-      padding: 13px 14px;
-      color: $color-warning;
-      background-color: rgba($color-warning, 0.1);
-      border: 1px solid rgba($color-warning, 0.3);
-      border-radius: 9px;
-      font-size: 1.3rem;
-
-      img {
-        flex: 0 0 auto;
-        width: 25px;
-        object-fit: contain;
-      }
+      @include notice($color-warning, 20px);
     }
 
     .watchlist-page__status {
-      padding: 40px 0;
+      padding: 56px 0;
       color: $color-text-muted;
       font-size: 1.4rem;
       text-align: center;
     }
 
+    .watchlist-page__empty {
+      padding: 56px 20px;
+      background-color: $color-surface;
+      border: 1px solid $color-border;
+      border-radius: 16px;
+      text-align: center;
+
+      h2 {
+        margin-bottom: 10px;
+        font-size: 1.6rem;
+        font-weight: 700;
+      }
+
+      p {
+        margin-bottom: 22px;
+        color: $color-text-muted;
+        font-size: 1.3rem;
+      }
+
+      a {
+        @include flex(center, center);
+        width: 150px;
+        height: 42px;
+        margin: 0 auto;
+        color: $color-on-primary;
+        background-color: $main-color;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: 600;
+
+        &:hover {
+          background-color: $color-primary-hover;
+        }
+      }
+    }
+
+    .watchlist-page__summary {
+      margin-bottom: 12px;
+      color: $color-text-secondary;
+      font-size: 1.2rem;
+
+      strong {
+        color: $main-color;
+        font-weight: 700;
+      }
+    }
+
     .watchlist-page__list {
-      @include flex-col(null, null, 10px);
-      list-style: none;
+      @include grid(repeat(1, minmax(0, 1fr)), null, 12px);
     }
 
     .watchlist-page__item {
-      @include flex(null, center, 14px);
+      @include grid(70px minmax(0, 1fr) auto 20px, null, 12px, center);
+      min-height: 88px;
       padding: 16px;
+      color: $color-text-primary;
       background-color: $color-surface;
       border: 1px solid $color-border;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px $color-shadow;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px $color-shadow;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        transform 0.2s;
+
+      &:hover {
+        border-color: $color-secondary-border;
+        box-shadow: 0 8px 22px $color-shadow;
+        transform: translateY(-2px);
+
+        .watchlist-page__arrow {
+          color: $main-color;
+          transform: translateX(3px);
+        }
+      }
     }
 
     .watchlist-page__ticker {
-      flex: 0 0 auto;
-      padding: 4px 8px;
-      background-color: rgba($main-color, 0.08);
-      border-radius: 6px;
-      color: $main-color;
-      font-size: 1.2rem;
+      justify-self: start;
+      padding: 5px 9px;
+      color: $color-ticker-text;
+      background-color: $color-ticker-background;
+      border-radius: 7px;
+      font-size: 1.1rem;
       font-weight: 700;
     }
 
     .watchlist-page__names {
-      @include flex(null, baseline, 8px);
-      flex: 1;
+      @include flex-col(null, null, 5px);
       min-width: 0;
 
+      strong,
+      small {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       strong {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
         font-weight: 600;
       }
 
       small {
         color: $color-text-muted;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
       }
     }
 
     .watchlist-page__theme {
-      flex: 0 0 auto;
-      padding: 4px 10px;
+      padding: 4px 9px;
+      color: $color-text-label;
       background-color: $color-divider;
       border-radius: 999px;
-      color: $color-text-label;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
     }
 
+    .watchlist-page__arrow {
+      width: 18px;
+      color: $color-icon;
+      transition:
+        color 0.2s,
+        transform 0.2s;
+    }
+
     .watchlist-page__pagination {
-      @include flex(center, center, 16px);
-      margin-top: 28px;
-
-      button {
-        @include btn(s);
-        color: $color-text-label;
-        border: 1px solid $color-secondary-border;
-
-        &:hover:not(:disabled) {
-          background-color: $color-secondary-hover;
-        }
-      }
-
-      span {
-        color: $color-text-secondary;
-        font-size: 1.2rem;
-      }
+      @include pagination();
+      margin-top: 18px;
     }
   }
 }

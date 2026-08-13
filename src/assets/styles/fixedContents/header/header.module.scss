@@ -3,7 +3,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background-color: #fff;
+    background-color: $color-surface;
 
     .header-container__top {
       display: flex;
@@ -19,7 +19,7 @@
       gap: 12px;
       width: fit-content;
       height: auto;
-      color: #171923;
+      color: $color-text-primary;
 
       span {
         display: inline-flex;
@@ -27,7 +27,7 @@
         justify-content: center;
         width: 40px;
         height: 40px;
-        color: #fff;
+        color: $color-on-primary;
         background-color: $main-color;
         border-radius: 11px;
         font-weight: 700;
@@ -71,18 +71,18 @@
     }
 
     .header-container__sign-up {
-      color: #fff;
+      color: $color-on-primary;
       background-color: $main-color;
 
       &:hover {
-        background-color: #315cc2;
+        background-color: $color-primary-hover;
       }
     }
 
     .header-container__email {
       max-width: 240px;
       overflow: hidden;
-      color: #4a5568;
+      color: $color-account-text;
       font-size: 14px;
       font-weight: 600;
       text-overflow: ellipsis;

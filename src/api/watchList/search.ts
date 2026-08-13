@@ -1,22 +1,59 @@
-//  관심목록 조회
+// 관심목록 조회
 import { apiFetch } from '@/api/common/commonApi'
 
-interface watchListSearch {
-  duplicated: boolean
-  isMailSendSuccess: boolean
+export interface WatchListStock {
+  id: number
+  stockId: number
+  ticker: string
+  name: string
+  theme: string | null
+  koreanName: string | null
 }
 
-export async function watchListSearch(): Promise<void> {
-  try {
-    const response = await apiFetch<watchListSearch>(`/users/me/stocks`)
+export interface WatchListSearchResponse {
+  totalPages: number
+  totalElements: number
+  size: number
+  content: WatchListStock[]
+  number: number
+  numberOfElements: number
+  first: boolean
+  last: boolean
+  empty: boolean
+}
 
-    console.log('이메일 중복 확인 응답', response)
+interface WatchListSearchParams {
+  page?: number
+  size?: number
+}
+
+export async function watchListSearch({
+  page = 0,
+  size = 100,
+}: WatchListSearchParams = {}): Promise<WatchListSearchResponse> {
+  try {
+    const searchParams = new URLSearchParams({ page: String(page), size: String(size) })
+    const response = await apiFetch<WatchListSearchResponse>(
+      `/users/me/stocks?${searchParams.toString()}`,
+    )
 
     if (!response) {
-      throw new Error('이메일 중복 확인 응답이 없습니다.')
+      throw new Error('관심종목 조회 응답이 없습니다.')
     }
+
+    const normalizedResponse = {
+      ...response,
+      content: response.content.map((stock) => ({
+        ...stock,
+        id: stock.id ?? stock.stockId,
+        stockId: stock.stockId ?? stock.id,
+      })),
+    }
+
+    console.log('관심종목 조회 응답', normalizedResponse)
+    return normalizedResponse
   } catch (e) {
-    console.log('이메일 중복 확인 에러', e)
+    console.log('관심종목 조회 에러', e)
     throw e
   }
 }

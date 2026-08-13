@@ -18,7 +18,12 @@
 .list-skeleton__content i,
 .list-skeleton__trailing {
   display: block;
-  background: linear-gradient(90deg, #edf0f5 25%, #f7f8fb 50%, #edf0f5 75%);
+  background: linear-gradient(
+    90deg,
+    $color-skeleton-base 25%,
+    $color-skeleton-highlight 50%,
+    $color-skeleton-base 75%
+  );
   background-size: 200% 100%;
   border-radius: 6px;
   animation: list-skeleton-shimmer 1.35s ease-in-out infinite;

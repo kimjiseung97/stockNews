@@ -63,33 +63,7 @@
     }
 
     .find-email-page__input-box {
-      @include flex(null, center);
-      height: 44px;
-      padding: 0 13px;
-      border: 1px solid $color-input-border;
-      border-radius: 10px;
-      box-shadow: 0 1px 3px $color-input-shadow;
-      transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
-
-      &:focus-within {
-        border-color: $main-color;
-        box-shadow: 0 0 0 3px $color-focus-ring;
-      }
-
-      input {
-        flex: 1;
-        min-width: 0;
-        height: 100%;
-        color: $color-input-text;
-        font-size: 1.4rem;
-      }
-
-      input::placeholder {
-        color: $color-placeholder;
-        font-size: 1.4rem;
-      }
+      @include form-input-box();
 
       svg {
         flex: 0 0 auto;
@@ -100,31 +74,11 @@
     }
 
     .find-email-page__submit {
-      @include btn(full);
-      height: 46px;
-      color: $color-on-primary;
-      background-color: $main-color;
-      box-shadow: 0 5px 12px $color-primary-shadow;
-      font-size: 1.3rem;
-
-      &:hover {
-        background-color: $color-primary-hover;
-      }
-
-      &:active {
-        transform: translateY(1px);
-      }
+      @include primary-submit();
     }
 
     .find-email-page__notice {
-      @include flex(null, center, 7px);
-      margin-bottom: 22px;
-      padding: 13px 14px;
-      color: $color-complete;
-      background-color: rgba($color-complete, 0.1);
-      border: 1px solid rgba($color-complete, 0.3);
-      border-radius: 9px;
-      font-size: 1.3rem;
+      @include notice($color-complete);
 
       img {
         flex: 0 0 auto;
@@ -155,7 +109,7 @@
     .find-email-page__result {
       margin-bottom: 18px;
       padding: 18px;
-      background-color: rgb(56 103 214 / 5%);
+      background-color: rgba($main-color, 0.05);
       border: 1px solid $color-divider;
       border-radius: 10px;
 
@@ -173,19 +127,7 @@
     }
 
     .find-email-page__divider {
-      @include grid(1fr auto 1fr, null, 14px, center);
-      margin: 28px 0;
-
-      span {
-        height: 1px;
-        background-color: $color-divider;
-      }
-
-      em {
-        color: $color-divider-text;
-        font-size: 1.2rem;
-        font-style: normal;
-      }
+      @include divider();
     }
 
     .find-email-page__forgot-password {

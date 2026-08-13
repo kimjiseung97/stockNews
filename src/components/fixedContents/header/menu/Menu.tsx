@@ -110,7 +110,7 @@ export default function Menu() {
                 to="/watchlist"
                 end
               >
-                관심 종목 검색
+                내 관심종목
               </NavLink>
             </li>
             <li>
@@ -120,7 +120,7 @@ export default function Menu() {
                 }
                 to="/watchlist/register"
               >
-                관심 종목 등록
+                관심종목 추가·관리
               </NavLink>
             </li>
           </>

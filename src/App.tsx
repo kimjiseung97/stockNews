@@ -3,7 +3,9 @@ import EmailSettingsPage from './pages/email-settings/EmailSettingsPage'
 import HomePage from './pages/home/HomePage'
 import SignUpPage from './pages/sign-up/SignUpPage'
 import StockNewsPage from './pages/stock-news/StockNewsPage'
+import StockDetailPage from './pages/stock-detail/StockDetailPage'
 import StockSearchPage from './pages/stock-search/StockSearchPage'
+import WatchlistRegisterPage from './pages/watchlist/WatchlistRegisterPage'
 import WatchlistPage from './pages/watchlist/WatchlistPage'
 import MainLayout from './layouts/MainLayout'
 import LoginPage from './pages/login/LoginPage'
@@ -19,7 +21,14 @@ function App() {
         <Route path="/" element={<HomePage></HomePage>}></Route>
         <Route path="/stock-search" element={<StockSearchPage></StockSearchPage>}></Route>
         <Route path="/watchlist" element={<WatchlistPage></WatchlistPage>}></Route>
-        <Route path="/watchlist/register" element={<StockSearchPage></StockSearchPage>}></Route>
+        <Route
+          path="/stocks/:stockId/detail"
+          element={<StockDetailPage></StockDetailPage>}
+        ></Route>
+        <Route
+          path="/watchlist/register"
+          element={<WatchlistRegisterPage></WatchlistRegisterPage>}
+        ></Route>
         <Route path="/stock-news" element={<StockNewsPage></StockNewsPage>}></Route>
         <Route path="/email-settings" element={<EmailSettingsPage></EmailSettingsPage>}></Route>
         <Route path="/login" element={<LoginPage></LoginPage>}></Route>

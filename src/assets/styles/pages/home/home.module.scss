@@ -7,7 +7,7 @@
       padding: 48px 36px;
       background:
         radial-gradient(circle at 100% 0%, rgba($left-point-color, 0.42), transparent 44%),
-        linear-gradient(145deg, #eef4ff 0%, $color-surface 78%);
+        linear-gradient(145deg, $color-home-gradient-start 0%, $color-surface 78%);
       border: 1px solid rgba($main-color, 0.13);
       border-radius: 22px;
       box-shadow: 0 18px 38px $color-primary-shadow;
@@ -248,7 +248,7 @@
     .home-page__email-preview {
       padding: 62px 0 72px;
       overflow: hidden;
-      background-color: #f8faff;
+      background-color: $color-home-background;
 
       > h2 {
         margin-top: 14px;
@@ -400,7 +400,7 @@
       border-radius: 10px;
       background:
         radial-gradient(circle at 0% 0%, rgba($left-point-color, 0.34), transparent 35%),
-        linear-gradient(135deg, #3475e4 0%, #254db4 100%);
+        linear-gradient(135deg, $color-cta-gradient-start 0%, $color-cta-gradient-end 100%);
 
       &::before,
       &::after {

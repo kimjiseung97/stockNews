@@ -45,10 +45,11 @@ export default defineConfig(({ mode }) => {
         scss: {
           additionalData: `
   
-          @import "@/assets/styles/common/variable.scss"; 
-          @import "@/assets/styles/mixIn/flexMixIn.scss";
-          @import "@/assets/styles/mixIn/gridMixIn.scss";
-          @import "@/assets/styles/mixIn/btnMixIn.scss";
+          @use "@/assets/styles/common/variable.scss" as *;
+          @use "@/assets/styles/mixIn/flexMixIn.scss" as *;
+          @use "@/assets/styles/mixIn/gridMixIn.scss" as *;
+          @use "@/assets/styles/mixIn/btnMixIn.scss" as *;
+          @use "@/assets/styles/mixIn/commonStyleMixIn.scss" as *;
         
           `,
         },

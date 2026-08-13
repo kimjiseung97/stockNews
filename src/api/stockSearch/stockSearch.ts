@@ -3,6 +3,7 @@ import { apiFetch } from '@/api/common/commonApi'
 
 export interface Stock {
   id: number
+  stockId: number
   ticker: string
   name: string
   theme: string | null
@@ -67,7 +68,13 @@ export async function stockSearch({
       response,
     })
 
-    return response
+    return {
+      ...response,
+      content: response.content.map((stock) => ({
+        ...stock,
+        stockId: stock.stockId ?? stock.id,
+      })),
+    }
   } catch (error) {
     console.error('종목 검색 오류', error)
     throw error

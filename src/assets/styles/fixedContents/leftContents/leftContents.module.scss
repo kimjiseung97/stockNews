@@ -34,8 +34,8 @@
 
       .input-box {
         padding: 20px;
-        background-color: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.22);
+        background-color: rgba($color-on-primary, 0.07);
+        border: 1px solid rgba($color-on-primary, 0.22);
         border-radius: 14px;
         box-shadow: 0 8px 40px rgba($left-point-color, 0.15);
         max-width: 450px;
@@ -51,8 +51,8 @@
           gap: 10px;
           height: 54px;
           padding: 0 12px;
-          background-color: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.18);
+          background-color: rgba($color-on-primary, 0.06);
+          border: 1px solid rgba($color-on-primary, 0.18);
           border-radius: 12px;
 
           svg {
@@ -63,17 +63,17 @@
           input {
             flex: 1;
             min-width: 0;
-            color: #fff;
+            color: $color-on-primary;
 
             &::placeholder {
-              color: rgba(255, 255, 255, 0.65);
+              color: rgba($color-on-primary, 0.65);
             }
           }
 
           button {
             @include btn(s);
 
-            color: #fff;
+            color: $color-on-primary;
             background-color: $main-color;
 
             &:hover {
@@ -103,7 +103,7 @@
           @include btn(l);
 
           &:first-child {
-            color: #fff;
+            color: $color-on-primary;
             background-color: $main-color;
             box-shadow: 0 6px 18px rgba($main-color, 0.28);
 
@@ -114,7 +114,7 @@
 
           &:last-child {
             color: $left-point-color;
-            background-color: rgba(255, 255, 255, 0.04);
+            background-color: rgba($color-on-primary, 0.04);
             border: 1px solid rgba($left-point-color, 0.28);
 
             &:hover {
