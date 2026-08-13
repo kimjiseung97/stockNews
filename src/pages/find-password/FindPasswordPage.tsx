@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowLeft, Check, Eye, EyeOff, Mail } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { requestResetPassword } from '@/api/infoFind/findPw'
 import { requsetNumAuth } from '@/api/infoFind/findPw'
+import { resetPassword } from '@/api/infoFind/findPw'
 import styles from '@/assets/styles/pages/forgot-password/forgotPassword.module.scss'
 import mediaStyles from '@/assets/styles/pages/forgot-password/forgotPasswordMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
@@ -12,7 +13,6 @@ import { useStableLoading } from '@/hooks/useStableLoading'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 
 function FindPasswordPage() {
-  const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [email, setEmail] = useState('')
   const [verificationCode, setVerificationCode] = useState('')
@@ -92,15 +92,10 @@ function FindPasswordPage() {
     setIsSubmitting(true)
 
     try {
-      const isNumAuthSuccess = await requsetNumAuth({
+      await requsetNumAuth({
         email,
         code: verificationCode,
       })
-
-      if (!isNumAuthSuccess) {
-        setWarningMessage('인증 코드가 올바르지 않습니다.')
-        return
-      }
 
       setWarningMessage('')
       setStep(3)
@@ -120,7 +115,7 @@ function FindPasswordPage() {
   }
 
   // 비밀번호 변경 완료
-  const handlePasswordSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handlePasswordSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!password) {
@@ -142,12 +137,28 @@ function FindPasswordPage() {
     }
 
     if (password !== passwordConfirm) {
-      setWarningMessage('비밀번호가 일치하지 않습니다.')
+      setWarningMessage('새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.')
       return
     }
 
-    setWarningMessage('')
-    navigate('/login')
+    setIsSubmitting(true)
+
+    try {
+      await resetPassword({
+        email,
+        newPassword: password,
+      })
+
+      setWarningMessage('')
+      alert('비밀번호 변경이 완료되었습니다.')
+      window.location.href = '/login'
+    } catch (error) {
+      setWarningMessage(
+        error instanceof ApiError ? error.message : '비밀번호 변경에 실패했습니다.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -317,9 +328,16 @@ function FindPasswordPage() {
                     maxLength={20}
                     autoComplete="new-password"
                     onChange={(event) => {
-                      setPassword(event.target.value)
-                      setWarningMessage('')
+                      const newPassword = event.target.value
+
+                      setPassword(newPassword)
+                      setWarningMessage(
+                        passwordConfirm && newPassword !== passwordConfirm
+                          ? '새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.'
+                          : '',
+                      )
                     }}
+                    aria-invalid={Boolean(passwordConfirm && password !== passwordConfirm)}
                     required
                   />
                   <button
@@ -327,6 +345,7 @@ function FindPasswordPage() {
                     className={styles['forgot-password-page__password-toggle']}
                     onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                     aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
+                    tabIndex={-1}
                   >
                     {isPasswordVisible ? (
                       <EyeOff aria-hidden="true"></EyeOff>
@@ -350,16 +369,31 @@ function FindPasswordPage() {
                     maxLength={20}
                     autoComplete="new-password"
                     onChange={(event) => {
-                      setPasswordConfirm(event.target.value)
-                      setWarningMessage('')
+                      const newPasswordConfirm = event.target.value
+
+                      setPasswordConfirm(newPasswordConfirm)
+                      setWarningMessage(
+                        newPasswordConfirm && password !== newPasswordConfirm
+                          ? '새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.'
+                          : '',
+                      )
                     }}
+                    aria-invalid={Boolean(passwordConfirm && password !== passwordConfirm)}
                     required
                   />
                 </span>
               </label>
 
-              <button type="submit" className={styles['forgot-password-page__submit']}>
-                비밀번호 변경 완료
+              <button
+                type="submit"
+                className={styles['forgot-password-page__submit']}
+                disabled={isSubmitting}
+              >
+                {showSubmitting ? (
+                  <LoadingSpinner label="변경 중"></LoadingSpinner>
+                ) : (
+                  '비밀번호 변경 완료'
+                )}
               </button>
             </form>
           </>

@@ -8,6 +8,11 @@ interface RequsetNumAuth {
   email: string
   code: string
 }
+
+interface ResetPassword {
+  email: string
+  newPassword: string
+}
 // 비밀번호 재설정 인증 코드 요청
 export async function requestResetPassword(data: ResetPasswordRequest): Promise<boolean> {
   try {
@@ -27,17 +32,32 @@ export async function requestResetPassword(data: ResetPasswordRequest): Promise<
 }
 
 //  인증 코드
-export async function requsetNumAuth(data: RequsetNumAuth): Promise<boolean> {
+export async function requsetNumAuth(data: RequsetNumAuth): Promise<void> {
   try {
     console.log('비밀번호 재설정 인증코드 데이터', data)
-    const response = await apiFetch<boolean>('/auth/reset-password/confirm', {
+    const response = await apiFetch<void>('/auth/reset-password/confirm', {
       method: 'POST',
       body: JSON.stringify(data),
     })
     console.log('비밀번호 재설정 인증코드 발송 성공 응답', response)
-    return response === true
   } catch (error) {
     console.log('비밀번호 재설정 인증코드 에러', error)
+    throw error
+  }
+}
+
+// 비밀번호 재설정
+
+export async function resetPassword(data: ResetPassword): Promise<void> {
+  try {
+    console.log('새 비밀번호 데이터', data)
+    const response = await apiFetch<void>('/auth/reset-password/complete', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    console.log('새 비밀번호 성공 응답', response)
+  } catch (error) {
+    console.log('새 비밀번호 에러', error)
     throw error
   }
 }
