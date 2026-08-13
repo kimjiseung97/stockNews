@@ -1,8 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { ArrowLeft, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { requestResetPassword } from '@/api/infoFind/findId'
+import { requsetNumAuth } from '@/api/infoFind/findId'
 import styles from '@/assets/styles/pages/find-email/findEmail.module.scss'
 import mediaStyles from '@/assets/styles/pages/find-email/findEmailMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
@@ -15,6 +16,7 @@ function FindEmailPage() {
   const [step, setStep] = useState(1)
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [verificationCode, setVerificationCode] = useState('')
+  const [foundEmail, setFoundEmail] = useState('')
   const [warningMessage, setWarningMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const showSubmitting = useStableLoading(isSubmitting)
@@ -26,26 +28,6 @@ function FindEmailPage() {
       input.focus()
     }
   }
-
-  // 다른 탭에서 돌아오면 입력 정보 초기화
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState !== 'visible') {
-        return
-      }
-
-      setStep(1)
-      setRecoveryEmail('')
-      setVerificationCode('')
-      setWarningMessage('')
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [])
 
   // 복구 이메일 인증 단계로 이동
   const handleEmailSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -83,7 +65,7 @@ function FindEmailPage() {
   }
 
   // 아이디 확인 단계로 이동
-  const handleCodeSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleCodeSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!verificationCode) {
@@ -97,19 +79,34 @@ function FindEmailPage() {
       return
     }
 
-    setWarningMessage('')
-    setStep(3)
+    setIsSubmitting(true)
+
+    try {
+      const response = await requsetNumAuth({
+        recoveryEmail,
+        code: verificationCode,
+      })
+
+      if (!response) {
+        setWarningMessage('가입된 이메일을 확인하지 못했습니다.')
+        return
+      }
+
+      setFoundEmail(response.email)
+      setWarningMessage('')
+      setStep(3)
+    } catch (error) {
+      setWarningMessage(
+        error instanceof ApiError ? error.message : '인증 코드 확인에 실패했습니다.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // 아이디 일부를 가려서 표시
   const getMaskedEmail = () => {
-    const [emailId, emailDomain] = recoveryEmail.split('@')
-
-    if (!emailId || !emailDomain) {
-      return recoveryEmail
-    }
-
-    return `${emailId.slice(0, 4)}***@${emailDomain}`
+    return foundEmail
   }
 
   return (
@@ -216,8 +213,16 @@ function FindEmailPage() {
                 <small>이메일에서 받은 코드를 입력하세요.</small>
               </label>
 
-              <button type="submit" className={styles['find-email-page__submit']}>
-                아이디 확인
+              <button
+                type="submit"
+                className={styles['find-email-page__submit']}
+                disabled={isSubmitting}
+              >
+                {showSubmitting ? (
+                  <LoadingSpinner label="확인 중"></LoadingSpinner>
+                ) : (
+                  '아이디 확인'
+                )}
               </button>
               <button
                 type="button"
