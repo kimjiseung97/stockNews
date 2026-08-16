@@ -39,11 +39,15 @@ class StockRepositoryCustomImpl(
             .where(stock.id.`in`(ids))
             .fetch()
 
-    override fun findByKoreanNameIsNull(limit: Int): List<Stock> =
+    // limit을 두지 않고 koreanName이 비어있는 종목 전체를 한 번에 가져온다. limit(batch-size)을 두면
+    // "ID 오름차순으로 N개"를 매 실행마다 다시 뽑는 꼴이 되어, 네이버에서 영구히 검색 안 되는 OTC/해외 ADR
+    // 종목이 항상 그 N개 안에 껴서 뒤쪽(ID 큰) 종목이 영원히 시도조차 안 되는 문제가 있었다(실측: JPM/TSM처럼
+    // 정상적으로 풀리는 종목도 순서가 안 와서 방치됨). 전체를 한 번에 가져오면 그런 종목이 매번 끼어도
+    // 뒤쪽까지 전부 시도는 되므로 안전하다 - 청크 커밋(ENRICH_CHUNK_SIZE)으로 중간 진행 상황은 계속 저장된다.
+    override fun findByKoreanNameIsNull(): List<Stock> =
         queryFactory
             .selectFrom(stock)
             .where(stock.koreanName.isNull)
-            .limit(limit.toLong())
             .fetch()
 
     // 토스 전용으로 유입돼 영문명을 못 채운 종목은 name에 임시로 ticker를 넣어뒀다(StockSeedJobConfig 참고) - 이 마커로 대상 조회.
