@@ -9,6 +9,7 @@ interface StockRepositoryCustom {
     fun findByThemeIsNull(limit: Int): List<Stock>
     fun findAllByIdIn(ids: List<Long>): List<Stock>
     fun findByKoreanNameIsNull(limit: Int): List<Stock>
+    fun findByNameEqualsTicker(limit: Int): List<Stock>
     fun findWithoutDetail(limit: Int): List<Stock>
     fun search(keyword: String?, pageable: Pageable): Page<Stock>
     fun findPopularStocks(limit: Int): List<PopularStockResponse>

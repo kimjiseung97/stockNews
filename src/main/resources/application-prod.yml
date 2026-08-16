@@ -52,6 +52,11 @@ nasdaq:
   listed-url: https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt
   other-listed-url: https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt
 
+toss:
+  base-url: https://openapi.tossinvest.com
+  client-id: ${TOSS_CLIENT_ID}
+  client-secret: ${TOSS_CLIENT_SECRET}
+
 stock:
   seed:
     batch-size: 300
@@ -60,6 +65,9 @@ stock:
     batch-size: 300
     cron: "0 */2 * * * *"
   korean-name-enrich:
+    batch-size: 100
+    cron: "0 */2 * * * *"
+  english-name-enrich:
     batch-size: 100
     cron: "0 */2 * * * *"
   detail-enrich:
