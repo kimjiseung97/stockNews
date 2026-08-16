@@ -69,7 +69,6 @@ stock:
     batch-size: 300
     cron: "0 */2 * * * *"
   korean-name-enrich:
-    batch-size: 100
     cron: "0 */2 * * * *"
   english-name-enrich:
     batch-size: 100
