@@ -46,6 +46,14 @@ class StockRepositoryCustomImpl(
             .limit(limit.toLong())
             .fetch()
 
+    // 토스 전용으로 유입돼 영문명을 못 채운 종목은 name에 임시로 ticker를 넣어뒀다(StockSeedJobConfig 참고) - 이 마커로 대상 조회.
+    override fun findByNameEqualsTicker(limit: Int): List<Stock> =
+        queryFactory
+            .selectFrom(stock)
+            .where(stock.name.eq(stock.ticker))
+            .limit(limit.toLong())
+            .fetch()
+
     // 한 번도 시도 안 한 종목(NULL) 우선, 그다음 가장 오래 전에 시도한(=가장 오래 실패해온) 종목 순으로 뽑는다.
     // 실패한 종목은 시도할 때마다 detailAttemptedAt이 now로 갱신되어 큐 맨 뒤로 밀려나므로,
     // id 오름차순 상위의 실패 종목이 뒤쪽 종목을 영구히 막는 문제가 생기지 않는다.

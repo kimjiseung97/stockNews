@@ -52,6 +52,15 @@ nasdaq:
   listed-url: https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt
   other-listed-url: https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt
 
+
+# toss.client-id/client-secret은 비워두면 됨(TossStockClient가 API 호출 없이 빈 목록 반환) -
+# 로컬에서 토스 연동을 직접 테스트해야 할 때만 아래 주석 해제해서 채울 것. 로컬 yml에 실제 크레덴셜을 두는 게
+# GitHub Secrets보다 위험하다는 판단으로 기본은 비활성화.
+# toss:
+#   base-url: https://openapi.tossinvest.com
+#   client-id: <toss-client-id>
+#   client-secret: <toss-client-secret>
+
 stock:
   seed:
     batch-size: 300
@@ -60,6 +69,9 @@ stock:
     batch-size: 300
     cron: "0 */2 * * * *"
   korean-name-enrich:
+    batch-size: 100
+    cron: "0 */2 * * * *"
+  english-name-enrich:
     batch-size: 100
     cron: "0 */2 * * * *"
   detail-enrich:
