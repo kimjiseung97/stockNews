@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 class UserStockService(
     private val userStockRepository: UserStockRepository,
     private val stockRepository: StockRepository,
+    private val stockSearchCountService: StockSearchCountService,
 ) {
     @Transactional
     fun register(userId: Long, stockIds: List<Long>) {
@@ -36,6 +37,7 @@ class UserStockService(
             }
         }
         userStockRepository.saveAll(toRegister)
+        stockSearchCountService.saveSearchCountAll(toRegister.map { it.stockId })
     }
 
     fun list(userId: Long, pageable: Pageable): Page<UserStockResponse> =
