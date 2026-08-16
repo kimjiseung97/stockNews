@@ -14,7 +14,7 @@ export interface WatchListDetail {
 
 export async function watchListDetail(stockId: number): Promise<WatchListDetail> {
   try {
-    const response = await apiFetch<WatchListDetail>(`/stocks/${stockId}/detail`)
+    const response = await apiFetch<WatchListDetail>(`/stocks/detail?stockId=${stockId}`)
 
     if (!response) {
       throw new Error('관심종목 상세정보 응답이 없습니다.')
