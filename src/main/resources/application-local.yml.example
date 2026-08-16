@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: stockNews
+
+  datasource:
+    url: jdbc:mariadb://<host>:<port>/<db>?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: <db-username>
+    password: <db-password>
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  task:
+    scheduling:
+      pool:
+        size: 8
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  mail:
+    host: smtp.naver.com
+    port: 587
+    username: <mail-username>
+    password: <mail-password>
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+mail:
+  from-name: testMail
+
+sec:
+  tickers-url: https://www.sec.gov/files/company_tickers.json
+  user-agent: stockNews-dev <your-email>
+
+nasdaq:
+  listed-url: https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt
+  other-listed-url: https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt
+
+stock:
+  seed:
+    batch-size: 300
+    cron: "0 */2 * * * *"
+  theme-enrich:
+    batch-size: 300
+    cron: "0 */2 * * * *"
+  korean-name-enrich:
+    batch-size: 100
+    cron: "0 */2 * * * *"
+  detail-enrich:
+    batch-size: 20
+    cron: "0 */2 * * * *"
+  delist-check:
+    cron: "*/5 * * * * *"
+  batch-watchdog:
+    cron: "0 */10 * * * *"
+    stale-minutes: 30
+  batch-history-cleanup:
+    cron: "*/5 * * * * *"
+    retention-days: 30
+
+news:
+  dispatch:
+    cron: "0 0 8 * * *"
+    thread-pool-size: 4
+
+verification:
+  cleanup:
+    cron: "0 0 * * * *"
+
+finnhub:
+  base-url: https://finnhub.io
+  api-key: <finnhub-api-key>
+  lookback-days: 3
+  cache-ttl-minutes: 60
+  max-articles-per-ticker: 1
+
+naver:
+  news:
+    client-id: <naver-client-id>
+    client-secret: <naver-client-secret>
+    max-articles-per-query: 1
+    cache-ttl-minutes: 60
+
+auth:
+  verification:
+    code-length: 6
+    expiry-minutes: 10
+    max-requests: 9999
+    max-attempts: 9999
+
+cors:
+  allowed-origins: http://localhost:3000

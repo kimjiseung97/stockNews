@@ -2,18 +2,22 @@ package org.kjs.stocknews.repository
 
 import com.querydsl.core.types.Order
 import com.querydsl.core.types.OrderSpecifier
+import com.querydsl.core.types.Projections
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.ComparablePath
 import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
+import org.kjs.stocknews.model.dto.PopularStockResponse
 import org.kjs.stocknews.model.table.QStock.stock
 import org.kjs.stocknews.model.table.QStockDetail.stockDetail
+import org.kjs.stocknews.model.table.QStockSearchCount.stockSearchCount
 import org.kjs.stocknews.model.table.Stock
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 
 @Repository
 class StockRepositoryCustomImpl(
@@ -73,6 +77,32 @@ class StockRepositoryCustomImpl(
                 .where(keywordContains(keyword))
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+    }
+
+    // TB_STOCK_SEARCH_COUNT를 STOCK_ID로 groupBy 후 검색건수 내림차순 정렬 - 금일(00:00~다음날 00:00 미만) 인기종목 Top N 조회.
+    override fun findPopularStocks(limit: Int): List<PopularStockResponse> {
+        val todayStart = LocalDate.now().atStartOfDay()
+        val todayEnd = todayStart.plusDays(1)
+
+        return queryFactory
+            .select(
+                Projections.constructor(
+                    PopularStockResponse::class.java,
+                    stock.id,
+                    stock.ticker,
+                    stock.name,
+                    stock.theme,
+                    stock.koreanName,
+                    stockSearchCount.id.count(),
+                ),
+            )
+            .from(stockSearchCount)
+            .join(stock).on(stockSearchCount.stockId.eq(stock.id))
+            .where(stockSearchCount.createdAt.goe(todayStart), stockSearchCount.createdAt.lt(todayEnd))
+            .groupBy(stock.id)
+            .orderBy(stockSearchCount.id.count().desc())
+            .limit(limit.toLong())
+            .fetch()
     }
 
     private fun keywordContains(keyword: String?): BooleanExpression? {
