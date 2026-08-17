@@ -11,4 +11,5 @@ data class NaverNewsSearchResponse(
 data class NaverNewsItem(
     val title: String?,
     val link: String?,
+    val description: String?,
 )
