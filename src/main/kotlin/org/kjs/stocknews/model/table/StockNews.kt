@@ -15,7 +15,11 @@ import java.time.LocalDateTime
 @Entity
 @Table(
     name = "TB_STOCK_NEWS",
-    indexes = [Index(name = "IDX_TB_STOCK_NEWS_STOCK_ID", columnList = "STOCK_ID")],
+    indexes = [
+        Index(name = "IDX_TB_STOCK_NEWS_STOCK_ID", columnList = "STOCK_ID"),
+        // StockNewsCleanupScheduler의 deleteByCollectedAtBefore가 이 컬럼으로 스캔하므로 인덱스 필요.
+        Index(name = "IDX_TB_STOCK_NEWS_COLLECTED_AT", columnList = "COLLECTED_AT"),
+    ],
     uniqueConstraints = [UniqueConstraint(name = "UK_TB_STOCK_NEWS_STOCK_URL", columnNames = ["STOCK_ID", "URL"])],
 )
 class StockNews(
