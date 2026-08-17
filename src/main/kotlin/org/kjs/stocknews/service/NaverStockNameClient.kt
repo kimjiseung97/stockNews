@@ -42,7 +42,7 @@ class NaverStockNameClient {
                     .host("ac.stock.naver.com")
                     .path("/ac")
                     .queryParam("q", ticker)
-                    .queryParam("target", "stock,itemNo,marketindex,coinExchange,industry")
+                    .queryParam("target", "stock,etf,itemNo,marketindex,coinExchange,industry")
                     .build()
             }
             .header(HttpHeaders.USER_AGENT, "Mozilla/5.0")
@@ -50,6 +50,8 @@ class NaverStockNameClient {
             .body(NaverStockSearchResponse::class.java)
 
         return response?.items
-            ?.firstOrNull { it.category == "stock" && it.code.equals(ticker, ignoreCase = true) }
+            ?.firstOrNull {
+                (it.category == "stock" || it.category == "etf") && it.code.equals(ticker, ignoreCase = true)
+            }
     }
 }

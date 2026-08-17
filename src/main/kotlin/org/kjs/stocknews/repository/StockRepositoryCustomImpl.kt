@@ -117,9 +117,10 @@ class StockRepositoryCustomImpl(
             .fetch()
     }
 
+    // 한글명 부분일치 또는 티커 부분일치(대소문자 무관) - VOO처럼 koreanName 보강이 안 된 종목도 티커로는 찾을 수 있도록.
     private fun keywordContains(keyword: String?): BooleanExpression? {
         val trimmed = keyword?.trim()?.takeIf { it.isNotBlank() } ?: return null
-        return stock.koreanName.contains(trimmed)
+        return stock.koreanName.contains(trimmed).or(stock.ticker.containsIgnoreCase(trimmed))
     }
 
     private fun orderSpecifiers(sort: Sort): List<OrderSpecifier<*>> =
