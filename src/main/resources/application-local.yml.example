@@ -84,6 +84,12 @@ stock:
   batch-history-cleanup:
     cron: "*/5 * * * * *"
     retention-days: 30
+  news-collect:
+    cron: "0 0 6 * * *"
+    thread-pool-size: 4
+  news-cleanup:
+    cron: "0 30 6 * * *"
+    retention-days: 7
 
 news:
   dispatch:
