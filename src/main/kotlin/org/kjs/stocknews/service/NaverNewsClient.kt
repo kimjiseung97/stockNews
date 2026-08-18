@@ -72,7 +72,11 @@ class NaverNewsClient(
         return response?.items
             ?.mapNotNull { item ->
                 val link = item.link ?: return@mapNotNull null
-                NewsArticle(title = unescapeHtml(item.title.orEmpty()), url = link)
+                NewsArticle(
+                    title = unescapeHtml(item.title.orEmpty()),
+                    url = link,
+                    description = item.description?.let { unescapeHtml(it) },
+                )
             }
             ?: emptyList()
     }

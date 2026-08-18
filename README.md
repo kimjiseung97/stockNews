@@ -312,6 +312,22 @@ npm run build
 | `npm run dev`   | 개발 서버 실행                 |
 | `npm run build` | TypeScript 검사 후 운영용 빌드 |
 
+### 백엔드 로컬 실행
+
+`src/main/resources/application-local.yml`은 실제 DB 비밀번호 등을 담고 있어 Git에 올리지 않습니다. 처음 클론했다면:
+
+```bash
+cp src/main/resources/application-local.yml.example src/main/resources/application-local.yml
+```
+
+복사한 파일의 `<placeholder>` 값들을 실제 값(DB 접속정보, 메일 계정, Naver/Finnhub API 키)으로 채운 뒤 실행합니다.
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=local'
+```
+
+이 파일이 없으면 `local` 프로필 기동 시 `Failed to configure a DataSource` 에러로 실패합니다.
+
 ---
 
 ## Git 제외 파일
@@ -322,6 +338,7 @@ npm run build
 node_modules/
 dist/
 .env
+src/main/resources/application-local.yml
 ```
 
 ---
