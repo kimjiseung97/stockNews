@@ -36,8 +36,7 @@
     }
 
     .home-page__intro-actions {
-      display: flex;
-      gap: 10px;
+      @include flex(null, null, 10px);
       margin-top: 24px;
 
       a {
@@ -298,10 +297,7 @@
     }
 
     .home-page__mail-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
+      @include flex(space-between, center);
       strong {
         font-size: 1.2rem;
         font-weight: 800;

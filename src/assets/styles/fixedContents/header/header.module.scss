@@ -6,9 +6,7 @@
     background-color: $color-surface;
 
     .header-container__top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      @include flex(space-between, center);
       min-height: 80px;
       padding: 0 24px;
     }
@@ -41,10 +39,7 @@
     }
 
     .header-container__account {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
+      @include flex(null, center, 8px);
       a,
       button {
         display: inline-flex;

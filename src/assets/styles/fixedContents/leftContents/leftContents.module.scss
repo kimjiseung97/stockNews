@@ -1,7 +1,6 @@
 :global(#leftContentsContainer) {
   &.left-contents-container {
-    display: flex;
-    align-items: center;
+    @include flex(null, center);
     min-height: 100vh;
 
     .left-contents-container__inner {
@@ -46,9 +45,7 @@
         }
 
         li:nth-child(2) {
-          display: flex;
-          align-items: center;
-          gap: 10px;
+          @include flex(null, center, 10px);
           height: 54px;
           padding: 0 12px;
           background-color: rgba($color-on-primary, 0.06);
@@ -82,21 +79,27 @@
           }
         }
 
-        li:last-child {
-          width: fit-content;
+        .popular-stock-list {
+          @include flex(null, null, 8px);
+          flex-wrap: wrap;
           margin-top: 14px;
-          padding: 7px 12px;
-          color: $left-point-color;
-          background-color: rgba($left-point-color, 0.08);
-          border: 1px solid rgba($left-point-color, 0.2);
-          border-radius: 999px;
+
+          button {
+            padding: 7px 12px;
+            color: $left-point-color;
+            background-color: rgba($left-point-color, 0.08);
+            border: 1px solid rgba($left-point-color, 0.2);
+            border-radius: 999px;
+
+            &:hover {
+              background-color: rgba($left-point-color, 0.16);
+            }
+          }
         }
       }
 
       .left-contents-container__account-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        @include flex(null, center, 8px);
         margin-top: 24px;
 
         a {

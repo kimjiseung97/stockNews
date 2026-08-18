@@ -51,15 +51,11 @@
 }
 
 .skeleton-loading__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  @include flex-col(null, null, 18px);
 }
 
 .skeleton-loading__field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  @include flex-col(null, null, 8px);
 
   span:first-child {
     width: 22%;

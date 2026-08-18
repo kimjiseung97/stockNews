@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
+import { useEffect, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import { Search } from 'lucide-react'
 import styles from '@/assets/styles/fixedContents/leftContents/leftContents.module.scss'
 import { useAuth } from '@/contexts/AuthContext'
+import { popularList, type PopularList } from '@/api/popular/popular'
 
 interface LeftContentsProps {
   eyebrow: string
@@ -14,6 +15,7 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
   const { email } = useAuth()
   const navigate = useNavigate()
   const [tiker, setTiker] = useState('')
+  const [popularStock, setPopularStock] = useState<PopularList[]>([])
   function tikerOnKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       tikerSearchBtn(e)
@@ -29,6 +31,20 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
       search: koreaName ? `?${new URLSearchParams({ koreaName })}` : '',
     })
   }
+
+  useEffect(() => {
+    // 인기종목 목록 조회
+    const getPopularStock = async () => {
+      try {
+        const response = await popularList(10)
+        setPopularStock(response)
+      } catch {
+        setPopularStock([])
+      }
+    }
+
+    void getPopularStock()
+  }, [])
   return (
     <>
       <section id="leftContentsContainer" className={styles['left-contents-container']}>
@@ -60,7 +76,19 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
               </button>
             </li>
             {/* <p>{tiker}</p> */}
-            <li>태그</li>
+            {popularStock.length > 0 && (
+              <li className={styles['popular-stock-list']}>
+                {popularStock.map((stock) => (
+                  <button
+                    type="button"
+                    key={stock.id}
+                    onClick={() => setTiker(stock.koreanName || stock.name)}
+                  >
+                    {stock.koreanName || stock.name}
+                  </button>
+                ))}
+              </li>
+            )}
           </ul>
 
           {!email && (
