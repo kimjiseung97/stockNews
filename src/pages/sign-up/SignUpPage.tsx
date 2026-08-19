@@ -5,7 +5,6 @@ import { signUp } from '@/api/sign/sign'
 import { duplicateCheck } from '@/api/sign/duplicateCheck'
 import { emailAuth } from '@/api/emailAuth/emailAuth'
 import styles from '@/assets/styles/pages/sign-up/signUp.module.scss'
-import mediaStyles from '@/assets/styles/pages/sign-up/signUpMedia.module.scss'
 import { useStableLoading } from '@/hooks/useStableLoading'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 
@@ -177,7 +176,7 @@ function SignUpPage() {
   }
 
   return (
-    <main id="signUpPage" className={`${styles['sign-up-page']} ${mediaStyles['sign-up-page']}`}>
+    <main id="signUpPage" className={styles['sign-up-page']}>
       <article className={styles['sign-up-page__card']}>
         <section className={styles['sign-up-page__heading']}>
           <h1>회원가입</h1>

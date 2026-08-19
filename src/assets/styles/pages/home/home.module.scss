@@ -186,7 +186,7 @@
         border: 1px solid $color-secondary-border;
         border-radius: 50%;
         box-shadow: 0 5px 14px $color-shadow;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         font-weight: 800;
       }
 
@@ -207,7 +207,7 @@
       p {
         margin-top: 11px;
         color: $color-text-label;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         line-height: 1.7;
       }
     }
@@ -299,7 +299,7 @@
     .home-page__mail-header {
       @include flex(space-between, center);
       strong {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         font-weight: 800;
       }
 
@@ -318,7 +318,7 @@
     .home-page__mail-summary {
       margin-top: 10px;
       color: $color-text-secondary;
-      font-size: 1rem;
+      font-size: 1.2rem;
       line-height: 1.55;
     }
 
@@ -456,7 +456,7 @@
         background-color: $color-surface;
         border-radius: 10px;
         box-shadow: 0 8px 20px rgba($color-text-primary, 0.13);
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         font-weight: 800;
       }
     }

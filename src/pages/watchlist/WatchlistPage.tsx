@@ -133,7 +133,7 @@ function WatchlistPage() {
             maxLength={100}
             autoComplete="off"
             onChange={(event) => setKeyword(event.target.value)}
-          />
+          ></input>
         </label>
         <button type="submit" disabled={isLoading}>
           {isLoading ? <LoadingSpinner label="조회 중"></LoadingSpinner> : '검색'}

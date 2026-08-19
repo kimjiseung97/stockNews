@@ -24,5 +24,11 @@
       margin: 0 auto;
       padding: 40px 0 60px 0;
     }
+
+    .main-layout__loading {
+      @include flex(center, center);
+      min-height: 320px;
+      color: $color-text-muted;
+    }
   }
 }

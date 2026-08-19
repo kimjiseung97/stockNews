@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { login } from '@/api/login/login'
 import styles from '@/assets/styles/pages/login/login.module.scss'
-import mediaStyles from '@/assets/styles/pages/login/loginMedia.module.scss'
 import warningIcon from '@/assets/images/icons/x.png'
 import { useAuth } from '@/contexts/AuthContext'
 import { useStableLoading } from '@/hooks/useStableLoading'
@@ -38,8 +37,8 @@ function LoginPage() {
   }
 
   return (
-    <main id="loginPage" className={`${styles['login-page']} ${mediaStyles['login-page']}`}>
-      <article className={`${styles['login-page__card']} ${mediaStyles['login-page__card']}`}>
+    <main id="loginPage" className={styles['login-page']}>
+      <article className={styles['login-page__card']}>
         <section className={styles['login-page__heading']}>
           <h1>로그인</h1>
           <p>관심 종목의 뉴스를 지금 바로 확인하세요.</p>

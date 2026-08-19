@@ -5,7 +5,6 @@ import { ApiError } from '@/api/common/commonApi'
 import { requestResetPassword } from '@/api/infoFind/findId'
 import { requsetNumAuth } from '@/api/infoFind/findId'
 import styles from '@/assets/styles/pages/find-email/findEmail.module.scss'
-import mediaStyles from '@/assets/styles/pages/find-email/findEmailMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
 import warningIcon from '@/assets/images/icons/x.png'
 import { useStableLoading } from '@/hooks/useStableLoading'
@@ -110,10 +109,7 @@ function FindEmailPage() {
   }
 
   return (
-    <main
-      id="findEmailPage"
-      className={`${styles['find-email-page']} ${mediaStyles['find-email-page']}`}
-    >
+    <main id="findEmailPage" className={styles['find-email-page']}>
       <article className={styles['find-email-page__card']}>
         <Link className={styles['find-email-page__back']} to="/login">
           <ArrowLeft aria-hidden="true"></ArrowLeft>

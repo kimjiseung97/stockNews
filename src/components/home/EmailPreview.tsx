@@ -1,17 +1,13 @@
 import { Link } from 'react-router-dom'
 import styles from '@/assets/styles/pages/home/home.module.scss'
-import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 
 export default function EmailPreview() {
   return (
-    <section
-      className={`${styles['home-page__email-preview']} ${mediaStyles['home-page__email-preview']}`}
-      aria-labelledby="emailPreviewTitle"
-    >
+    <section className={styles['home-page__email-preview']} aria-labelledby="emailPreviewTitle">
       <p className={styles['home-page__eyebrow']}>이메일 뉴스 알림</p>
       <h2 id="emailPreviewTitle">
         필요한 뉴스가
-        <br />
+        <br></br>
         보기 좋게 도착합니다.
       </h2>
       <p className={styles['home-page__email-description']}>
@@ -22,10 +18,7 @@ export default function EmailPreview() {
         실제 메일 예시 보기 →
       </Link>
 
-      <article
-        className={`${styles['home-page__mail']} ${mediaStyles['home-page__mail']}`}
-        aria-label="StockNews 이메일 예시"
-      >
+      <article className={styles['home-page__mail']} aria-label="StockNews 이메일 예시">
         <section className={styles['home-page__mail-header']}>
           <strong>StockNews</strong>
           <time dateTime="2026-07-28">2026.07.28</time>
@@ -46,14 +39,14 @@ export default function EmailPreview() {
           </li>
         </ul>
         <aside
-          className={`${styles['home-page__stock-note']} ${styles['home-page__stock-note--nvidia']} ${mediaStyles['home-page__stock-note']} ${mediaStyles['home-page__stock-note--nvidia']}`}
+          className={`${styles['home-page__stock-note']} ${styles['home-page__stock-note--nvidia']}`}
         >
           <strong>NVDA</strong>
           <p>AI 반도체 공급 확대 계획 발표</p>
           <span>Reuters · 18분 전</span>
         </aside>
         <aside
-          className={`${styles['home-page__stock-note']} ${styles['home-page__stock-note--tesla']} ${mediaStyles['home-page__stock-note']} ${mediaStyles['home-page__stock-note--tesla']}`}
+          className={`${styles['home-page__stock-note']} ${styles['home-page__stock-note--tesla']}`}
         >
           <strong>TSLA</strong>
           <p>신규 생산 라인과 인도량 전망</p>

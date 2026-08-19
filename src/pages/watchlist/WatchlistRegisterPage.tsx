@@ -350,6 +350,7 @@ function WatchlistRegisterPage() {
         <article className={styles['watchlist-register-page__panel']}>
           <section className={styles['watchlist-register-page__panel-heading']}>
             <h2>관심 종목 검색</h2>
+            <strong>{searchResult?.totalElements.toLocaleString() ?? 0}개</strong>
           </section>
           <form
             className={styles['watchlist-register-page__search-form']}
@@ -367,7 +368,7 @@ function WatchlistRegisterPage() {
                 onChange={(event) => {
                   setKeyword(event.target.value)
                 }}
-              />
+              ></input>
             </label>
             <button type="submit" disabled={isSearching}>
               {isSearching ? <LoadingSpinner label="검색 중"></LoadingSpinner> : '검색'}
@@ -375,10 +376,6 @@ function WatchlistRegisterPage() {
           </form>
 
           <section className={styles['watchlist-register-page__result']}>
-            <h3>
-              {searchedKeyword ? '검색 결과' : '전체 종목'}
-              {searchResult && <span>{searchResult.totalElements.toLocaleString()}개</span>}
-            </h3>
             {isSearching ? (
               <ListSkeleton count={6} label="전체 종목을 불러오는 중입니다."></ListSkeleton>
             ) : searchResult && searchResult.content.length === 0 && !isSearching ? (
@@ -392,7 +389,10 @@ function WatchlistRegisterPage() {
                       checked={isAllSearchStocksSelected}
                       disabled={selectableSearchStockIds.length === 0 || isBulkProcessing}
                       onChange={handleAllSearchStocksSelect}
-                    />
+                    ></input>
+                    <span aria-hidden="true">
+                      <Check></Check>
+                    </span>
                     현재 목록 모두 선택
                   </label>
                   <button
@@ -421,7 +421,10 @@ function WatchlistRegisterPage() {
                             checked={selectedSearchStockIds.includes(stock.stockId)}
                             disabled={isRegistered || isProcessing || isBulkProcessing}
                             onChange={() => handleSearchStockSelect(stock.stockId)}
-                          />
+                          ></input>
+                          <span aria-hidden="true">
+                            <Check></Check>
+                          </span>
                           <span className={styles['watchlist-register-page__sr-only']}>
                             {stock.koreanName || stock.name} 선택
                           </span>
@@ -511,7 +514,7 @@ function WatchlistRegisterPage() {
                 onChange={(event) => {
                   setWatchListKeyword(event.target.value)
                 }}
-              />
+              ></input>
             </label>
             <button type="submit" disabled={isWatchListLoading}>
               검색
@@ -535,7 +538,10 @@ function WatchlistRegisterPage() {
                     checked={isAllPagedWatchListSelected}
                     disabled={isBulkProcessing}
                     onChange={handleAllPagedWatchListSelect}
-                  />
+                  ></input>
+                  <span aria-hidden="true">
+                    <Check></Check>
+                  </span>
                   현재 목록 모두 선택
                 </label>
                 <span className={styles['watchlist-register-page__action-buttons']}>
@@ -566,7 +572,10 @@ function WatchlistRegisterPage() {
                         checked={selectedWatchListStockIds.includes(stock.stockId)}
                         disabled={isBulkProcessing}
                         onChange={() => handleWatchListStockSelect(stock.stockId)}
-                      />
+                      ></input>
+                      <span aria-hidden="true">
+                        <Check></Check>
+                      </span>
                       <span className={styles['watchlist-register-page__sr-only']}>
                         {stock.koreanName || stock.name} 선택
                       </span>

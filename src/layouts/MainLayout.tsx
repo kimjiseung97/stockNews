@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { Suspense, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from '@/components/fixedContents/header/Header'
 import LeftContents from '@/components/fixedContents/leftContents/LeftContents'
 import useScrollToTop from '@/hooks/useScrollToTop'
+import LoadingSpinner from '@/components/common/LoadingSpinner'
 import styles from '@/assets/styles/layout/main/mainLayout.module.scss'
 
 export default function MainLayout() {
@@ -33,7 +34,15 @@ export default function MainLayout() {
         <Header></Header>
 
         <section className={styles['main-layout__content']}>
-          <Outlet></Outlet>
+          <Suspense
+            fallback={
+              <section className={styles['main-layout__loading']}>
+                <LoadingSpinner label="화면을 불러오는 중"></LoadingSpinner>
+              </section>
+            }
+          >
+            <Outlet></Outlet>
+          </Suspense>
         </section>
       </section>
     </section>

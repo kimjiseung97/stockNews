@@ -1,8 +1,14 @@
-@media (max-width: 1024px) {
-}
-
-@media (max-width: 768px) {
-}
-
 @media (max-width: 550px) {
+  :global(#watchlistPage) {
+    &.watchlist-page {
+      .watchlist-page__item {
+        grid-template-columns: 52px minmax(0, 1fr) 18px;
+        gap: 8px;
+      }
+
+      .watchlist-page__theme {
+        display: none;
+      }
+    }
+  }
 }

@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import styles from '@/assets/styles/pages/home/home.module.scss'
-import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 
 const startSteps = [
   {
@@ -22,31 +21,21 @@ const startSteps = [
 
 export default function StartGuide() {
   return (
-    <section
-      className={`${styles['home-page__guide']} ${mediaStyles['home-page__guide']}`}
-      aria-labelledby="guideTitle"
-    >
+    <section className={styles['home-page__guide']} aria-labelledby="guideTitle">
       <h2 id="guideTitle">3단계로 간단하게 시작해요.</h2>
       <p className={styles['home-page__guide-description']}>
         복잡한 설정 없이 관심 종목을 고르고 이메일로 받아보세요.
       </p>
-      <ol
-        className={`${styles['home-page__step-list']} ${mediaStyles['home-page__step-list']}`}
-      >
+      <ol className={styles['home-page__step-list']}>
         {startSteps.map((step) => (
-          <li
-            key={step.number}
-            className={`${styles['home-page__step']} ${mediaStyles['home-page__step']}`}
-          >
+          <li key={step.number} className={styles['home-page__step']}>
             <strong>{step.number}</strong>
             <h3>{step.title}</h3>
             <p>{step.description}</p>
           </li>
         ))}
       </ol>
-      <aside
-        className={`${styles['home-page__guide-callout']} ${mediaStyles['home-page__guide-callout']}`}
-      >
+      <aside className={styles['home-page__guide-callout']}>
         <p>
           <strong>검색하고 담아두면 끝.</strong> 이후에는 StockNews가 새로운 소식을 정리해 전달합니다.
         </p>
