@@ -8,11 +8,11 @@
 textarea {
   resize: none;
   overflow: hidden;
-  font-family: "Pretendard", Arial, sans-serif;
+  font-family: 'Pretendard', Arial, sans-serif;
 }
 
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
 
@@ -43,10 +43,10 @@ h6 {
 input,
 select {
   vertical-align: middle;
-  font-family: "Pretendard", Arial, sans-serif;
+  font-family: 'Pretendard', Arial, sans-serif;
 }
 input::placeholder {
-  font-family: "Pretendard", sans-serif;
+  font-family: 'Pretendard', sans-serif;
   font-size: 1.3rem;
 }
 textarea::placeholder {
@@ -54,13 +54,13 @@ textarea::placeholder {
 }
 button,
 a {
-  font-family: "Pretendard", Arial, sans-serif;
+  font-family: 'Pretendard', Arial, sans-serif;
 }
 input,
 button,
-input[type="button"],
-input[type="submit"],
-input[type="reset"],
+input[type='button'],
+input[type='submit'],
+input[type='reset'],
 textarea {
   background-color: unset;
   outline: none;
@@ -68,10 +68,10 @@ textarea {
 }
 
 button,
-input[type="button"],
-input[type="submit"],
-input[type="reset"],
-input[type="file"] {
+input[type='button'],
+input[type='submit'],
+input[type='reset'],
+input[type='file'] {
   cursor: pointer;
 }
 
@@ -187,7 +187,7 @@ html {
 body {
   line-height: 1;
   font-size: 1.6rem;
-  font-family: "Pretendard", Arial, sans-serif;
+  font-family: 'Pretendard', Arial, sans-serif;
   font-weight: 400;
 }
 ol,
@@ -202,7 +202,7 @@ blockquote:before,
 blockquote:after,
 q:before,
 q:after {
-  content: "";
+  content: '';
   content: none;
 }
 table {
@@ -215,4 +215,3 @@ td,
 th {
   vertical-align: middle;
 }
-

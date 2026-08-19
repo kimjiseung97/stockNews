@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { stockSearch, type StockSearchResponse } from '@/api/stockSearch/stockSearch'
 import styles from '@/assets/styles/pages/stock-search/stockSearch.module.scss'
+import mediaStyles from '@/assets/styles/pages/stock-search/stockSearchMedia.module.scss'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import ListSkeleton from '@/components/common/ListSkeleton'
 import warningIcon from '@/assets/images/icons/x.png'
@@ -58,15 +59,19 @@ function StockSearchPage() {
   }
 
   return (
-    <main id="stockSearchPage" className={styles['stock-search-page']}>
-      <header className={styles['stock-search-page__heading']}>
+    <main
+      id="stockSearchPage"
+      className={`${styles['stock-search-page']} ${mediaStyles['stock-search-page']}`}
+    >
+      <section className={styles['stock-search-page__heading']}>
+        <p className={styles['stock-search-page__eyebrow']}>STOCK SEARCH</p>
         <h1>종목 검색</h1>
         <p>미국 주식 티커 또는 기업명을 입력해 원하는 종목을 찾아보세요.</p>
-      </header>
+      </section>
 
       <form className={styles['stock-search-page__search-form']} onSubmit={handleSubmit}>
         <label className={styles['stock-search-page__search-box']}>
-          <Search aria-hidden="true" />
+          <Search aria-hidden="true"></Search>
           <span className={styles['stock-search-page__sr-only']}>티커 또는 기업명</span>
           <input
             id="stock-search-query"
@@ -76,26 +81,26 @@ function StockSearchPage() {
             maxLength={100}
             autoComplete="off"
             onChange={(event) => setKeyword(event.target.value)}
-          />
+          ></input>
         </label>
         <button type="submit" disabled={isLoading}>
-          {isSearching ? <LoadingSpinner label="조회 중" /> : '조회'}
+          {isSearching ? <LoadingSpinner label="조회 중"></LoadingSpinner> : '조회'}
         </button>
       </form>
 
       {errorMessage && (
         <p className={styles['stock-search-page__notice']} role="alert">
-          <img src={warningIcon} alt="" />
+          <img src={warningIcon} alt=""></img>
           {errorMessage}
         </p>
       )}
 
       {isLoading ? (
-        <ListSkeleton count={6} label="종목 목록을 불러오는 중입니다." />
+        <ListSkeleton count={6} label="종목 목록을 불러오는 중입니다."></ListSkeleton>
       ) : result && result.content.length > 0 ? (
         <>
           <p className={styles['stock-search-page__summary']}>
-            총 <strong>{result.totalElements.toLocaleString()}</strong>개의 종목
+            총&nbsp;<strong>{result.totalElements.toLocaleString()}</strong>&nbsp;개의 종목
           </p>
           <ul className={styles['stock-search-page__list']}>
             {result.content.map((stock) => (

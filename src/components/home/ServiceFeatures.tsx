@@ -3,7 +3,6 @@ import listIcon from '@/assets/images/icons/list.png'
 import newsIcon from '@/assets/images/icons/news.png'
 import searchIcon from '@/assets/images/icons/search.png'
 import styles from '@/assets/styles/pages/home/home.module.scss'
-import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 
 const serviceFeatures = [
   {
@@ -31,25 +30,17 @@ const serviceFeatures = [
 
 export default function ServiceFeatures() {
   return (
-    <section
-      className={`${styles['home-page__features']} ${mediaStyles['home-page__features']}`}
-      aria-labelledby="featureTitle"
-    >
+    <section className={styles['home-page__features']} aria-labelledby="featureTitle">
       <h2 id="featureTitle" className={styles['home-page__section-guide']}>
         StockNews로 할 수 있는 일
       </h2>
       <p className={styles['home-page__feature-description']}>
         반복해서 뉴스를 찾는 과정을 더 간단하게 만들었습니다.
       </p>
-      <ul
-        className={`${styles['home-page__feature-list']} ${mediaStyles['home-page__feature-list']}`}
-      >
+      <ul className={styles['home-page__feature-list']}>
         {serviceFeatures.map((feature) => (
-          <li
-            key={feature.title}
-            className={`${styles['home-page__feature-card']} ${mediaStyles['home-page__feature-card']}`}
-          >
-            <img src={feature.icon} alt="" aria-hidden="true" />
+          <li key={feature.title} className={styles['home-page__feature-card']}>
+            <img src={feature.icon} alt="" aria-hidden="true"></img>
             <h3>{feature.title}</h3>
             <p>{feature.description}</p>
           </li>

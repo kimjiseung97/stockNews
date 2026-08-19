@@ -49,6 +49,7 @@ export default defineConfig(({ mode }) => {
           @use "@/assets/styles/mixIn/flexMixIn.scss" as *;
           @use "@/assets/styles/mixIn/gridMixIn.scss" as *;
           @use "@/assets/styles/mixIn/btnMixIn.scss" as *;
+          @use "@/assets/styles/mixIn/checkboxMixIn.scss" as *;
           @use "@/assets/styles/mixIn/commonStyleMixIn.scss" as *;
         
           `,

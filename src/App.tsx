@@ -1,43 +1,43 @@
+import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import EmailSettingsPage from './pages/email-settings/EmailSettingsPage'
-import HomePage from './pages/home/HomePage'
-import SignUpPage from './pages/sign-up/SignUpPage'
-import StockNewsPage from './pages/stock-news/StockNewsPage'
-import StockDetailPage from './pages/stock-detail/StockDetailPage'
-import StockSearchPage from './pages/stock-search/StockSearchPage'
-import WatchlistRegisterPage from './pages/watchlist/WatchlistRegisterPage'
-import WatchlistPage from './pages/watchlist/WatchlistPage'
 import MainLayout from './layouts/MainLayout'
-import LoginPage from './pages/login/LoginPage'
-import FindPasswordPage from './pages/find-password/FindPasswordPage'
-import FindEmailPage from './pages/find-email/FindEmailPage'
 import { AuthProvider } from './contexts/AuthContext'
+
+// 필요한 화면 코드만 불러오기
+const EmailSettingsPage = lazy(() => import('./pages/email-settings/EmailSettingsPage'))
+const HomePage = lazy(() => import('./pages/home/HomePage'))
+const SignUpPage = lazy(() => import('./pages/sign-up/SignUpPage'))
+const StockNewsPage = lazy(() => import('./pages/stock-news/StockNewsPage'))
+const StockDetailPage = lazy(() => import('./pages/stock-detail/StockDetailPage'))
+const StockSearchPage = lazy(() => import('./pages/stock-search/StockSearchPage'))
+const WatchlistRegisterPage = lazy(() => import('./pages/watchlist/WatchlistRegisterPage'))
+const WatchlistPage = lazy(() => import('./pages/watchlist/WatchlistPage'))
+const LoginPage = lazy(() => import('./pages/login/LoginPage'))
+const FindPasswordPage = lazy(() => import('./pages/find-password/FindPasswordPage'))
+const FindEmailPage = lazy(() => import('./pages/find-email/FindEmailPage'))
 
 function App() {
   return (
     <AuthProvider>
       <Routes>
         <Route element={<MainLayout></MainLayout>}>
-        <Route path="/" element={<HomePage></HomePage>}></Route>
-        <Route path="/stock-search" element={<StockSearchPage></StockSearchPage>}></Route>
-        <Route path="/watchlist" element={<WatchlistPage></WatchlistPage>}></Route>
-        <Route
-          path="/stocks/:stockId/detail"
-          element={<StockDetailPage></StockDetailPage>}
-        ></Route>
-        <Route
-          path="/watchlist/register"
-          element={<WatchlistRegisterPage></WatchlistRegisterPage>}
-        ></Route>
-        <Route path="/stock-news" element={<StockNewsPage></StockNewsPage>}></Route>
-        <Route path="/email-settings" element={<EmailSettingsPage></EmailSettingsPage>}></Route>
-        <Route path="/login" element={<LoginPage></LoginPage>}></Route>
-        <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
-        <Route
-          path="/find-password"
-          element={<FindPasswordPage></FindPasswordPage>}
-        ></Route>
-        <Route path="/find-email" element={<FindEmailPage></FindEmailPage>}></Route>
+          <Route path="/" element={<HomePage></HomePage>}></Route>
+          <Route path="/stock-search" element={<StockSearchPage></StockSearchPage>}></Route>
+          <Route path="/watchlist" element={<WatchlistPage></WatchlistPage>}></Route>
+          <Route path="/stocks/detail" element={<StockDetailPage></StockDetailPage>}></Route>
+          <Route
+            path="/watchlist/register"
+            element={<WatchlistRegisterPage></WatchlistRegisterPage>}
+          ></Route>
+          <Route path="/stock-news" element={<StockNewsPage></StockNewsPage>}></Route>
+          <Route path="/email-settings" element={<EmailSettingsPage></EmailSettingsPage>}></Route>
+          <Route path="/login" element={<LoginPage></LoginPage>}></Route>
+          <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
+          <Route
+            path="/find-password"
+            element={<FindPasswordPage></FindPasswordPage>}
+          ></Route>
+          <Route path="/find-email" element={<FindEmailPage></FindEmailPage>}></Route>
         </Route>
       </Routes>
     </AuthProvider>

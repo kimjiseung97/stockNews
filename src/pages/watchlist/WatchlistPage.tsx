@@ -133,7 +133,7 @@ function WatchlistPage() {
             maxLength={100}
             autoComplete="off"
             onChange={(event) => setKeyword(event.target.value)}
-          />
+          ></input>
         </label>
         <button type="submit" disabled={isLoading}>
           {isLoading ? <LoadingSpinner label="조회 중"></LoadingSpinner> : '검색'}
@@ -168,7 +168,7 @@ function WatchlistPage() {
               <li key={stock.id}>
                 <Link
                   className={styles['watchlist-page__item']}
-                  to={`/stocks/${stock.id}/detail`}
+                  to={`/stocks/detail?limit=${stock.stockId}`}
                   state={{
                     ticker: stock.ticker,
                     displayName: stock.koreanName || stock.name,

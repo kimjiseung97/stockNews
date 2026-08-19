@@ -7,6 +7,7 @@ import { watchListRemove } from '@/api/watchList/remove'
 import { watchListSearch, type WatchListStock } from '@/api/watchList/search'
 import ListSkeleton from '@/components/common/ListSkeleton'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
+import completeIcon from '@/assets/images/icons/complete.png'
 import styles from '@/assets/styles/pages/watchlist/watchlistRegister.module.scss'
 import mediaStyles from '@/assets/styles/pages/watchlist/watchlistRegisterMedia.module.scss'
 
@@ -25,6 +26,9 @@ function WatchlistRegisterPage() {
   const [isSearching, setIsSearching] = useState(true)
   const [isWatchListLoading, setIsWatchListLoading] = useState(true)
   const [processingStockId, setProcessingStockId] = useState<number | null>(null)
+  const [selectedSearchStockIds, setSelectedSearchStockIds] = useState<number[]>([])
+  const [selectedWatchListStockIds, setSelectedWatchListStockIds] = useState<number[]>([])
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false)
   const [message, setMessage] = useState('')
 
   const loadWatchList = async () => {
@@ -33,9 +37,23 @@ function WatchlistRegisterPage() {
     try {
       const response = await watchListSearch()
       console.log('등록된 관심 종목 조회 응답', response)
-      setWatchList(response.content)
+
+      if (response.totalPages <= 1) {
+        setWatchList(response.content)
+        return
+      }
+
+      const remainingResponses = await Promise.all(
+        Array.from({ length: response.totalPages - 1 }, (_, index) =>
+          watchListSearch({ page: index + 1, size: response.size }),
+        ),
+      )
+      setWatchList([
+        ...response.content,
+        ...remainingResponses.flatMap((remainingResponse) => remainingResponse.content),
+      ])
     } catch {
-      setWatchList([])
+      setMessage('관심종목 목록을 불러오지 못했습니다.')
     } finally {
       setIsWatchListLoading(false)
     }
@@ -64,6 +82,7 @@ function WatchlistRegisterPage() {
     setWatchListKeyword(koreaName)
     setSearchedWatchListKeyword(koreaName)
     setWatchListCurrentPage(0)
+    setSelectedSearchStockIds([])
     void loadStocks(koreaName, 0)
   }, [koreaName])
 
@@ -74,6 +93,7 @@ function WatchlistRegisterPage() {
 
     setKeyword(trimmedKeyword)
     setSearchedKeyword(trimmedKeyword)
+    setSelectedSearchStockIds([])
 
     if (trimmedKeyword !== koreaName) {
       setSearchParams(trimmedKeyword ? { koreaName: trimmedKeyword } : {})
@@ -104,7 +124,18 @@ function WatchlistRegisterPage() {
 
     try {
       await watchListRegist({ stockIds: [stock.stockId] })
+      setWatchList((currentWatchList) =>
+        currentWatchList.some((watchListStock) => watchListStock.stockId === stock.stockId)
+          ? currentWatchList
+          : [...currentWatchList, { ...stock, id: stock.stockId }],
+      )
+      setWatchListKeyword('')
+      setSearchedWatchListKeyword('')
+      setWatchListCurrentPage(0)
       await loadWatchList()
+      setSelectedSearchStockIds((currentStockIds) =>
+        currentStockIds.filter((stockId) => stockId !== stock.stockId),
+      )
       setMessage(`${stock.koreanName || stock.name} 종목을 등록했습니다.`)
     } catch {
       setMessage('')
@@ -129,11 +160,122 @@ function WatchlistRegisterPage() {
       setWatchList((currentWatchList) =>
         currentWatchList.filter((watchListStock) => watchListStock.stockId !== stock.stockId),
       )
+      setSelectedWatchListStockIds((currentStockIds) =>
+        currentStockIds.filter((stockId) => stockId !== stock.stockId),
+      )
       setMessage(`${stockName} 종목을 삭제했습니다.`)
     } catch {
       setMessage('')
     } finally {
       setProcessingStockId(null)
+    }
+  }
+
+  // 검색 결과 선택
+  const handleSearchStockSelect = (stockId: number) => {
+    setSelectedSearchStockIds((currentStockIds) =>
+      currentStockIds.includes(stockId)
+        ? currentStockIds.filter((currentStockId) => currentStockId !== stockId)
+        : [...currentStockIds, stockId],
+    )
+  }
+
+  // 검색 결과 선택 등록
+  const handleSelectedRegister = async () => {
+    const stockIds = selectedSearchStockIds.filter((stockId) => !registeredStockIds.has(stockId))
+    const selectedStocks =
+      searchResult?.content.filter((stock) => stockIds.includes(stock.stockId)) ?? []
+
+    if (stockIds.length === 0) {
+      return
+    }
+
+    setIsBulkProcessing(true)
+    setMessage('')
+
+    try {
+      await watchListRegist({ stockIds })
+      setWatchList((currentWatchList) => {
+        const currentStockIds = new Set(currentWatchList.map((stock) => stock.stockId))
+        const newStocks = selectedStocks
+          .filter((stock) => !currentStockIds.has(stock.stockId))
+          .map((stock) => ({ ...stock, id: stock.stockId }))
+
+        return [...currentWatchList, ...newStocks]
+      })
+      setWatchListKeyword('')
+      setSearchedWatchListKeyword('')
+      setWatchListCurrentPage(0)
+      await loadWatchList()
+      setSelectedSearchStockIds([])
+      setMessage(`선택한 ${stockIds.length}개 종목을 등록했습니다.`)
+    } catch {
+      setMessage('')
+    } finally {
+      setIsBulkProcessing(false)
+    }
+  }
+
+  // 등록된 관심종목 선택
+  const handleWatchListStockSelect = (stockId: number) => {
+    setSelectedWatchListStockIds((currentStockIds) =>
+      currentStockIds.includes(stockId)
+        ? currentStockIds.filter((currentStockId) => currentStockId !== stockId)
+        : [...currentStockIds, stockId],
+    )
+  }
+
+  // 선택한 관심종목 삭제
+  const handleSelectedRemove = async () => {
+    if (
+      selectedWatchListStockIds.length === 0 ||
+      !window.confirm(`선택한 ${selectedWatchListStockIds.length}개 종목을 삭제할까요?`)
+    ) {
+      return
+    }
+
+    setIsBulkProcessing(true)
+    setMessage('')
+
+    try {
+      await watchListRemove({ stockIds: selectedWatchListStockIds })
+      setWatchList((currentWatchList) =>
+        currentWatchList.filter(
+          (stock) => !selectedWatchListStockIds.includes(stock.stockId),
+        ),
+      )
+      setMessage(`선택한 ${selectedWatchListStockIds.length}개 종목을 삭제했습니다.`)
+      setSelectedWatchListStockIds([])
+    } catch {
+      setMessage('')
+    } finally {
+      setIsBulkProcessing(false)
+    }
+  }
+
+  // 등록된 관심종목 모두 삭제
+  const handleAllRemove = async () => {
+    const stockIds = watchList.map((stock) => stock.stockId)
+
+    if (
+      stockIds.length === 0 ||
+      !window.confirm(`등록된 관심종목 ${stockIds.length}개를 모두 삭제할까요?`)
+    ) {
+      return
+    }
+
+    setIsBulkProcessing(true)
+    setMessage('')
+
+    try {
+      await watchListRemove({ stockIds })
+      setWatchList([])
+      setSelectedWatchListStockIds([])
+      setMessage(`등록된 관심종목 ${stockIds.length}개를 모두 삭제했습니다.`)
+    } catch {
+      setMessage('')
+    } finally {
+      setIsBulkProcessing(false)
     }
   }
 
@@ -150,6 +292,35 @@ function WatchlistRegisterPage() {
     watchListCurrentPage * watchListPageSize,
     (watchListCurrentPage + 1) * watchListPageSize,
   )
+  const selectableSearchStockIds =
+    searchResult?.content
+      .filter((stock) => !registeredStockIds.has(stock.stockId))
+      .map((stock) => stock.stockId) ?? []
+  const isAllSearchStocksSelected =
+    selectableSearchStockIds.length > 0 &&
+    selectableSearchStockIds.every((stockId) => selectedSearchStockIds.includes(stockId))
+  const pagedWatchListStockIds = pagedWatchList.map((stock) => stock.stockId)
+  const isAllPagedWatchListSelected =
+    pagedWatchListStockIds.length > 0 &&
+    pagedWatchListStockIds.every((stockId) => selectedWatchListStockIds.includes(stockId))
+
+  // 현재 검색 결과를 모두 선택
+  const handleAllSearchStocksSelect = () => {
+    setSelectedSearchStockIds((currentStockIds) =>
+      isAllSearchStocksSelected
+        ? currentStockIds.filter((stockId) => !selectableSearchStockIds.includes(stockId))
+        : [...new Set([...currentStockIds, ...selectableSearchStockIds])],
+    )
+  }
+
+  // 현재 등록 목록을 모두 선택
+  const handleAllPagedWatchListSelect = () => {
+    setSelectedWatchListStockIds((currentStockIds) =>
+      isAllPagedWatchListSelected
+        ? currentStockIds.filter((stockId) => !pagedWatchListStockIds.includes(stockId))
+        : [...new Set([...currentStockIds, ...pagedWatchListStockIds])],
+    )
+  }
 
   useEffect(() => {
     if (watchListTotalPages > 0 && watchListCurrentPage >= watchListTotalPages) {
@@ -170,7 +341,7 @@ function WatchlistRegisterPage() {
 
       {message && (
         <p className={styles['watchlist-register-page__notice-success']} role="status">
-          <Check aria-hidden="true"></Check>
+          <img src={completeIcon} alt=""></img>
           {message}
         </p>
       )}
@@ -179,6 +350,7 @@ function WatchlistRegisterPage() {
         <article className={styles['watchlist-register-page__panel']}>
           <section className={styles['watchlist-register-page__panel-heading']}>
             <h2>관심 종목 검색</h2>
+            <strong>{searchResult?.totalElements.toLocaleString() ?? 0}개</strong>
           </section>
           <form
             className={styles['watchlist-register-page__search-form']}
@@ -196,7 +368,7 @@ function WatchlistRegisterPage() {
                 onChange={(event) => {
                   setKeyword(event.target.value)
                 }}
-              />
+              ></input>
             </label>
             <button type="submit" disabled={isSearching}>
               {isSearching ? <LoadingSpinner label="검색 중"></LoadingSpinner> : '검색'}
@@ -204,16 +376,38 @@ function WatchlistRegisterPage() {
           </form>
 
           <section className={styles['watchlist-register-page__result']}>
-            <h3>
-              {searchedKeyword ? '검색 결과' : '전체 종목'}
-              {searchResult && <span>{searchResult.totalElements.toLocaleString()}개</span>}
-            </h3>
             {isSearching ? (
               <ListSkeleton count={6} label="전체 종목을 불러오는 중입니다."></ListSkeleton>
             ) : searchResult && searchResult.content.length === 0 && !isSearching ? (
               <p className={styles['watchlist-register-page__empty']}>검색 결과가 없습니다.</p>
             ) : searchResult ? (
               <>
+                <section className={styles['watchlist-register-page__list-actions']}>
+                  <label className={styles['watchlist-register-page__select-all']}>
+                    <input
+                      type="checkbox"
+                      checked={isAllSearchStocksSelected}
+                      disabled={selectableSearchStockIds.length === 0 || isBulkProcessing}
+                      onChange={handleAllSearchStocksSelect}
+                    ></input>
+                    <span aria-hidden="true">
+                      <Check></Check>
+                    </span>
+                    현재 목록 모두 선택
+                  </label>
+                  <button
+                    type="button"
+                    className={styles['watchlist-register-page__selected-register-button']}
+                    disabled={selectedSearchStockIds.length === 0 || isBulkProcessing}
+                    onClick={() => void handleSelectedRegister()}
+                  >
+                    {isBulkProcessing ? (
+                      <LoadingSpinner label="처리 중"></LoadingSpinner>
+                    ) : (
+                      `선택 등록 (${selectedSearchStockIds.length})`
+                    )}
+                  </button>
+                </section>
                 <ul className={styles['watchlist-register-page__list']}>
                   {searchResult.content.map((stock) => {
                     const isRegistered = registeredStockIds.has(stock.stockId)
@@ -221,6 +415,20 @@ function WatchlistRegisterPage() {
 
                     return (
                       <li key={stock.stockId} className={styles['watchlist-register-page__item']}>
+                        <label className={styles['watchlist-register-page__checkbox']}>
+                          <input
+                            type="checkbox"
+                            checked={selectedSearchStockIds.includes(stock.stockId)}
+                            disabled={isRegistered || isProcessing || isBulkProcessing}
+                            onChange={() => handleSearchStockSelect(stock.stockId)}
+                          ></input>
+                          <span aria-hidden="true">
+                            <Check></Check>
+                          </span>
+                          <span className={styles['watchlist-register-page__sr-only']}>
+                            {stock.koreanName || stock.name} 선택
+                          </span>
+                        </label>
                         <span className={styles['watchlist-register-page__ticker']}>
                           {stock.ticker}
                         </span>
@@ -231,7 +439,7 @@ function WatchlistRegisterPage() {
                         <button
                           type="button"
                           className={styles['watchlist-register-page__register-button']}
-                          disabled={isRegistered || isProcessing}
+                          disabled={isRegistered || isProcessing || isBulkProcessing}
                           onClick={() => void handleRegister(stock)}
                         >
                           {isRegistered ? (
@@ -306,7 +514,7 @@ function WatchlistRegisterPage() {
                 onChange={(event) => {
                   setWatchListKeyword(event.target.value)
                 }}
-              />
+              ></input>
             </label>
             <button type="submit" disabled={isWatchListLoading}>
               검색
@@ -323,9 +531,55 @@ function WatchlistRegisterPage() {
             <p className={styles['watchlist-register-page__empty']}>검색 결과가 없습니다.</p>
           ) : (
             <>
+              <section className={styles['watchlist-register-page__list-actions']}>
+                <label className={styles['watchlist-register-page__select-all']}>
+                  <input
+                    type="checkbox"
+                    checked={isAllPagedWatchListSelected}
+                    disabled={isBulkProcessing}
+                    onChange={handleAllPagedWatchListSelect}
+                  ></input>
+                  <span aria-hidden="true">
+                    <Check></Check>
+                  </span>
+                  현재 목록 모두 선택
+                </label>
+                <span className={styles['watchlist-register-page__action-buttons']}>
+                  <button
+                    type="button"
+                    className={styles['watchlist-register-page__selected-remove-button']}
+                    disabled={selectedWatchListStockIds.length === 0 || isBulkProcessing}
+                    onClick={() => void handleSelectedRemove()}
+                  >
+                    선택 삭제 ({selectedWatchListStockIds.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={styles['watchlist-register-page__all-remove-button']}
+                    disabled={isBulkProcessing}
+                    onClick={() => void handleAllRemove()}
+                  >
+                    모두 삭제
+                  </button>
+                </span>
+              </section>
               <ul className={styles['watchlist-register-page__list']}>
                 {pagedWatchList.map((stock) => (
                   <li key={stock.id} className={styles['watchlist-register-page__item']}>
+                    <label className={styles['watchlist-register-page__checkbox']}>
+                      <input
+                        type="checkbox"
+                        checked={selectedWatchListStockIds.includes(stock.stockId)}
+                        disabled={isBulkProcessing}
+                        onChange={() => handleWatchListStockSelect(stock.stockId)}
+                      ></input>
+                      <span aria-hidden="true">
+                        <Check></Check>
+                      </span>
+                      <span className={styles['watchlist-register-page__sr-only']}>
+                        {stock.koreanName || stock.name} 선택
+                      </span>
+                    </label>
                     <span className={styles['watchlist-register-page__ticker']}>
                       {stock.ticker}
                     </span>
@@ -336,7 +590,7 @@ function WatchlistRegisterPage() {
                     <button
                       type="button"
                       className={styles['watchlist-register-page__remove-button']}
-                      disabled={processingStockId === stock.stockId}
+                      disabled={processingStockId === stock.stockId || isBulkProcessing}
                       onClick={() => void handleRemove(stock)}
                       aria-label={`${stock.koreanName || stock.name} 관심종목 삭제`}
                     >

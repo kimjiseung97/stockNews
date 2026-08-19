@@ -1,97 +1,94 @@
 :global(#watchlistRegisterPage) {
   &.watchlist-register-page {
     margin: 0 auto;
-    padding: 40px 20px 64px;
+    padding: 12px 0 40px;
     color: $color-text-primary;
 
     .watchlist-register-page__heading {
-      margin-bottom: 28px;
+      margin-bottom: 36px;
 
       .watchlist-register-page__eyebrow {
-        margin-bottom: 8px;
-        color: $main-color;
-        font-size: 1.1rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
+        margin-bottom: 10px;
+        color: $color-text-muted;
+        font-size: 1.2rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
       }
 
       h1 {
-        margin-bottom: 10px;
-        font-size: 2.4rem;
+        margin-bottom: 12px;
+        font-size: 2.6rem;
         font-weight: 700;
         letter-spacing: -0.04em;
       }
 
       > p:last-child {
         color: $color-text-secondary;
-        font-size: 1.4rem;
+        font-size: 1.3rem;
         line-height: 1.6;
       }
     }
 
     .watchlist-register-page__notice-success {
       @include flex(null, center, 8px);
-      margin-bottom: 18px;
-      padding: 13px 15px;
-      border-radius: 10px;
+      margin-bottom: 28px;
+      padding: 10px 0;
       font-size: 1.3rem;
       color: $color-success-text;
-      background-color: rgba($color-complete, 0.1);
-      border: 1px solid rgba($color-complete, 0.28);
+      border-bottom: 1px solid $color-border;
 
-      svg {
-        width: 18px;
+      img {
+        width: 16px;
+        height: 16px;
       }
     }
 
     .watchlist-register-page__contents {
-      @include grid(repeat(1, minmax(0, 1fr)), null, 20px);
+      @include grid(repeat(1, minmax(0, 1fr)), null, 42px);
       align-items: start;
     }
 
     .watchlist-register-page__panel {
       min-width: 0;
-      padding: 24px;
-      background-color: $color-surface;
-      border: 1px solid $color-border;
-      border-radius: 18px;
-      box-shadow: 0 8px 28px $color-shadow;
+      padding: 0;
+
+      & + .watchlist-register-page__panel {
+        padding-top: 32px;
+        border-top: 1px solid $color-border;
+      }
     }
 
     .watchlist-register-page__panel-heading {
-      @include flex(null, center, 10px);
+      @include flex(space-between, center, 10px);
 
       h2 {
-        font-size: 1.7rem;
+        font-size: 1.6rem;
         font-weight: 700;
         letter-spacing: -0.03em;
       }
 
       > strong {
-        margin-left: auto;
-        padding: 4px 10px;
         color: $main-color;
-        background-color: rgba($main-color, 0.08);
-        border-radius: 999px;
-        font-size: 1.2rem;
-        font-weight: 700;
+        font-size: 1.3rem;
+        font-weight: 600;
       }
     }
 
     .watchlist-register-page__search-form {
       @include flex(null, center, 8px);
-      margin-top: 20px;
-      margin-bottom: 24px;
+      margin-top: 16px;
+      margin-bottom: 26px;
 
       > button {
         @include btn(m);
-        flex: 0 0 104px;
-        width: 104px;
-        max-width: 104px;
-        height: 46px;
+        flex: 0 0 76px;
+        width: 76px;
+        max-width: 76px;
+        height: 44px;
         white-space: nowrap;
         color: $color-on-primary;
         background-color: $main-color;
+        border-radius: 8px;
 
         &:hover:not(:disabled) {
           background-color: $color-primary-hover;
@@ -100,7 +97,8 @@
     }
 
     .watchlist-register-page__search-box {
-      @include search-box(46px, 0 14px, 11px, 9px);
+      @include search-box(44px, 0 13px, 8px, 9px);
+      box-shadow: none;
 
       svg {
         width: 19px;
@@ -116,58 +114,104 @@
       @include visually-hidden;
     }
 
-    .watchlist-register-page__result {
-      h3 {
-        @include flex(null, center, 7px);
-        margin-bottom: 12px;
-        color: $color-text-label;
-        font-size: 1.2rem;
-        font-weight: 700;
-
-        span {
-          color: $main-color;
-          font-size: 1.1rem;
-        }
-      }
-    }
-
     .watchlist-register-page__empty {
-      padding: 48px 16px;
+      padding: 40px 16px;
       color: $color-text-muted;
-      background-color: $color-read-only-background;
-      border-radius: 12px;
-      font-size: 1.2rem;
+      background-color: rgba($color-read-only-background, 0.55);
+      border-radius: 6px;
+      font-size: 1.3rem;
       line-height: 1.5;
       text-align: center;
     }
 
     .watchlist-register-page__list {
-      @include flex-col(null, null, 9px);
+      @include flex-col();
+      border-top: 1px solid $color-border;
+    }
+
+    .watchlist-register-page__list-actions {
+      @include flex(space-between, center, 12px);
+      min-height: 34px;
+      margin-bottom: 8px;
+    }
+
+    .watchlist-register-page__select-all,
+    .watchlist-register-page__checkbox {
+      @include flex(null, center, 7px);
+      @include checkbox(15px, 3px, $main-color);
+      color: $color-text-secondary;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .watchlist-register-page__checkbox {
+      justify-content: center;
+    }
+
+    .watchlist-register-page__action-buttons {
+      @include flex(null, center, 7px);
+    }
+
+    .watchlist-register-page__selected-register-button,
+    .watchlist-register-page__selected-remove-button,
+    .watchlist-register-page__all-remove-button {
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .watchlist-register-page__selected-register-button {
+      color: $color-on-primary;
+      background-color: $main-color;
+      border: 1px solid $main-color;
+
+      &:hover:not(:disabled) {
+        background-color: $color-primary-hover;
+        border-color: $color-primary-hover;
+      }
+    }
+
+    .watchlist-register-page__selected-remove-button,
+    .watchlist-register-page__all-remove-button {
+      color: $color-text-label;
+      background-color: $color-surface;
+      border: 1px solid $color-input-border;
+
+      &:hover:not(:disabled) {
+        background-color: $color-read-only-background;
+      }
+    }
+
+    .watchlist-register-page__all-remove-button {
+      color: $color-warning;
+
+      &:hover:not(:disabled) {
+        background-color: rgba($color-warning, 0.04);
+        border-color: rgba($color-warning, 0.35);
+      }
     }
 
     .watchlist-register-page__item {
-      @include grid(74px minmax(0, 1fr) auto, null, 12px, center);
-      padding: 13px;
-      border: 1px solid $color-border;
-      border-radius: 12px;
-      transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
+      @include grid(15px 55px minmax(0, 1fr) auto, null, 12px, center);
+      min-height: 64px;
+      padding: 12px 4px;
+      border-bottom: 1px solid $color-border;
+      transition: background-color 0.2s;
 
       &:hover {
-        border-color: $color-secondary-border;
-        box-shadow: 0 4px 12px $color-shadow;
+        background-color: rgba($color-read-only-background, 0.5);
       }
     }
 
     .watchlist-register-page__ticker {
       justify-self: start;
-      padding: 5px 9px;
-      color: $color-ticker-text;
-      background-color: $color-ticker-background;
-      border-radius: 7px;
-      font-size: 1.1rem;
+      padding: 0;
+      color: $color-text-label;
+      font-size: 1.2rem;
       font-weight: 700;
+      letter-spacing: 0.04em;
     }
 
     .watchlist-register-page__names {
@@ -188,7 +232,7 @@
 
       small {
         color: $color-text-muted;
-        font-size: 1.1rem;
+        font-size: 1.3rem;
       }
     }
 
@@ -196,23 +240,27 @@
     .watchlist-register-page__remove-button {
       @include flex(center, center, 5px);
       min-width: 68px;
-      height: 34px;
+      height: 32px;
       padding: 0 10px;
-      border-radius: 8px;
-      font-size: 1.1rem;
+      border-radius: 6px;
+      font-size: 1.2rem;
       font-weight: 600;
 
-      svg {
+      svg,
+      img {
         width: 15px;
+        height: 15px;
       }
     }
 
     .watchlist-register-page__register-button {
       color: $main-color;
-      border: 1px solid $color-secondary-border;
+      border: 1px solid rgba($main-color, 0.28);
 
       &:hover:not(:disabled) {
-        background-color: $color-secondary-hover;
+        color: $color-primary-hover;
+        background-color: rgba($main-color, 0.05);
+        border-color: rgba($main-color, 0.42);
       }
 
       &:disabled {
@@ -224,14 +272,15 @@
 
     .watchlist-register-page__remove-button {
       min-width: 34px;
-      width: 34px;
+      width: 32px;
+      height: 32px;
       padding: 0;
       color: $color-warning;
-      background-color: rgba($color-warning, 0.06);
-      border: 1px solid rgba($color-warning, 0.22);
+      border: 1px solid $color-border;
 
       &:hover:not(:disabled) {
-        background-color: rgba($color-warning, 0.12);
+        background-color: rgba($color-warning, 0.04);
+        border-color: rgba($color-warning, 0.35);
       }
     }
 

@@ -1,0 +1,59 @@
+@use '../common/variable.scss' as *;
+
+@mixin checkbox($size: 17px, $radius: 4px, $checked-color: $main-color) {
+  position: relative;
+
+  > input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+
+    &:checked + span {
+      color: $color-on-primary;
+      border-color: $checked-color;
+      background-color: $checked-color;
+
+      svg {
+        opacity: 1;
+      }
+    }
+
+    &:focus-visible + span {
+      box-shadow: 0 0 0 3px $color-focus-ring;
+    }
+
+    &:disabled + span {
+      cursor: default;
+      opacity: 0.45;
+    }
+  }
+
+  > input + span {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: $size;
+    height: $size;
+    color: transparent;
+    border: 1px solid $color-input-border;
+    border-radius: $radius;
+    background-color: $color-surface;
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background-color 0.2s,
+      box-shadow 0.2s;
+
+    svg {
+      width: calc($size - 3px);
+      height: calc($size - 3px);
+      stroke-width: 2.4;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+  }
+}

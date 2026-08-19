@@ -1,36 +1,48 @@
 :global(#stockSearchPage) {
   &.stock-search-page {
+    margin: 0 auto;
+    padding: 12px 0 40px;
+    color: $color-text-primary;
+
     .stock-search-page__heading {
-      margin-bottom: 24px;
+      margin-bottom: 36px;
+
+      .stock-search-page__eyebrow {
+        margin-bottom: 10px;
+        color: $color-text-muted;
+        font-size: 1.2rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+      }
 
       h1 {
-        margin-bottom: 10px;
-        font-size: 2rem;
+        margin-bottom: 12px;
+        font-size: 2.6rem;
         font-weight: 700;
         letter-spacing: -0.04em;
       }
 
       p {
         color: $color-text-secondary;
-        font-size: 1.4rem;
+        font-size: 1.3rem;
         line-height: 1.5;
       }
     }
 
     .stock-search-page__search-form {
-      @include flex(null, center, 10px);
-      margin-bottom: 24px;
+      @include flex(null, center, 8px);
+      margin-bottom: 32px;
 
       > button {
         @include btn(m);
-        flex: 0 0 96px;
-        width: 96px;
-        max-width: 96px;
-        height: 48px;
+        flex: 0 0 76px;
+        width: 76px;
+        max-width: 76px;
+        height: 44px;
         white-space: nowrap;
         color: $color-on-primary;
         background-color: $main-color;
-        box-shadow: 0 4px 12px $color-primary-shadow;
+        border-radius: 8px;
 
         &:hover:not(:disabled) {
           background-color: $color-primary-hover;
@@ -43,10 +55,17 @@
     }
 
     .stock-search-page__search-box {
-      @include search-box();
+      @include search-box(44px, 0 13px, 8px, 9px);
+      box-shadow: none;
 
       svg {
+        width: 19px;
         stroke-width: 1.7;
+      }
+
+      input,
+      input::placeholder {
+        font-size: 1.3rem;
       }
     }
 
@@ -67,14 +86,14 @@
     .stock-search-page__status {
       padding: 40px 0;
       color: $color-text-muted;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       text-align: center;
     }
 
     .stock-search-page__summary {
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       color: $color-text-secondary;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
 
       strong {
         color: $main-color;
@@ -83,42 +102,49 @@
     }
 
     .stock-search-page__list {
-      @include flex-col(null, null, 10px);
-      list-style: none;
+      @include flex-col();
+      border-top: 1px solid $color-border;
     }
 
     .stock-search-page__item {
-      @include flex(null, center, 14px);
-      padding: 16px;
-      background-color: $color-surface;
-      border: 1px solid $color-border;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px $color-shadow;
+      @include grid(55px minmax(0, 1fr) auto, null, 12px, center);
+      min-height: 64px;
+      padding: 12px 4px;
+      border-bottom: 1px solid $color-border;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba($color-read-only-background, 0.5);
+      }
     }
 
     .stock-search-page__ticker {
       flex: 0 0 auto;
-      padding: 4px 8px;
-      background-color: $color-ticker-background;
-      border-radius: 4px;
-      color: $color-ticker-text;
+      padding: 0;
+      color: $color-text-label;
       font-size: 1.2rem;
       font-weight: 700;
+      letter-spacing: 0.04em;
     }
 
     .stock-search-page__names {
-      @include flex(null, baseline, 8px);
-      flex: 1;
+      @include flex-col(null, null, 5px);
       min-width: 0;
 
       strong {
-        font-size: 1.4rem;
+        overflow: hidden;
+        font-size: 1.3rem;
         font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       small {
         color: $color-text-muted;
-        font-size: 1.2rem;
+        overflow: hidden;
+        font-size: 1.3rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
 
@@ -128,7 +154,7 @@
       background-color: $color-divider;
       border-radius: 999px;
       color: $color-text-label;
-      font-size: 1.1rem;
+      font-size: 1.3rem;
       font-weight: 600;
     }
 
@@ -137,10 +163,8 @@
       margin-top: 28px;
 
       span {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
       }
     }
-
   }
 }
-

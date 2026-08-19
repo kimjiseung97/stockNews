@@ -3,7 +3,7 @@
 @use './gridMixIn.scss' as *;
 @use './btnMixIn.scss' as *;
 
-@mixin form-input-box($height: 44px, $padding: 0 13px, $radius: 10px, $font-size: 1.4rem) {
+@mixin form-input-box($height: 44px, $padding: 0 13px, $radius: 10px, $font-size: 1.3rem) {
   @include flex(null, center);
   height: $height;
   padding: $padding;
@@ -98,7 +98,7 @@
 
   em {
     color: $color-divider-text;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-style: normal;
   }
 }
@@ -118,6 +118,6 @@
 
   span {
     color: $color-text-secondary;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
   }
 }
