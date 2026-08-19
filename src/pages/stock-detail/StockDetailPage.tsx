@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { watchListDetail, type WatchListDetail } from '@/api/watchList/detail'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
@@ -14,7 +14,8 @@ interface StockDetailLocationState {
 }
 
 function StockDetailPage() {
-  const { stockId } = useParams()
+  const [searchParams] = useSearchParams()
+  const limit = searchParams.get('limit')
   const location = useLocation()
   const stockInformation = location.state as StockDetailLocationState | null
   const [detail, setDetail] = useState<WatchListDetail | null>(null)
@@ -23,7 +24,7 @@ function StockDetailPage() {
 
   useEffect(() => {
     const loadDetail = async () => {
-      const parsedStockId = Number(stockId)
+      const parsedStockId = Number(limit)
 
       if (!Number.isInteger(parsedStockId) || parsedStockId <= 0) {
         setErrorMessage('올바르지 않은 종목 정보입니다.')
@@ -43,7 +44,7 @@ function StockDetailPage() {
     }
 
     void loadDetail()
-  }, [stockId])
+  }, [limit])
 
   const getListedDate = (listedAt: string | null) => {
     if (!listedAt) {

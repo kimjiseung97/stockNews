@@ -39,8 +39,9 @@
       background-color: rgba($color-complete, 0.1);
       border: 1px solid rgba($color-complete, 0.28);
 
-      svg {
+      img {
         width: 18px;
+        height: 18px;
       }
     }
 
@@ -145,8 +146,72 @@
       @include flex-col(null, null, 9px);
     }
 
+    .watchlist-register-page__list-actions {
+      @include flex(space-between, center, 12px);
+      margin-bottom: 12px;
+    }
+
+    .watchlist-register-page__select-all,
+    .watchlist-register-page__checkbox {
+      @include flex(null, center, 7px);
+      color: $color-text-secondary;
+      font-size: 1.2rem;
+      cursor: pointer;
+
+      input {
+        @include checkbox();
+      }
+    }
+
+    .watchlist-register-page__checkbox {
+      justify-content: center;
+    }
+
+    .watchlist-register-page__action-buttons {
+      @include flex(null, center, 7px);
+    }
+
+    .watchlist-register-page__selected-register-button,
+    .watchlist-register-page__selected-remove-button,
+    .watchlist-register-page__all-remove-button {
+      height: 34px;
+      padding: 0 11px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .watchlist-register-page__selected-register-button {
+      color: $color-on-primary;
+      background-color: $main-color;
+
+      &:hover:not(:disabled) {
+        background-color: $color-primary-hover;
+      }
+    }
+
+    .watchlist-register-page__selected-remove-button,
+    .watchlist-register-page__all-remove-button {
+      color: $color-warning;
+      background-color: rgba($color-warning, 0.06);
+      border: 1px solid rgba($color-warning, 0.22);
+
+      &:hover:not(:disabled) {
+        background-color: rgba($color-warning, 0.12);
+      }
+    }
+
+    .watchlist-register-page__all-remove-button {
+      color: $color-on-primary;
+      background-color: $color-warning;
+
+      &:hover:not(:disabled) {
+        background-color: rgba($color-warning, 0.86);
+      }
+    }
+
     .watchlist-register-page__item {
-      @include grid(74px minmax(0, 1fr) auto, null, 12px, center);
+      @include grid(15px 55px minmax(0, 1fr) auto, null, 12px, center);
       padding: 13px;
       border: 1px solid $color-border;
       border-radius: 12px;
@@ -202,8 +267,10 @@
       font-size: 1.1rem;
       font-weight: 600;
 
-      svg {
+      svg,
+      img {
         width: 15px;
+        height: 15px;
       }
     }
 

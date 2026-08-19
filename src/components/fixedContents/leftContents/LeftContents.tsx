@@ -32,6 +32,15 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
     })
   }
 
+  // 인기종목 바로 검색
+  function popularStockSearchBtn(stockName: string) {
+    setTiker(stockName)
+    navigate({
+      pathname: email ? '/watchlist/register' : '/stock-search',
+      search: `?${new URLSearchParams({ koreaName: stockName })}`,
+    })
+  }
+
   useEffect(() => {
     // 인기종목 목록 조회
     const getPopularStock = async () => {
@@ -82,7 +91,7 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
                   <button
                     type="button"
                     key={stock.id}
-                    onClick={() => setTiker(stock.koreanName || stock.name)}
+                    onClick={() => popularStockSearchBtn(stock.koreanName || stock.name)}
                   >
                     {stock.koreanName || stock.name}
                   </button>

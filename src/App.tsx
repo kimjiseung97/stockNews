@@ -21,10 +21,7 @@ function App() {
         <Route path="/" element={<HomePage></HomePage>}></Route>
         <Route path="/stock-search" element={<StockSearchPage></StockSearchPage>}></Route>
         <Route path="/watchlist" element={<WatchlistPage></WatchlistPage>}></Route>
-        <Route
-          path="/stocks/:stockId/detail"
-          element={<StockDetailPage></StockDetailPage>}
-        ></Route>
+        <Route path="/stocks/detail" element={<StockDetailPage></StockDetailPage>}></Route>
         <Route
           path="/watchlist/register"
           element={<WatchlistRegisterPage></WatchlistRegisterPage>}

@@ -168,7 +168,7 @@ function WatchlistPage() {
               <li key={stock.id}>
                 <Link
                   className={styles['watchlist-page__item']}
-                  to={`/stocks/${stock.id}/detail`}
+                  to={`/stocks/detail?limit=${stock.stockId}`}
                   state={{
                     ticker: stock.ticker,
                     displayName: stock.koreanName || stock.name,
