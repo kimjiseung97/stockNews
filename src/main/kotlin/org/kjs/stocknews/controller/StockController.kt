@@ -42,7 +42,7 @@ class StockController(
     ): List<PopularStockResponse> = stockService.getPopularStocks(limit)
 
     @Operation(summary = "종목별 뉴스 목록 조회", description = "종목 PK로 수집된 뉴스를 최신순으로 페이징 조회한다. 로그인 불필요.")
-    @GetMapping("/{stockId}/news")
+    @GetMapping("/news/{stockId}")
     fun getNews(@PathVariable stockId: Long, pageable: Pageable): Page<StockNewsResponse> =
         stockService.getNews(stockId, pageable)
 }
