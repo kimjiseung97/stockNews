@@ -115,6 +115,13 @@ naver:
     max-articles-per-query: 1
     cache-ttl-minutes: 60
 
+nvidia:
+  api:
+    base-url: https://integrate.api.nvidia.com/v1
+    key: <nvidia-api-key>
+    model: meta/llama-3.3-70b-instruct
+    max-tokens: 1024
+
 auth:
   verification:
     code-length: 6
