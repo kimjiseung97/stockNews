@@ -8,7 +8,7 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
 
 ## 스택 & 명령어
 
-- 백엔드: Kotlin 2.3, Spring Boot 4.1, MySQL(Aiven 원격 호스팅), Spring Batch 6, QueryDSL
+- 백엔드: Kotlin 2.3, Spring Boot 4.1, Local 환경MySQL(Aiven 원격 호스팅),배포 환경 MariaDb(GCP 내부통신), Spring Batch 6, QueryDSL
 - 프론트: React 19, Vite, TypeScript, React Router, SCSS Modules
 - 빌드: `./gradlew build`
 - 테스트: `./gradlew test`
