@@ -115,7 +115,7 @@ nvidia:
   api:
     base-url: https://integrate.api.nvidia.com/v1
     key: ${NVIDIA_API_KEY}
-    model: meta/llama-3.3-70b-instruct
+    model: meta/llama-3.1-8b-instruct
     max-tokens: 1024
 
 auth:
