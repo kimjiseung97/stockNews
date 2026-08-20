@@ -33,4 +33,7 @@ enum class ResultCode(val code: String, val message: String) {
     STOCK_NOT_FOUND("STOCK_NOT_FOUND", "존재하지 않는 종목입니다."),
     STOCK_DETAIL_NOT_FOUND("STOCK_DETAIL_NOT_FOUND", "종목 상세정보를 찾을 수 없습니다."),
     USER_STOCK_NOT_FOUND("USER_STOCK_NOT_FOUND", "등록되지 않은 관심종목입니다."),
+    STOCK_CHAT_QUESTION_REQUIRED("STOCK_CHAT_QUESTION_REQUIRED", "질문을 입력해주세요."),
+    STOCK_CHAT_QUESTION_TOO_LONG("STOCK_CHAT_QUESTION_TOO_LONG", "질문은 300자 이하로 입력해주세요."),
+    STOCK_CHAT_FAILED("STOCK_CHAT_FAILED", "AI 응답을 받아오지 못했습니다. 잠시 후 다시 시도해주세요."),
 }

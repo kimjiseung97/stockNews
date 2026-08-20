@@ -4,9 +4,9 @@ import org.kjs.stocknews.model.dto.NewsArticle
 import org.kjs.stocknews.model.dto.UserNewsMail
 import org.kjs.stocknews.model.dto.UserStockNewsView
 import org.kjs.stocknews.model.table.User
+import org.kjs.stocknews.repository.StockNewsRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.kjs.stocknews.repository.UserStockRepository
-import org.kjs.stocknews.service.NaverNewsClient
 import org.kjs.stocknews.service.NewsClient
 import org.kjs.stocknews.service.NewsMailSender
 import org.springframework.batch.core.configuration.annotation.StepScope
@@ -23,12 +23,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.AsyncTaskExecutor
 import org.springframework.core.task.TaskExecutor
+import org.springframework.data.domain.PageRequest
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
+import java.util.concurrent.ConcurrentHashMap
 
 private const val NEWS_DISPATCH_CHUNK_SIZE = 20
 
-// [배치] 활성 유저별 관심종목 뉴스를 모아 다이제스트 메일로 발송한다.
+// [배치] 활성 유저별 관심종목 뉴스를 TB_STOCK_NEWS(StockNewsCollectJobConfig가 적재)에서 모아 다이제스트 메일로 발송한다.
 // 멀티스레드 청크 스텝 - 유저를 20명씩 청크로 묶어 스레드풀(newsDispatchTaskExecutor)에서 병렬 처리.
 @Configuration
 class NewsDispatchJobConfig(
@@ -37,9 +39,10 @@ class NewsDispatchJobConfig(
     private val userRepository: UserRepository,
     private val userStockRepository: UserStockRepository,
     private val newsClient: NewsClient,
-    private val naverNewsClient: NaverNewsClient,
+    private val stockNewsRepository: StockNewsRepository,
     private val newsMailSender: NewsMailSender,
     @Value("\${news.dispatch.thread-pool-size:8}") private val threadPoolSize: Int,
+    @Value("\${news.dispatch.max-articles-per-stock:1}") private val maxArticlesPerStock: Int,
 ) {
 
     // 반환 타입을 AsyncTaskExecutor로 선언하면 Spring Boot의 JPA 부트스트랩 executor 자동 감지(Map<String, AsyncTaskExecutor> 주입)에
@@ -79,18 +82,32 @@ class NewsDispatchJobConfig(
         }
     }
 
-    // Processor: 유저의 관심종목별로 네이버 뉴스를 조회해 모으고, 발송할 메일 DTO(UserNewsMail)로 변환한다.
+    // Processor: 유저의 관심종목별로 TB_STOCK_NEWS(StockNewsCollectJobConfig가 적재한 데이터)에서
+    // 최신 뉴스를 조회해 모으고, 발송할 메일 DTO(UserNewsMail)로 변환한다.
     // 관심종목이 없거나 뉴스가 하나도 없으면 null을 반환해 해당 유저를 발송 대상에서 제외한다.
     //
     // 유저마다 findAllByUserId + findAllById를 개별 호출하던 N+1 쿼리를 없애기 위해,
     // 스텝 시작 시점(@StepScope 빈 생성 1회)에 활성 유저 전체의 관심종목을 userStock-stock join 쿼리 1번으로 가져와
     // userId -> 종목 목록 Map으로 그룹핑해둔다. 이후 각 유저 처리 시점엔 DB 호출 없이 이 Map에서 꺼내 쓰기만 한다.
+    //
+    // 같은 종목을 구독한 유저가 여러 명이면 종목별 뉴스 조회 결과를 stockId 기준으로 캐싱해,
+    // 동일 종목에 대한 TB_STOCK_NEWS 조회를 유저 수만큼 반복하지 않고 한 번으로 줄인다.
+    // 멀티스레드 스텝에서 여러 워커 스레드가 동시에 접근하므로 ConcurrentHashMap을 사용한다.
     @Bean
     @StepScope
     fun newsDispatchProcessor(): ItemProcessor<User, UserNewsMail> {
         val activeUserIds = userRepository.findAllByActiveTrue().mapNotNull { it.id }
         val stockViewsByUserId: Map<Long, List<UserStockNewsView>> =
             userStockRepository.findNewsViewsByUserIdIn(activeUserIds).groupBy { it.userId }
+        val newsCache = ConcurrentHashMap<Long, List<NewsArticle>>()
+        val pageable = PageRequest.of(0, maxArticlesPerStock)
+
+        fun newsForStock(stockId: Long): List<NewsArticle> =
+            newsCache.computeIfAbsent(stockId) {
+                stockNewsRepository.findByStockIdOrderByCollectedAtDesc(stockId, pageable)
+                    .content
+                    .map { NewsArticle(title = it.title, url = it.url, description = it.content) }
+            }
 
         return ItemProcessor { user ->
             val userId = user.id ?: return@ItemProcessor null
@@ -99,7 +116,7 @@ class NewsDispatchJobConfig(
 
             val articlesByTicker = linkedMapOf<String, List<NewsArticle>>()
             for (view in stockViews) {
-                val articles = naverNewsClient.fetchNews(view.koreanName ?: view.name)
+                val articles = newsForStock(view.stockId)
                 if (articles.isNotEmpty()) {
                     articlesByTicker[view.ticker] = articles
                 }

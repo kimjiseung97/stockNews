@@ -91,6 +91,7 @@ news:
   dispatch:
     cron: "0 0 9 * * *"
     thread-pool-size: 8
+    max-articles-per-stock: 1
 
 verification:
   cleanup:
@@ -109,6 +110,13 @@ naver:
     client-secret: ${NAVER_CLIENT_SECRET}
     max-articles-per-query: 5
     cache-ttl-minutes: 60
+
+nvidia:
+  api:
+    base-url: https://integrate.api.nvidia.com/v1
+    key: ${NVIDIA_API_KEY}
+    model: meta/llama-3.3-70b-instruct
+    max-tokens: 1024
 
 auth:
   verification:
