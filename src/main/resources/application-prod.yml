@@ -91,6 +91,7 @@ news:
   dispatch:
     cron: "0 0 9 * * *"
     thread-pool-size: 8
+    max-articles-per-stock: 1
 
 verification:
   cleanup:
