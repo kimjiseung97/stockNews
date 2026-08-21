@@ -1,4 +1,4 @@
-// 이메일 중복여부 API
+// 이메일 중복 여부 확인
 import { apiFetch } from '@/api/common/commonApi'
 
 interface duplicateCheck {

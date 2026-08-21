@@ -1,4 +1,4 @@
-// 비밀번호 찾기
+// 비밀번호 찾기 API 관리
 import { apiFetch } from '@/api/common/commonApi'
 
 interface ResetPasswordRequest {
@@ -31,7 +31,7 @@ export async function requestResetPassword(data: ResetPasswordRequest): Promise<
   }
 }
 
-//  인증 코드
+// 인증 코드 확인
 export async function requsetNumAuth(data: RequsetNumAuth): Promise<void> {
   try {
     console.log('비밀번호 재설정 인증코드 데이터', data)

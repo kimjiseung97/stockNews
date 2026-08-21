@@ -1,4 +1,4 @@
-// 로그인
+// 로그인 API 요청
 import { apiFetch } from '@/api/common/commonApi'
 
 interface LoginRequest {

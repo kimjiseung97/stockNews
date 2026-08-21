@@ -14,7 +14,7 @@ export class ApiError extends Error {
   }
 }
 
-// 백엔드 ApiResponse 포맷을 파싱하고, code가 OK가 아니면 ApiError로 던진다.
+// 백엔드 ApiResponse 포맷 파싱 및 오류 처리
 export async function apiFetch<T = null>(path: string, options: RequestInit = {}): Promise<T | null> {
   const response = await fetch(path, {
     credentials: 'include',

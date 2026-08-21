@@ -4,6 +4,7 @@ import Header from '@/components/fixedContents/header/Header'
 import LeftContents from '@/components/fixedContents/leftContents/LeftContents'
 import useScrollToTop from '@/hooks/useScrollToTop'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
+import StockChat from '@/components/fixedContents/stockChat/StockChat'
 import styles from '@/assets/styles/layout/main/mainLayout.module.scss'
 
 export default function MainLayout() {
@@ -44,6 +45,8 @@ export default function MainLayout() {
             <Outlet></Outlet>
           </Suspense>
         </section>
+
+        <StockChat></StockChat>
       </section>
     </section>
   )

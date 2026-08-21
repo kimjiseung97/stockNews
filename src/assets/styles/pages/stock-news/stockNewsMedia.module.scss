@@ -1,0 +1,33 @@
+@media (max-width: 550px) {
+  :global(#stockNewsPage) {
+    &.stock-news-page {
+      .stock-news-page__stock-result {
+        button {
+          grid-template-columns: 52px minmax(0, 1fr) 18px;
+          gap: 8px;
+        }
+      }
+
+      .stock-news-page__theme {
+        display: none;
+      }
+
+      .stock-news-page__selected-stock {
+        h2 {
+          padding-right: 0;
+        }
+
+        p {
+          position: static;
+          margin-top: 8px;
+        }
+      }
+
+      .stock-news-page__list {
+        article {
+          padding: 20px 2px;
+        }
+      }
+    }
+  }
+}

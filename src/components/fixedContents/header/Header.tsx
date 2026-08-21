@@ -9,7 +9,7 @@ export default function Header() {
   const navigate = useNavigate()
 
   const handleLogout = async () => {
-    // 화면은 즉시 한 번만 갱신하고, 세션 종료는 별도로 처리한다.
+    // 화면은 즉시 한 번만 갱신하고 세션 종료는 별도로 처리
     clearLoggedInUser()
 
     try {

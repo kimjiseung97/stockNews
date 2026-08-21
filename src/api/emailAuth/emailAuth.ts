@@ -1,4 +1,4 @@
-// 이메일 인증
+// 이메일 인증 API 요청
 
 import { apiFetch } from '@/api/common/commonApi'
 

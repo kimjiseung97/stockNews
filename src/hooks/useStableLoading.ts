@@ -6,8 +6,8 @@ interface StableLoadingOptions {
 }
 
 /**
- * 아주 짧은 요청에는 로딩 UI를 노출하지 않고, 노출된 로딩 UI는 최소 시간 동안 유지한다.
- * 실제 요청 잠금에는 원래 loading 값을 사용하고 화면 표시 여부에만 반환값을 사용한다.
+ * 아주 짧은 요청에는 로딩 UI를 노출하지 않고, 노출된 로딩 UI의 최소 표시 시간 유지
+ * 실제 요청 잠금에는 원래 loading 값을 사용하고 화면 표시 여부에만 반환값 사용
  */
 export function useStableLoading(
   loading: boolean,

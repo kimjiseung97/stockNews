@@ -169,7 +169,7 @@ export default function Menu() {
             메일 예시
           </NavLink>
         </li> */}
-        {/* 스와이프 테스트용 */}
+        {/* 스와이프 동작 테스트용 */}
         {/* <li>
           <NavLink
             className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}

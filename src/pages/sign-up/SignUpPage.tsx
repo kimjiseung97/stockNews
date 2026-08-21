@@ -139,7 +139,7 @@ function SignUpPage() {
     }
   }
 
-  // 이메일 인증코드 확인
+  // 이메일 인증 코드 확인
   const handleEmailAuth = async (event: ReactMouseEvent<HTMLButtonElement>) => {
     const form = event.currentTarget.form
 
