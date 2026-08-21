@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.kjs.stocknews.common.BusinessException
 import org.kjs.stocknews.common.ResultCode
+import org.kjs.stocknews.model.dto.StockChatRequest
 import org.kjs.stocknews.model.table.Stock
 import org.kjs.stocknews.model.table.StockNews
 import org.kjs.stocknews.repository.StockNewsRepository
@@ -33,21 +34,21 @@ class StockChatServiceTest {
         `when`(nvidiaChatClient.chatToLLm(anyArg(), eqArg("최근 실적 어때?")))
             .thenReturn("애플의 최근 실적은...")
 
-        val response = stockChatService.ask(1L, "최근 실적 어때?")
+        val response = stockChatService.ask(StockChatRequest(1L, "최근 실적 어때?"))
 
         assert(response.answer == "애플의 최근 실적은...")
     }
 
     @Test
     fun `빈 질문이면 STOCK_CHAT_QUESTION_REQUIRED 예외가 발생한다`() {
-        val exception = assertThrows<BusinessException> { stockChatService.ask(1L, "  ") }
+        val exception = assertThrows<BusinessException> { stockChatService.ask(StockChatRequest(1L, "  ")) }
         assert(exception.resultCode == ResultCode.STOCK_CHAT_QUESTION_REQUIRED)
     }
 
     @Test
     fun `질문이 300자를 초과하면 STOCK_CHAT_QUESTION_TOO_LONG 예외가 발생한다`() {
         val longQuestion = "a".repeat(301)
-        val exception = assertThrows<BusinessException> { stockChatService.ask(1L, longQuestion) }
+        val exception = assertThrows<BusinessException> { stockChatService.ask(StockChatRequest(1L, longQuestion)) }
         assert(exception.resultCode == ResultCode.STOCK_CHAT_QUESTION_TOO_LONG)
     }
 
@@ -55,7 +56,7 @@ class StockChatServiceTest {
     fun `존재하지 않는 종목이면 STOCK_NOT_FOUND 예외가 발생한다`() {
         `when`(stockRepository.findById(1L)).thenReturn(Optional.empty())
 
-        val exception = assertThrows<BusinessException> { stockChatService.ask(1L, "질문") }
+        val exception = assertThrows<BusinessException> { stockChatService.ask(StockChatRequest(1L, "질문")) }
         assert(exception.resultCode == ResultCode.STOCK_NOT_FOUND)
     }
 
@@ -67,7 +68,7 @@ class StockChatServiceTest {
             .thenReturn(PageImpl(emptyList<StockNews>()))
         `when`(nvidiaChatClient.chatToLLm(anyArg(), anyArg())).thenReturn(null)
 
-        val exception = assertThrows<BusinessException> { stockChatService.ask(1L, "질문") }
+        val exception = assertThrows<BusinessException> { stockChatService.ask(StockChatRequest(1L, "질문")) }
         assert(exception.resultCode == ResultCode.STOCK_CHAT_FAILED)
     }
 

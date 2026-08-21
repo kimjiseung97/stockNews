@@ -2,6 +2,7 @@ package org.kjs.stocknews.service
 
 import org.kjs.stocknews.common.BusinessException
 import org.kjs.stocknews.common.ResultCode
+import org.kjs.stocknews.model.dto.StockChatRequest
 import org.kjs.stocknews.model.dto.StockChatResponse
 import org.kjs.stocknews.repository.StockNewsRepository
 import org.kjs.stocknews.repository.StockRepository
@@ -29,7 +30,9 @@ class StockChatService(
     private val stockNewsRepository: StockNewsRepository,
     private val nvidiaChatClient: NvidiaChatClient,
 ) {
-    fun ask(stockId: Long, question: String): StockChatResponse {
+    fun ask(request: StockChatRequest): StockChatResponse {
+        val stockId = request.stockId
+        val question = request.question
         validateQuestion(question)
 
         val stock = stockRepository.findById(stockId)
