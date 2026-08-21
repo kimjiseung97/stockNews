@@ -136,22 +136,31 @@ export default function Menu() {
             </NavLink>
           </li>
         )}
-        <li>
-          <NavLink
-            className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
-            to="/stock-news"
-          >
-            종목 뉴스
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
-            to="/email-settings"
-          >
-            이메일 설정
-          </NavLink>
-        </li>
+        {/* 미연동 기능: prod에서는 탭 숨김 */}
+        {!import.meta.env.PROD && (
+          <>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? styles['header-menu__active'] : undefined
+                }
+                to="/stock-news"
+              >
+                종목 뉴스
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? styles['header-menu__active'] : undefined
+                }
+                to="/email-settings"
+              >
+                이메일 설정
+              </NavLink>
+            </li>
+          </>
+        )}
         {/* <li>
           <NavLink
             className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
