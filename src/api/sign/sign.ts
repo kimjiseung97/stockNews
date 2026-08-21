@@ -1,4 +1,4 @@
-// 회원가입 API
+// 회원가입 API 요청
 import { apiFetch } from '@/api/common/commonApi'
 
 interface signUp {

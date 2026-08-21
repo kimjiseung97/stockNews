@@ -1,0 +1,296 @@
+:global(#stockNewsPage) {
+  &.stock-news-page {
+    margin: 0 auto;
+    padding: 12px 0 40px;
+    color: $color-text-primary;
+
+    .stock-news-page__heading {
+      margin-bottom: 32px;
+
+      .stock-news-page__eyebrow {
+        margin-bottom: 10px;
+        color: $color-text-muted;
+        font-size: 1.2rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+      }
+
+      h1 {
+        margin-bottom: 12px;
+        font-size: 2.6rem;
+        font-weight: 700;
+      }
+
+      > p:last-child {
+        color: $color-text-secondary;
+        font-size: 1.3rem;
+        line-height: 1.6;
+      }
+    }
+
+    .stock-news-page__search-form {
+      @include flex(null, center, 8px);
+      margin-bottom: 18px;
+
+      > button {
+        @include btn(m);
+        flex: 0 0 104px;
+        width: 104px;
+        max-width: 104px;
+        height: 44px;
+        white-space: nowrap;
+        color: $color-on-primary;
+        background-color: $main-color;
+        border-radius: 8px;
+
+        &:hover:not(:disabled) {
+          background-color: $color-primary-hover;
+        }
+
+        &:disabled {
+          background-color: $color-disabled-background;
+        }
+      }
+    }
+
+    .stock-news-page__search-box {
+      @include search-box(44px, 0 13px, 8px, 9px);
+      box-shadow: none;
+
+      svg {
+        width: 19px;
+      }
+
+      input,
+      input::placeholder {
+        font-size: 1.3rem;
+      }
+    }
+
+    .stock-news-page__sr-only {
+      @include visually-hidden;
+    }
+
+    .stock-news-page__stock-result {
+      margin-bottom: 26px;
+
+      h2 {
+        margin-bottom: 10px;
+        color: $color-text-muted;
+        font-size: 1.3rem;
+
+        strong {
+          color: $main-color;
+          font-weight: 700;
+        }
+      }
+
+      ul {
+        @include flex-col;
+        border-top: 1px solid $color-border;
+      }
+
+      li {
+        border-bottom: 1px solid $color-border;
+      }
+
+      button {
+        @include grid(55px minmax(0, 1fr) auto 20px, null, 12px, center);
+        width: 100%;
+        min-height: 64px;
+        padding: 12px 4px;
+        color: $color-text-primary;
+        text-align: left;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: rgba($color-read-only-background, 0.5);
+
+          .stock-news-page__arrow {
+            color: $main-color;
+            transform: translateX(3px);
+          }
+        }
+      }
+
+      > p {
+        padding: 16px 0;
+        color: $color-text-muted;
+        font-size: 1.3rem;
+        text-align: center;
+      }
+    }
+
+    .stock-news-page__ticker {
+      color: $color-text-label;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .stock-news-page__names {
+      @include flex-col(null, null, 5px);
+      min-width: 0;
+
+      strong,
+      small {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      strong {
+        font-size: 1.35rem;
+        font-weight: 600;
+      }
+
+      small {
+        color: $color-text-muted;
+        font-size: 1.3rem;
+      }
+    }
+
+    .stock-news-page__theme {
+      padding: 4px 9px;
+      color: $color-text-label;
+      background-color: $color-divider;
+      border-radius: 999px;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .stock-news-page__arrow {
+      width: 18px;
+      color: $color-icon;
+      transition:
+        color 0.2s,
+        transform 0.2s;
+    }
+
+    .stock-news-page__notice {
+      @include notice($color-warning, 20px);
+      margin: 20px 0;
+    }
+
+    .stock-news-page__selected-stock {
+      position: relative;
+      margin: 34px 0 10px;
+      padding: 0 4px 18px;
+      border-bottom: 1px solid $color-border;
+
+      > span {
+        display: block;
+        margin-bottom: 7px;
+        color: $main-color;
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+
+      h2 {
+        padding-right: 80px;
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+
+      p {
+        position: absolute;
+        right: 4px;
+        bottom: 19px;
+        color: $color-text-muted;
+        font-size: 1.2rem;
+
+        strong {
+          color: $main-color;
+          font-weight: 700;
+        }
+      }
+    }
+
+    .stock-news-page__list {
+      li {
+        border-bottom: 1px solid $color-border;
+      }
+
+      article {
+        padding: 22px 4px;
+      }
+
+      time {
+        display: block;
+        margin-bottom: 9px;
+        color: $color-text-muted;
+        font-size: 1.15rem;
+      }
+
+      h3 {
+        font-size: 1.45rem;
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      p {
+        display: -webkit-box;
+        margin-top: 8px;
+        color: $color-text-label;
+        overflow: hidden;
+        font-size: 1.25rem;
+        line-height: 1.65;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      a {
+        @include flex(null, center, 5px);
+        width: fit-content;
+        height: auto;
+        margin-top: 13px;
+        color: $main-color;
+        font-size: 1.2rem;
+        font-weight: 600;
+
+        &:hover {
+          color: $color-primary-hover;
+        }
+
+        svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+
+    .stock-news-page__empty {
+      padding: 54px 20px;
+      background-color: rgba($color-read-only-background, 0.55);
+      border-radius: 6px;
+      text-align: center;
+
+      > svg {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 14px;
+        color: $color-icon;
+      }
+
+      h2 {
+        margin-bottom: 9px;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      p {
+        color: $color-text-muted;
+        font-size: 1.25rem;
+        line-height: 1.6;
+      }
+    }
+
+    .stock-news-page__empty-guide--hidden {
+      display: none;
+    }
+
+    .stock-news-page__pagination {
+      @include pagination();
+      margin-top: 22px;
+    }
+  }
+}

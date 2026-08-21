@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // 로컬 개발 시 프론트(Vite, 3000)와 백엔드(Spring Boot, 8080)가 분리 실행되므로
-    // 백엔드 API 요청을 전달. 운영에서는 Caddy가 같은 오리진으로 서빙해 프록시가 필요 없음.
+    // 로컬 개발에서는 프론트(Vite, 3000)와 백엔드(Spring Boot, 8080)를 분리하여 실행
+    // 백엔드 API 요청 전달, 운영에서는 Caddy가 같은 오리진으로 서빙하므로 프록시 불필요
     server: {
       proxy: {
         '/auth': {
@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // 전역 scss
+    // 전역 SCSS 설정
     css: {
       modules: {
         generateScopedName: isProduction ? '[hash:base64:7]' : '[name]__[local]__[hash:base64:5]',
@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => {
           // drop_console: true, // 운영 환경에서 console.log 제거
           drop_debugger: true,
         },
-        mangle: true, // 변수명, 함수명 난독화
+        mangle: true, // 변수명과 함수명 난독화
         format: {
           comments: false, // 모든 주석 제거
         },

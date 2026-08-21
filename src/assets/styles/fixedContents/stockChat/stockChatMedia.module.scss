@@ -1,0 +1,27 @@
+@media (max-width: 700px) {
+  :global(#stockChat) {
+    &.stock-chat {
+      right: 14px;
+      bottom: 14px;
+
+      .stock-chat__panel {
+        width: calc(100vw - 28px);
+        height: min(520px, calc(100vh - 100px));
+      }
+
+      .stock-chat__floating-button {
+        width: 68px;
+        height: 68px;
+
+        img {
+          width: 64px;
+          height: 57px;
+        }
+
+        span {
+          right: 60px;
+        }
+      }
+    }
+  }
+}

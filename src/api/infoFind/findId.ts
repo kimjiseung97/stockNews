@@ -1,4 +1,4 @@
-// 아이디 찾기
+// 아이디 찾기 API 관리
 import { apiFetch } from '@/api/common/commonApi'
 
 interface findId {
@@ -13,7 +13,7 @@ interface FindEmailResponse {
   email: string
 }
 
-// 아이디 재설정 인증 코드 요청
+// 아이디 찾기 인증 코드 요청
 export async function requestResetPassword(data: findId): Promise<void> {
   try {
     console.log('아이디 찾기 인증 코드 요청 데이터', data)
@@ -30,7 +30,7 @@ export async function requestResetPassword(data: findId): Promise<void> {
   }
 }
 
-//  아이디 인증코드 확인
+// 아이디 인증 코드 확인
 
 export async function requsetNumAuth(data: requsetNumAuth): Promise<FindEmailResponse | null> {
   try {

@@ -180,7 +180,7 @@ function WatchlistRegisterPage() {
     )
   }
 
-  // 검색 결과 선택 등록
+  // 선택한 검색 결과 등록
   const handleSelectedRegister = async () => {
     const stockIds = selectedSearchStockIds.filter((stockId) => !registeredStockIds.has(stockId))
     const selectedStocks =
@@ -304,7 +304,7 @@ function WatchlistRegisterPage() {
     pagedWatchListStockIds.length > 0 &&
     pagedWatchListStockIds.every((stockId) => selectedWatchListStockIds.includes(stockId))
 
-  // 현재 검색 결과를 모두 선택
+  // 현재 검색 결과 모두 선택
   const handleAllSearchStocksSelect = () => {
     setSelectedSearchStockIds((currentStockIds) =>
       isAllSearchStocksSelected
@@ -313,7 +313,7 @@ function WatchlistRegisterPage() {
     )
   }
 
-  // 현재 등록 목록을 모두 선택
+  // 현재 등록 목록 모두 선택
   const handleAllPagedWatchListSelect = () => {
     setSelectedWatchListStockIds((currentStockIds) =>
       isAllPagedWatchListSelected
