@@ -19,7 +19,8 @@ class StockNewsCollectScheduler(
 ) {
     private val log = LoggerFactory.getLogger(StockNewsCollectScheduler::class.java)
 
-    @Scheduled(cron = "\${stock.news-collect.cron}", zone = "Asia/Seoul")
+    // stockNewsSchedule(Node) 서비스가 news-collect 배치를 대체 수행하므로 중복 수집 방지를 위해 자동 트리거 비활성화.
+    // @Scheduled(cron = "\${stock.news-collect.cron}", zone = "Asia/Seoul")
     fun run() {
         if (jobRepository.findRunningJobExecutions("stockNewsCollectJob").isNotEmpty()) {
             log.info("stockNewsCollectJob already running, skipping this trigger")
