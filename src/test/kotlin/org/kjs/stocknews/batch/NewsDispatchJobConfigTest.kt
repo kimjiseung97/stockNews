@@ -3,17 +3,19 @@ package org.kjs.stocknews.batch
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import org.kjs.stocknews.model.dto.NewsArticle
 import org.kjs.stocknews.model.dto.UserStockNewsView
+import org.kjs.stocknews.model.table.StockNews
 import org.kjs.stocknews.model.table.User
+import org.kjs.stocknews.repository.StockNewsRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.kjs.stocknews.repository.UserStockRepository
-import org.kjs.stocknews.service.NaverNewsClient
 import org.kjs.stocknews.service.NewsClient
 import org.kjs.stocknews.service.NewsMailSender
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.PlatformTransactionManager
 import java.util.Collections
 import java.util.concurrent.CountDownLatch
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit
 
 private const val USER_COUNT = 500
 private const val THREAD_POOL_SIZE = 8
+private const val MAX_ARTICLES_PER_STOCK = 1
 
 class NewsDispatchJobConfigTest {
     private fun newConfig(): NewsDispatchJobConfig =
@@ -31,9 +34,10 @@ class NewsDispatchJobConfigTest {
             userRepository = mock(UserRepository::class.java),
             userStockRepository = mock(UserStockRepository::class.java),
             newsClient = mock(NewsClient::class.java),
-            naverNewsClient = mock(NaverNewsClient::class.java),
+            stockNewsRepository = mock(StockNewsRepository::class.java),
             newsMailSender = mock(NewsMailSender::class.java),
             threadPoolSize = THREAD_POOL_SIZE,
+            maxArticlesPerStock = MAX_ARTICLES_PER_STOCK,
         )
 
     @Test
@@ -59,9 +63,10 @@ class NewsDispatchJobConfigTest {
             userRepository = backingRepository,
             userStockRepository = mock(UserStockRepository::class.java),
             newsClient = mock(NewsClient::class.java),
-            naverNewsClient = mock(NaverNewsClient::class.java),
+            stockNewsRepository = mock(StockNewsRepository::class.java),
             newsMailSender = mock(NewsMailSender::class.java),
             threadPoolSize = THREAD_POOL_SIZE,
+            maxArticlesPerStock = MAX_ARTICLES_PER_STOCK,
         )
         val reader = configWithUsers.newsDispatchReader()
 
@@ -102,15 +107,19 @@ class NewsDispatchJobConfigTest {
         val userStockRepository = mock(UserStockRepository::class.java)
         `when`(userStockRepository.findNewsViewsByUserIdIn(listOf(1L, 2L))).thenReturn(
             listOf(
-                UserStockNewsView(userId = 1L, ticker = "AAPL", name = "Apple", koreanName = "애플"),
-                UserStockNewsView(userId = 1L, ticker = "MSFT", name = "Microsoft", koreanName = null),
+                UserStockNewsView(userId = 1L, stockId = 10L, ticker = "AAPL", name = "Apple", koreanName = "애플"),
+                UserStockNewsView(userId = 1L, stockId = 20L, ticker = "MSFT", name = "Microsoft", koreanName = null),
             ),
             // userB(2L)는 관심종목이 없는 케이스
         )
 
-        val naverNewsClient = mock(NaverNewsClient::class.java)
-        `when`(naverNewsClient.fetchNews("애플")).thenReturn(listOf(NewsArticle(title = "애플 뉴스", url = "https://example.com/apple")))
-        `when`(naverNewsClient.fetchNews("Microsoft")).thenReturn(emptyList())
+        val stockNewsRepository = mock(StockNewsRepository::class.java)
+        val pageable = PageRequest.of(0, MAX_ARTICLES_PER_STOCK)
+        val appleNews = StockNews(stockId = 10L, title = "애플 뉴스", content = null, url = "https://example.com/apple")
+        `when`(stockNewsRepository.findByStockIdOrderByCollectedAtDesc(10L, pageable))
+            .thenReturn(PageImpl(listOf(appleNews)))
+        `when`(stockNewsRepository.findByStockIdOrderByCollectedAtDesc(20L, pageable))
+            .thenReturn(PageImpl(emptyList()))
 
         val config = NewsDispatchJobConfig(
             jobRepository = mock(JobRepository::class.java),
@@ -118,9 +127,10 @@ class NewsDispatchJobConfigTest {
             userRepository = userRepository,
             userStockRepository = userStockRepository,
             newsClient = mock(NewsClient::class.java),
-            naverNewsClient = naverNewsClient,
+            stockNewsRepository = stockNewsRepository,
             newsMailSender = mock(NewsMailSender::class.java),
             threadPoolSize = THREAD_POOL_SIZE,
+            maxArticlesPerStock = MAX_ARTICLES_PER_STOCK,
         )
         val processor = config.newsDispatchProcessor()
 

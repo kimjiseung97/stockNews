@@ -5,13 +5,20 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.kjs.stocknews.model.dto.PopularStockResponse
+import org.kjs.stocknews.model.dto.StockChatRequest
+import org.kjs.stocknews.model.dto.StockChatResponse
 import org.kjs.stocknews.model.dto.StockDetailResponse
+import org.kjs.stocknews.model.dto.StockNewsResponse
 import org.kjs.stocknews.model.dto.StockResponse
+import org.kjs.stocknews.service.StockChatService
 import org.kjs.stocknews.service.StockService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -22,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 @Validated
 class StockController(
     private val stockService: StockService,
+    private val stockChatService: StockChatService,
 ) {
     @Operation(summary = "종목 검색", description = "키워드(티커/종목명)로 종목을 페이징 검색한다. 키워드가 없으면 전체 목록을 반환한다.")
     @GetMapping
@@ -38,4 +46,14 @@ class StockController(
     fun getPopularStocks(
         @RequestParam(defaultValue = "10") @Min(1) @Max(100) limit: Int,
     ): List<PopularStockResponse> = stockService.getPopularStocks(limit)
+
+    @Operation(summary = "종목별 뉴스 목록 조회", description = "종목 PK로 수집된 뉴스를 최신순으로 페이징 조회한다. 로그인 불필요.")
+    @GetMapping("/news/{stockId}")
+    fun getNews(@PathVariable stockId: Long, pageable: Pageable): Page<StockNewsResponse> =
+        stockService.getNews(stockId, pageable)
+
+    @Operation(summary = "종목 AI 챗봇 질의", description = "종목 PK와 질문을 보내면 종목 정보/최근 뉴스를 컨텍스트로 AI가 답변한다. 로그인 불필요.")
+    @PostMapping("/chat")
+    fun chat(@RequestBody request: StockChatRequest): StockChatResponse =
+        stockChatService.ask(request)
 }

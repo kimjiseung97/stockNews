@@ -63,6 +63,7 @@ class UserStockRepositoryCustomImpl(
                 Projections.constructor(
                     UserStockNewsView::class.java,
                     userStock.userId,
+                    stock.id,
                     stock.ticker,
                     stock.name,
                     stock.koreanName,
