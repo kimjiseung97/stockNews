@@ -238,7 +238,22 @@
         -webkit-line-clamp: 2;
       }
 
-      a {
+      .stock-news-page__article-link {
+        display: block;
+        color: $color-text-primary;
+
+        &:hover {
+          .stock-news-page__article-more {
+            color: $color-primary-hover;
+
+            svg {
+              transform: translateX(5px);
+            }
+          }
+        }
+      }
+
+      .stock-news-page__article-more {
         @include flex(null, center, 5px);
         width: fit-content;
         height: auto;
@@ -246,14 +261,12 @@
         color: $main-color;
         font-size: 1.2rem;
         font-weight: 600;
-
-        &:hover {
-          color: $color-primary-hover;
-        }
+        transition: color 0.2s;
 
         svg {
           width: 14px;
           height: 14px;
+          transition: transform 0.25s ease;
         }
       }
     }

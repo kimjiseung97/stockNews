@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
 import styles from '@/assets/styles/pages/home/home.module.scss'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function HomeIntro() {
+  const { email } = useAuth()
+
   return (
     <section className={styles['home-page__intro']}>
       <p className={styles['home-page__eyebrow']}>StockNews 소개</p>
@@ -15,7 +18,10 @@ export default function HomeIntro() {
         받아볼 수 있습니다.
       </p>
       <nav className={styles['home-page__intro-actions']} aria-label="StockNews 시작 메뉴">
-        <Link className={styles['home-page__primary-link']} to="/stock-search">
+        <Link
+          className={styles['home-page__primary-link']}
+          to={email ? '/watchlist/register' : '/stock-search'}
+        >
           관심 종목 등록
         </Link>
         <Link className={styles['home-page__secondary-link']} to="/email-settings">
