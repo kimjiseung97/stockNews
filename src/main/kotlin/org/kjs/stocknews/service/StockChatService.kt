@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 private const val QUESTION_MAX_LENGTH = 300
 
 private const val SYSTEM_PROMPT = """
-너는 주식 정보 서비스의 어시스턴트다. 사용자 질문에 한국어로 답하라.
+너는 주식 정보 서비스의 어시스턴트다. 사용자 질문에 무조건 한국어로 답하라.
 모르는 최신 시세, 재무 수치는 모른다고 답하고 추측해서 지어내지 마라. 투자 조언이 아니라 정보 제공 목적임을 답변에 자연스럽게 반영하라.
 """
 
