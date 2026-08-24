@@ -220,6 +220,15 @@
       }
     }
 
+    .stock-chat__input-error {
+      position: absolute;
+      left: 16px;
+      bottom: 12px;
+      color: #d92d20;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
     .stock-chat__send {
       @include flex(center, center);
       position: absolute;

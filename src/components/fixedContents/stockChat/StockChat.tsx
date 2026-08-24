@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { ArrowUp, X } from 'lucide-react'
 import { askStockChat } from '@/api/chat/chat'
+import { useAuth } from '@/contexts/AuthContext'
 import chatbotImage from '@/assets/images/icons/chatbot1.png'
 import chatbotAnswerImage from '@/assets/images/icons/chatbot2.png'
-import chatbotErrorImage from '@/assets/images/icons/chatbot3.png'
 import styles from '@/assets/styles/fixedContents/stockChat/stockChat.module.scss'
 import mediaStyles from '@/assets/styles/fixedContents/stockChat/stockChatMedia.module.scss'
 
@@ -11,27 +11,15 @@ interface ChatMessage {
   id: number
   role: 'user' | 'assistant'
   content: string
-  isError?: boolean
 }
 
 export default function StockChat() {
+  const { email } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [question, setQuestion] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const messageListRef = useRef<HTMLUListElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-
-  useEffect(() => {
-    if (!isOpen) return
-
-    messageListRef.current?.scrollTo({
-      top: messageListRef.current.scrollHeight,
-      behavior: 'smooth',
-    })
-
-    textareaRef.current?.focus()
-  }, [isOpen, messages, isLoading])
+  const [inputError, setInputError] = useState(false)
 
   // 질문 전송
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -39,7 +27,13 @@ export default function StockChat() {
 
     const trimmedQuestion = question.trim()
 
-    if (!trimmedQuestion || isLoading) return
+    if (!email || isLoading) return
+
+    if (!trimmedQuestion) {
+      setInputError(true)
+      event.currentTarget.querySelector('textarea')?.focus()
+      return
+    }
 
     const userMessage: ChatMessage = {
       id: Date.now(),
@@ -48,6 +42,7 @@ export default function StockChat() {
     }
 
     setMessages((currentMessages) => [...currentMessages, userMessage])
+    setInputError(false)
     setQuestion('')
     setIsLoading(true)
 
@@ -62,29 +57,18 @@ export default function StockChat() {
           content: answer,
         },
       ])
-    } catch (error) {
-      console.error('주식 채팅 요청 실패', error)
-
+    } catch {
       setMessages((currentMessages) => [
         ...currentMessages,
         {
           id: Date.now() + 1,
           role: 'assistant',
           content: '답변을 불러오지 못했습니다. 잠시 후 다시 질문해 주세요.',
-          isError: true,
         },
       ])
     } finally {
       setIsLoading(false)
     }
-  }
-
-  // Enter로 전송하고 Shift + Enter로 줄바꿈
-  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) return
-
-    event.preventDefault()
-    event.currentTarget.form?.requestSubmit()
   }
 
   return (
@@ -120,7 +104,7 @@ export default function StockChat() {
             </button>
           </section>
 
-          <ul ref={messageListRef} className={styles['stock-chat__messages']} aria-live="polite">
+          <ul className={styles['stock-chat__messages']} aria-live="polite">
             <li className={styles['stock-chat__welcome']}>
               <img
                 className={styles['stock-chat__message-profile']}
@@ -130,8 +114,9 @@ export default function StockChat() {
               <section className={styles['stock-chat__answer-content']}>
                 <strong>모아</strong>
                 <p>
-                  반가워요! 궁금한 종목이나
-                  <br /> 시장 소식을 물어보세요.
+                  아래 예시처럼 구체적으로 질문해 보세요!
+                  <br></br>“엔비디아의 최신 소식, 실적이나 공시,
+                  <br></br> 최근 발표된 뉴스를 알려줄래?”
                 </p>
               </section>
             </li>
@@ -149,7 +134,7 @@ export default function StockChat() {
                   <>
                     <img
                       className={styles['stock-chat__message-profile']}
-                      src={message.isError ? chatbotErrorImage : chatbotAnswerImage}
+                      src={chatbotAnswerImage}
                       alt=""
                     ></img>
                     <section className={styles['stock-chat__answer-content']}>
@@ -189,22 +174,35 @@ export default function StockChat() {
             <label className={styles['stock-chat__input-wrap']}>
               <span className={styles['stock-chat__label']}>질문 입력</span>
               <textarea
-                ref={textareaRef}
                 className={styles['stock-chat__input']}
                 value={question}
                 rows={1}
                 maxLength={1000}
-                placeholder="모아에게 질문해 주세요."
-                disabled={isLoading}
-                onChange={(event) => setQuestion(event.target.value)}
-                onKeyDown={handleKeyDown}
+                placeholder={email ? '모아에게 질문해 주세요.' : '로그인 후 이용 가능합니다.'}
+                disabled={!email || isLoading}
+                aria-invalid={inputError}
+                aria-describedby={inputError ? 'stockChatInputError' : undefined}
+                onChange={(event) => {
+                  setQuestion(event.target.value)
+
+                  if (inputError) setInputError(false)
+                }}
               ></textarea>
             </label>
+            {inputError && (
+              <p
+                id="stockChatInputError"
+                className={styles['stock-chat__input-error']}
+                role="alert"
+              >
+                질문을 입력해 주세요.
+              </p>
+            )}
             <button
               className={styles['stock-chat__send']}
               type="submit"
               aria-label="질문 보내기"
-              disabled={!question.trim() || isLoading}
+              disabled={!email || isLoading}
             >
               <ArrowUp size={21}></ArrowUp>
             </button>
