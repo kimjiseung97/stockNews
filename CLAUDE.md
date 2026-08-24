@@ -8,7 +8,7 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
 
 ## 스택 & 명령어
 
-- 백엔드: Kotlin 2.3, Spring Boot 4.1, MySQL(Aiven 원격 호스팅), Spring Batch 6, QueryDSL
+- 백엔드: Kotlin 2.3, Spring Boot 4.1, Local 환경MySQL(Aiven 원격 호스팅),배포 환경 MariaDb(GCP 내부통신), Spring Batch 6, QueryDSL
 - 프론트: React 19, Vite, TypeScript, React Router, SCSS Modules
 - 빌드: `./gradlew build`
 - 테스트: `./gradlew test`
@@ -53,6 +53,8 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
 - 기능개발후 제대로 작동하는지 짧은 단위시간으로 기동시켜 테스트 해볼 것.
 - 데이터 수집 적재 후처리까지 제대로되는지 로그로 확인.
 - 기능 개발후 어떤 배치인지 주석작성.
+
+**뉴스 수집/정리 배치는 이 프로젝트가 아니라 형제 Node 프로젝트(`stockNewsSchedule`)가 담당한다.** `StockNewsCollectScheduler`, `StockNewsCleanupScheduler`는 코드는 남아있지만 `@Scheduled` 트리거가 주석처리되어 자동 실행되지 않는다 — `TB_STOCK_NEWS`에 대한 중복 수집/삭제를 막기 위함. 뉴스 다이제스트 이메일 발송(`NewsDispatchJobConfig`, `news.dispatch.*`)은 이 프로젝트가 계속 담당한다(Node 프로젝트는 이메일 발송을 다루지 않음).
 
 ## sql 쿼리 기능 개발시
 - where 조건이 2개이상 들어가는 쿼리를 작성하게되면 querydsl로 구현할 것.

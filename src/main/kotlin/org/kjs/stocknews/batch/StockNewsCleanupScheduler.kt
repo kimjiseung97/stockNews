@@ -16,8 +16,9 @@ class StockNewsCleanupScheduler(
 ) {
     private val log = LoggerFactory.getLogger(StockNewsCleanupScheduler::class.java)
 
+    // stockNewsSchedule(Node) 서비스가 news-cleanup 배치를 대체 수행하므로 중복 삭제 방지를 위해 자동 트리거 비활성화.
     @Transactional
-    @Scheduled(cron = "\${stock.news-cleanup.cron}", zone = "Asia/Seoul")
+    // @Scheduled(cron = "\${stock.news-cleanup.cron}", zone = "Asia/Seoul")
     fun cleanup() {
         val threshold = LocalDateTime.now().minusDays(retentionDays)
         val deleted = stockNewsRepository.deleteByCollectedAtBefore(threshold)

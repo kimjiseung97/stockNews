@@ -52,7 +52,7 @@ class StockController(
     fun getNews(@PathVariable stockId: Long, pageable: Pageable): Page<StockNewsResponse> =
         stockService.getNews(stockId, pageable)
 
-    @Operation(summary = "종목 AI 챗봇 질의", description = "종목 PK와 질문을 보내면 종목 정보/최근 뉴스를 컨텍스트로 AI가 답변한다. 로그인 불필요.")
+    @Operation(summary = "AI 챗봇 질의", description = "평문 질문을 보내면 AI가 답변한다. 로그인 불필요.")
     @PostMapping("/chat")
     fun chat(@RequestBody request: StockChatRequest): StockChatResponse =
         stockChatService.ask(request)
