@@ -36,4 +36,5 @@ enum class ResultCode(val code: String, val message: String) {
     STOCK_CHAT_QUESTION_REQUIRED("STOCK_CHAT_QUESTION_REQUIRED", "질문을 입력해주세요."),
     STOCK_CHAT_QUESTION_TOO_LONG("STOCK_CHAT_QUESTION_TOO_LONG", "질문은 300자 이하로 입력해주세요."),
     STOCK_CHAT_FAILED("STOCK_CHAT_FAILED", "AI 응답을 받아오지 못했습니다. 잠시 후 다시 시도해주세요."),
+    INVALID_MAIL_DISPATCH_TIME("INVALID_MAIL_DISPATCH_TIME", "발송시간대는 30분 단위(예: 09:00, 09:30)로만 설정할 수 있습니다."),
 }

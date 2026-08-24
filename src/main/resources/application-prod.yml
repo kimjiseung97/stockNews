@@ -89,7 +89,9 @@ stock:
 
 news:
   dispatch:
-    cron: "0 0 9 * * *"
+    # 유저별 발송시간대(TB_USER_MAIL_DISPATCH_SETTING, 30분 단위)와 정확히 일치하는지 매번 검사하므로
+    # 30분마다 돌아야 한다.
+    cron: "0 0,30 * * * *"
     thread-pool-size: 8
     max-articles-per-stock: 1
 

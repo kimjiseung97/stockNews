@@ -46,6 +46,25 @@ CREATE TABLE TB_USER (
     CONSTRAINT UK_TB_USER_RECOVERY_EMAIL UNIQUE (RECOVERY_EMAIL)
 ) ENGINE=InnoDB;
 
+-- 유저별 뉴스 다이제스트 메일 발송 여부. 회원가입 완료 시 기본값(true)으로 row가 함께 생성된다.
+-- 설정 row가 없는 유저(과거 가입자 등)는 배치에서 기본 발송 대상으로 취급.
+-- USER_ID는 TB_USER.ID를 논리적으로 참조 (물리 FK 없음, 프로젝트 컨벤션).
+CREATE TABLE TB_USER_MAILSEND_SETTING (
+    ID           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    USER_ID      BIGINT  NOT NULL,
+    MAIL_ENABLED BOOLEAN NOT NULL,
+    CONSTRAINT UK_TB_USER_MAILSEND_SETTING_USER UNIQUE (USER_ID)
+) ENGINE=InnoDB;
+
+-- 유저별 뉴스 다이제스트 메일 발송 시간대. 회원가입 완료 시 기본값(09:00)으로 row가 함께 생성된다.
+-- USER_ID는 TB_USER.ID를 논리적으로 참조 (물리 FK 없음, 프로젝트 컨벤션).
+CREATE TABLE TB_USER_MAIL_DISPATCH_SETTING (
+    ID            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    USER_ID       BIGINT NOT NULL,
+    DISPATCH_TIME TIME   NOT NULL,
+    CONSTRAINT UK_TB_USER_MAIL_DISPATCH_SETTING_USER UNIQUE (USER_ID)
+) ENGINE=InnoDB;
+
 -- PK가 EMAIL이 아닌 auto-increment ID인 이유: 10분 내 재발송 횟수를 세려면(COUNT ... WHERE
 -- EMAIL=? AND CREATED_AT > ?) 요청마다 row가 남아야 하므로 email당 단일 row를 덮어쓰지 않는다.
 CREATE TABLE TB_EMAIL_VERIFICATION (

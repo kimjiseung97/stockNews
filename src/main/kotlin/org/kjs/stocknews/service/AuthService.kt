@@ -6,9 +6,13 @@ import org.kjs.stocknews.model.dto.EmailAvailabilityResult
 import org.kjs.stocknews.model.dto.LoginResult
 import org.kjs.stocknews.model.table.EmailVerification
 import org.kjs.stocknews.model.table.User
+import org.kjs.stocknews.model.table.UserMailDispatchSetting
+import org.kjs.stocknews.model.table.UserMailSendSetting
 import org.kjs.stocknews.model.table.Verification
 import org.kjs.stocknews.model.table.VerificationPurpose
 import org.kjs.stocknews.repository.EmailVerificationRepository
+import org.kjs.stocknews.repository.UserMailDispatchSettingRepository
+import org.kjs.stocknews.repository.UserMailSendSettingRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.kjs.stocknews.repository.VerificationRepository
 import org.springframework.beans.factory.annotation.Value
@@ -17,11 +21,16 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.time.LocalTime
 import kotlin.random.Random
+
+private val DEFAULT_MAIL_DISPATCH_TIME: LocalTime = LocalTime.of(9, 0)
 
 @Service
 class AuthService(
     private val userRepository: UserRepository,
+    private val userMailSendSettingRepository: UserMailSendSettingRepository,
+    private val userMailDispatchSettingRepository: UserMailDispatchSettingRepository,
     private val emailVerificationRepository: EmailVerificationRepository,
     private val verificationRepository: VerificationRepository,
     private val passwordEncoder: PasswordEncoder,
@@ -113,13 +122,16 @@ class AuthService(
             throw BusinessException(ResultCode.RECOVERY_EMAIL_ALREADY_REGISTERED)
         }
 
-        userRepository.save(
+        val savedUser = userRepository.save(
             User(
                 email = email,
                 password = passwordEncoder.encode(rawPassword)!!,
                 recoveryEmail = recoveryEmail,
             ),
         )
+        val userId = savedUser.id!!
+        userMailSendSettingRepository.save(UserMailSendSetting(userId = userId, mailEnabled = true))
+        userMailDispatchSettingRepository.save(UserMailDispatchSetting(userId = userId, dispatchTime = DEFAULT_MAIL_DISPATCH_TIME))
         emailVerificationRepository.deleteByEmail(email)
     }
 

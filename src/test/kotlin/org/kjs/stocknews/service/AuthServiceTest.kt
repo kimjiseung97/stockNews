@@ -7,6 +7,8 @@ import org.kjs.stocknews.common.ResultCode
 import org.kjs.stocknews.model.table.User
 import org.kjs.stocknews.model.table.VerificationPurpose
 import org.kjs.stocknews.repository.EmailVerificationRepository
+import org.kjs.stocknews.repository.UserMailDispatchSettingRepository
+import org.kjs.stocknews.repository.UserMailSendSettingRepository
 import org.kjs.stocknews.repository.UserRepository
 import org.kjs.stocknews.repository.VerificationRepository
 import org.mockito.Mockito.mock
@@ -20,12 +22,16 @@ private fun <T> anyArg(): T = org.mockito.ArgumentMatchers.any()
 
 class AuthServiceTest {
     private val userRepository = mock(UserRepository::class.java)
+    private val userMailSendSettingRepository = mock(UserMailSendSettingRepository::class.java)
+    private val userMailDispatchSettingRepository = mock(UserMailDispatchSettingRepository::class.java)
     private val emailVerificationRepository = mock(EmailVerificationRepository::class.java)
     private val verificationRepository = mock(VerificationRepository::class.java)
     private val passwordEncoder = mock(PasswordEncoder::class.java)
     private val verificationMailSender = mock(VerificationMailSender::class.java)
     private val authService = AuthService(
         userRepository,
+        userMailSendSettingRepository,
+        userMailDispatchSettingRepository,
         emailVerificationRepository,
         verificationRepository,
         passwordEncoder,
@@ -252,11 +258,25 @@ class AuthServiceTest {
         )
         `when`(emailVerificationRepository.findTopByEmailOrderByCreatedAtDesc(email)).thenReturn(verification)
         `when`(passwordEncoder.encode("password1!")).thenReturn("encoded-password")
+        `when`(userRepository.save(org.mockito.ArgumentMatchers.any())).thenAnswer { invocation ->
+            (invocation.arguments[0] as User).setTestId(1L)
+        }
+        `when`(userMailSendSettingRepository.save(org.mockito.ArgumentMatchers.any())).thenAnswer { it.arguments[0] }
+        `when`(userMailDispatchSettingRepository.save(org.mockito.ArgumentMatchers.any())).thenAnswer { it.arguments[0] }
 
         authService.completeSignUp(email, "password1!", "recovery@example.com")
 
         org.mockito.Mockito.verify(userRepository).save(org.mockito.ArgumentMatchers.any())
+        org.mockito.Mockito.verify(userMailSendSettingRepository).save(org.mockito.ArgumentMatchers.any())
+        org.mockito.Mockito.verify(userMailDispatchSettingRepository).save(org.mockito.ArgumentMatchers.any())
         org.mockito.Mockito.verify(emailVerificationRepository).deleteByEmail(email)
+    }
+
+    private fun User.setTestId(id: Long): User {
+        val field = User::class.java.getDeclaredField("id")
+        field.isAccessible = true
+        field.set(this, id)
+        return this
     }
 
     @Test
