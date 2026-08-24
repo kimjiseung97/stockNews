@@ -130,4 +130,18 @@ auth:
     max-attempts: 9999
 
 cors:
-  allowed-origins: http://localhost:3000
+  # 프론트 Vite dev 서버 주소. npm run dev 기동 시 실제로 뜨는 Local 주소(포트가 다르면 그 값)를 넣을 것
+  allowed-origins: http://localhost:5173
+
+logging:
+  level:
+    org.hibernate: WARN
+    org.springframework: WARN
+    com.zaxxer.hikari: WARN
+    org.mariadb.jdbc: WARN
+    org.kjs.stocknews: DEBUG
+    # ddl-auto=update가 MariaDB가 지원 안 하는 MySQL 전용 구문(alter ... if exists 등)을 시도해서
+    # 매 기동마다 반복 실패하는 무해한 경고 - WARN이어도 남으므로 ERROR로 완전히 죽임
+    org.mariadb.jdbc.message.server.ErrorPacket: ERROR
+    org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl: ERROR
+    org.springframework.batch.core.listener.AbstractListenerFactoryBean: ERROR
