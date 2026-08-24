@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ArrowRight, ExternalLink, Search } from 'lucide-react'
+import { ArrowRight, Search } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { stockNews, type StockNewsResponse } from '@/api/stockNews/stockNews'
@@ -72,9 +72,7 @@ function StockNewsPage() {
       setErrorMessage('')
 
       try {
-        setNewsPage(
-          await stockNews({ stockId, page: currentPage, size: PAGE_SIZE }),
-        )
+        setNewsPage(await stockNews({ stockId, page: currentPage, size: PAGE_SIZE }))
       } catch (error) {
         setNewsPage(null)
         setErrorMessage(
@@ -103,15 +101,18 @@ function StockNewsPage() {
     setIsStockSearching(true)
     setHasStockSearched(true)
     setErrorMessage('')
+    setSearchParams({})
+    setStockId(0)
+    setSelectedTicker('')
+    setCurrentPage(0)
+    setNewsPage(null)
 
     try {
       const response = await stockSearch({ keyword: trimmedKeyword, page: 0, size: 5 })
       setSearchedStocks(response.content)
     } catch (error) {
       setSearchedStocks([])
-      setErrorMessage(
-        error instanceof ApiError ? error.message : '종목을 검색하지 못했습니다.',
-      )
+      setErrorMessage(error instanceof ApiError ? error.message : '종목을 검색하지 못했습니다.')
     } finally {
       setIsStockSearching(false)
     }
@@ -244,12 +245,19 @@ function StockNewsPage() {
                 {newsPage.content.map((news) => (
                   <li key={news.id}>
                     <article>
-                      <time dateTime={news.collectedAt}>{getCollectedDate(news.collectedAt)}</time>
-                      <h3>{news.title}</h3>
-                      {news.content && <p>{news.content}</p>}
-                      <a href={news.url} target="_blank" rel="noreferrer">
-                        원문 보기
-                        <ExternalLink aria-hidden="true"></ExternalLink>
+                      <a
+                        className={styles['stock-news-page__article-link']}
+                        href={news.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <time dateTime={news.collectedAt}>{getCollectedDate(news.collectedAt)}</time>
+                        <h3>{news.title}</h3>
+                        {news.content && <p>{news.content}</p>}
+                        <span className={styles['stock-news-page__article-more']}>
+                          기사 보기
+                          <ArrowRight aria-hidden="true"></ArrowRight>
+                        </span>
                       </a>
                     </article>
                   </li>
@@ -257,7 +265,10 @@ function StockNewsPage() {
               </ul>
 
               {newsPage.totalPages > 1 && (
-                <nav className={styles['stock-news-page__pagination']} aria-label="종목 뉴스 페이지">
+                <nav
+                  className={styles['stock-news-page__pagination']}
+                  aria-label="종목 뉴스 페이지"
+                >
                   <button
                     type="button"
                     disabled={newsPage.first || isNewsLoading}
