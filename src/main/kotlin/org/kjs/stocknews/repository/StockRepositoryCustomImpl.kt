@@ -5,6 +5,7 @@ import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.Projections
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.ComparablePath
+import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.kjs.stocknews.model.dto.PopularStockResponse
@@ -122,6 +123,19 @@ class StockRepositoryCustomImpl(
         val trimmed = keyword?.trim()?.takeIf { it.isNotBlank() } ?: return null
         return stock.koreanName.contains(trimmed).or(stock.ticker.containsIgnoreCase(trimmed))
     }
+
+    // 챗봇 질문 문장 안에 종목의 한글명/영문명/티커가 하나라도 포함돼 있으면 그 종목을 반환한다.
+    // 검색어로 종목을 찾는 keywordContains와 반대로, 종목 값이 주어진 문장(text)에 포함되는지를 본다.
+    override fun findFirstMentionedInText(text: String): Stock? =
+        queryFactory
+            .selectFrom(stock)
+            .where(
+                Expressions.booleanTemplate("{0} like concat('%', {1}, '%')", text, stock.koreanName)
+                    .or(Expressions.booleanTemplate("{0} like concat('%', {1}, '%')", text, stock.name))
+                    .or(Expressions.booleanTemplate("{0} like concat('%', {1}, '%')", text, stock.ticker)),
+            )
+            .limit(1)
+            .fetchOne()
 
     private fun orderSpecifiers(sort: Sort): List<OrderSpecifier<*>> =
         sort.map { order ->

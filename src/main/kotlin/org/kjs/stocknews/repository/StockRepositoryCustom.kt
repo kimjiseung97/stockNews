@@ -13,4 +13,5 @@ interface StockRepositoryCustom {
     fun findWithoutDetail(limit: Int): List<Stock>
     fun search(keyword: String?, pageable: Pageable): Page<Stock>
     fun findPopularStocks(limit: Int): List<PopularStockResponse>
+    fun findFirstMentionedInText(text: String): Stock?
 }
