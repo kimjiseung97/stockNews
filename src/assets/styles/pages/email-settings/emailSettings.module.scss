@@ -57,6 +57,48 @@
       }
     }
 
+    .email-settings-page__skeleton-text {
+      @include flex-col(null, null, 7px);
+      flex: 1;
+
+      > span:first-child {
+        width: 96px;
+        height: 16px;
+      }
+
+      > span:last-child {
+        width: min(240px, 70%);
+        height: 13px;
+      }
+    }
+
+    .email-settings-page__skeleton-text > span,
+    .email-settings-page__skeleton-toggle,
+    .email-settings-page__skeleton-select {
+      display: block;
+      background: linear-gradient(
+        90deg,
+        $color-skeleton-base 25%,
+        $color-skeleton-highlight 50%,
+        $color-skeleton-base 75%
+      );
+      background-size: 200% 100%;
+      border-radius: 6px;
+      animation: email-settings-skeleton 1.35s ease-in-out infinite;
+    }
+
+    .email-settings-page__skeleton-toggle {
+      flex: 0 0 44px;
+      height: 24px;
+      border-radius: 999px;
+    }
+
+    .email-settings-page__skeleton-select {
+      flex: 0 0 88px;
+      height: 42px;
+      border-radius: 10px;
+    }
+
     .email-settings-page__save-area {
       @include flex-col(null, flex-end, 16px);
       margin-top: 24px;
@@ -236,10 +278,26 @@
   }
 }
 
+@keyframes email-settings-skeleton {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :global(#emailSettingsPage) {
     .email-settings-page__time-select-icon {
       transition: color 0.2s;
+    }
+
+    .email-settings-page__skeleton-text > span,
+    .email-settings-page__skeleton-toggle,
+    .email-settings-page__skeleton-select {
+      animation: none;
     }
   }
 }
