@@ -1,0 +1,22 @@
+@media (max-width: 550px) {
+  :global(#emailSettingsPage) {
+    &.email-settings-page {
+      .email-settings-page__item {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .email-settings-page__time-select {
+        width: 100%;
+
+        select {
+          width: 100%;
+        }
+      }
+
+      .email-settings-page__save-button {
+        max-width: none;
+      }
+    }
+  }
+}
