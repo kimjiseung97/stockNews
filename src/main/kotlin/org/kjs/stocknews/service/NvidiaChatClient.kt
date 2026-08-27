@@ -5,6 +5,7 @@ import org.kjs.stocknews.model.dto.NvidiaChatCompletionResponse
 import org.kjs.stocknews.model.dto.NvidiaChatMessage
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.MediaType
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
@@ -48,6 +49,7 @@ class NvidiaChatClient(
                 .uri("$baseUrl/chat/completions")
                 .header("Authorization", "Bearer $apiKey")
                 .header("Accept", "application/json")
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
                 .body(NvidiaChatCompletionResponse::class.java)
