@@ -16,6 +16,7 @@ class NvidiaChatClient(
     @Value("\${nvidia.api.key}") private val apiKey: String,
     @Value("\${nvidia.api.model}") private val model: String,
     @Value("\${nvidia.api.max-tokens:1024}") private val maxTokens: Int,
+    @Value("\${nvidia.api.top-p:0.95}") private val topP: Double,
 ) {
     private val log = LoggerFactory.getLogger(NvidiaChatClient::class.java)
 
@@ -38,7 +39,7 @@ class NvidiaChatClient(
                 NvidiaChatMessage(role = "user", content = userMessage),
             ),
             temperature = 0.5,
-            topP = 0.9,
+            topP = topP,
             maxTokens = maxTokens,
         )
 
