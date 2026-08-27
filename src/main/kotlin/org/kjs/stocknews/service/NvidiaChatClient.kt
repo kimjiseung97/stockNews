@@ -23,11 +23,14 @@ class NvidiaChatClient(
 
     // JdkClientHttpRequestFactory(java.net.http.HttpClient)가 POST 요청 바디 전송 시 "Request cancelled" I/O
     // 에러를 일으켜, HttpURLConnection 기반의 SimpleClientHttpRequestFactory로 대체.
+    // kimi-k3는 reasoning 모델이라 응답에 60초 이상 걸리는 경우가 있어(기존 60초 readTimeout에 걸리면
+    // 응답이 중간에 끊겨 Content-Type이 유실되고 "application/octet-stream"으로 오인되는 증상으로 나타남),
+    // 여유를 두고 120초로 설정.
     private val restClient = RestClient.builder()
         .requestFactory(
             SimpleClientHttpRequestFactory().apply {
                 setConnectTimeout(10_000)
-                setReadTimeout(60_000)
+                setReadTimeout(120_000)
             },
         )
         .build()
