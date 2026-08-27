@@ -123,6 +123,9 @@ nvidia:
     key: <nvidia-api-key>
     model: moonshotai/kimi-k3
     max-tokens: 1024
+    top-p: 0.95
+    connect-timeout-ms: 10000
+    read-timeout-ms: 120000
 
 auth:
   verification:
