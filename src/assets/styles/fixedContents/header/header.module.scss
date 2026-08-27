@@ -19,6 +19,10 @@
       height: auto;
       color: $color-text-primary;
 
+      img {
+        width: 35px;
+      }
+
       span {
         display: inline-flex;
         align-items: center;
