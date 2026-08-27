@@ -117,7 +117,7 @@ nvidia:
   api:
     base-url: https://integrate.api.nvidia.com/v1
     key: ${NVIDIA_API_KEY}
-    model: meta/llama-3.1-8b-instruct
+    model: moonshotai/kimi-k3
     max-tokens: 1024
 
 auth:
