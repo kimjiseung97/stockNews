@@ -40,6 +40,9 @@ spring:
           auth: true
           starttls:
             enable: true
+          connectiontimeout: 10000
+          timeout: 30000
+          writetimeout: 30000
 
 mail:
   from-name: testMail

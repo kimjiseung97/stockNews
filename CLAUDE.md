@@ -40,6 +40,7 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
 
 - `dev`가 기본 개발 브랜치. 기능 작업은 dev 기반 브랜치에서 진행 후 dev로 병합.
 - `dev` → `main`으로 push되면 GitHub Actions가 배포 트리거 (`.github/workflows/deploy.yml`: SSH로 접속해 `git pull` + `docker compose up -d --build`).
+- **에러/버그 수정은 항상 다음 순서로 반영한다: 수정 커밋을 `dev`에 반영 → `dev`를 `main`에 병합 → `main` push(배포 트리거).** 프로덕션 장애처럼 치명적인 수정은 `hotfix/*` 브랜치를 새로 만들어 작업해도 되며, 이 경우도 결국 `dev`와 `main` 양쪽에 반영(병합)한 뒤 `main`을 push한다 — 어느 경로든 `dev`가 뒤처지지 않도록 한다.
 
 ## API 기능 개발 완료 시
 
