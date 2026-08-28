@@ -30,6 +30,7 @@ function WatchlistRegisterPage() {
   const [selectedWatchListStockIds, setSelectedWatchListStockIds] = useState<number[]>([])
   const [isBulkProcessing, setIsBulkProcessing] = useState(false)
   const [message, setMessage] = useState('')
+  const [activeTab, setActiveTab] = useState<'search' | 'registered'>('search')
 
   const loadWatchList = async () => {
     setIsWatchListLoading(true)
@@ -339,6 +340,31 @@ function WatchlistRegisterPage() {
         <p>관심 있는 종목을 검색해 등록하고, 더 이상 필요하지 않은 종목은 삭제하세요.</p>
       </section>
 
+      <nav className={styles['watchlist-register-page__tabs']} aria-label="관심 종목 관리 메뉴">
+        <button
+          type="button"
+          className={`${styles['watchlist-register-page__tab']} ${
+            activeTab === 'search' ? styles['watchlist-register-page__tab--active'] : ''
+          }`}
+          aria-pressed={activeTab === 'search'}
+          aria-controls="watchlistSearchPanel"
+          onClick={() => setActiveTab('search')}
+        >
+          관심 종목 검색
+        </button>
+        <button
+          type="button"
+          className={`${styles['watchlist-register-page__tab']} ${
+            activeTab === 'registered' ? styles['watchlist-register-page__tab--active'] : ''
+          }`}
+          aria-pressed={activeTab === 'registered'}
+          aria-controls="registeredWatchlistPanel"
+          onClick={() => setActiveTab('registered')}
+        >
+          등록된 관심 종목
+        </button>
+      </nav>
+
       {message && (
         <p className={styles['watchlist-register-page__notice-success']} role="status">
           <img src={completeIcon} alt=""></img>
@@ -347,7 +373,11 @@ function WatchlistRegisterPage() {
       )}
 
       <section className={styles['watchlist-register-page__contents']}>
-        <article className={styles['watchlist-register-page__panel']}>
+        <article
+          id="watchlistSearchPanel"
+          className={styles['watchlist-register-page__panel']}
+          hidden={activeTab !== 'search'}
+        >
           <section className={styles['watchlist-register-page__panel-heading']}>
             <h2>관심 종목 검색</h2>
             <strong>{searchResult?.totalElements.toLocaleString() ?? 0}개</strong>
@@ -490,7 +520,11 @@ function WatchlistRegisterPage() {
           </section>
         </article>
 
-        <article className={styles['watchlist-register-page__panel']}>
+        <article
+          id="registeredWatchlistPanel"
+          className={styles['watchlist-register-page__panel']}
+          hidden={activeTab !== 'registered'}
+        >
           <section className={styles['watchlist-register-page__panel-heading']}>
             <h2>등록된 관심 종목</h2>
             <strong>{watchList.length}</strong>

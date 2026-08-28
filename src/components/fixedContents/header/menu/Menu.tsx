@@ -138,14 +138,16 @@ export default function Menu() {
             종목 뉴스
           </NavLink>
         </li>
-        <li>
-          <NavLink
-            className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
-            to="/email-settings"
-          >
-            이메일 설정
-          </NavLink>
-        </li>
+        {email && (
+          <li>
+            <NavLink
+              className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
+              to="/email-settings"
+            >
+              이메일 설정
+            </NavLink>
+          </li>
+        )}
       </ul>
     </nav>
   )

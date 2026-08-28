@@ -1,5 +1,7 @@
 package org.kjs.stocknews.service
 
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.kjs.stocknews.common.BusinessException
@@ -66,12 +68,14 @@ class StockChatServiceTest {
     }
 
     @Test
-    fun `AI 클라이언트가 null을 반환하면 STOCK_CHAT_FAILED 예외가 발생한다`() {
+    fun `AI 클라이언트가 예외를 던지면 STOCK_CHAT_FAILED 예외로 변환되고 원인이 보존된다`() {
         `when`(stockRepository.findFirstMentionedInText(anyArg())).thenReturn(null)
-        `when`(nvidiaChatClient.chatToLLm(anyArg(), anyArg())).thenReturn(null)
+        val cause = NvidiaChatException("nvidia chat completion timed out")
+        `when`(nvidiaChatClient.chatToLLm(anyArg(), anyArg())).thenThrow(cause)
 
         val exception = assertThrows<BusinessException> { stockChatService.ask(StockChatRequest("질문")) }
-        assert(exception.resultCode == ResultCode.STOCK_CHAT_FAILED)
+        assertEquals(ResultCode.STOCK_CHAT_FAILED, exception.resultCode)
+        assertSame(cause, exception.cause)
     }
 
     private fun Stock.setTestId(id: Long): Stock {

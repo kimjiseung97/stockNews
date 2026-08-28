@@ -23,13 +23,16 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.AsyncTaskExecutor
 import org.springframework.core.task.TaskExecutor
+import org.springframework.dao.DataAccessException
 import org.springframework.data.domain.PageRequest
+import org.springframework.mail.MailException
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 import java.time.LocalTime
 import java.util.concurrent.ConcurrentHashMap
 
 private const val NEWS_DISPATCH_CHUNK_SIZE = 20
+private const val NEWS_DISPATCH_SKIP_LIMIT = 50L
 private const val DISPATCH_SLOT_MINUTES = 30
 
 // 발송시간대는 30분 단위(09:00, 09:30, ...)로만 입력받고 스케줄러도 정확히 그 간격으로 이 잡을 트리거하므로,
@@ -158,6 +161,9 @@ class NewsDispatchJobConfig(
         }
     }
 
+    // 유저 1명의 메일 발송(SMTP) 또는 뉴스 조회(DB) 실패가 같은 청크의 다른 유저 발송까지
+    // 막지 않도록, 해당 예외 종류에 한해 그 유저만 건너뛰고 계속 진행한다.
+    // skipLimit을 넘어서면(=대량 실패) 지금처럼 잡 전체를 FAILED 처리해 이상 상황을 드러낸다.
     @Bean
     fun newsDispatchStep(
         newsDispatchReader: ItemReader<EligibleMailUserView>,
@@ -172,5 +178,8 @@ class NewsDispatchJobConfig(
             .writer(newsDispatchWriter)
             .transactionManager(transactionManager)
             .taskExecutor(newsDispatchTaskExecutor as AsyncTaskExecutor)
+            .faultTolerant()
+            .skip(MailException::class.java, DataAccessException::class.java)
+            .skipLimit(NEWS_DISPATCH_SKIP_LIMIT)
             .build()
 }

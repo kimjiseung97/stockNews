@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Menu from './menu/Menu'
 import { logout } from '@/api/login/login'
 import { useAuth } from '@/contexts/AuthContext'
+import logo from '@/assets/images/logo.svg'
 
 export default function Header() {
   const { email, clearLoggedInUser } = useAuth()
@@ -28,7 +29,7 @@ export default function Header() {
           to="/"
           aria-label="StockNews 홈으로 이동"
         >
-          로고
+          <img src={logo} alt="로고" />
         </Link>
 
         <ul className={styles['header-container__account']}>

@@ -1,0 +1,303 @@
+:global(#emailSettingsPage) {
+  &.email-settings-page {
+    margin: 0 auto;
+    padding: 12px 0 40px;
+    color: $color-text-primary;
+
+    .email-settings-page__heading {
+      margin-bottom: 36px;
+
+      .email-settings-page__eyebrow {
+        margin-bottom: 10px;
+        color: $color-text-muted;
+        font-size: 1.2rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+      }
+
+      h1 {
+        margin-bottom: 12px;
+        font-size: 2.6rem;
+        font-weight: 700;
+      }
+
+      > p:last-child {
+        color: $color-text-secondary;
+        font-size: 1.3rem;
+        line-height: 1.6;
+      }
+    }
+
+    .email-settings-page__notice {
+      @include notice($color-warning, 20px);
+    }
+
+    .email-settings-page__list {
+      @include flex-col();
+      border-top: 1px solid $color-border;
+    }
+
+    .email-settings-page__item {
+      @include flex(space-between, center, 16px);
+      padding: 20px 4px;
+      border-bottom: 1px solid $color-border;
+    }
+
+    .email-settings-page__item-text {
+      @include flex-col(null, null, 5px);
+
+      strong {
+        font-size: 1.4rem;
+        font-weight: 600;
+      }
+
+      span {
+        color: $color-text-muted;
+        font-size: 1.25rem;
+      }
+    }
+
+    .email-settings-page__skeleton-text {
+      @include flex-col(null, null, 7px);
+      flex: 1;
+
+      > span:first-child {
+        width: 96px;
+        height: 16px;
+      }
+
+      > span:last-child {
+        width: min(240px, 70%);
+        height: 13px;
+      }
+    }
+
+    .email-settings-page__skeleton-text > span,
+    .email-settings-page__skeleton-toggle,
+    .email-settings-page__skeleton-select {
+      display: block;
+      background: linear-gradient(
+        90deg,
+        $color-skeleton-base 25%,
+        $color-skeleton-highlight 50%,
+        $color-skeleton-base 75%
+      );
+      background-size: 200% 100%;
+      border-radius: 6px;
+      animation: email-settings-skeleton 1.35s ease-in-out infinite;
+    }
+
+    .email-settings-page__skeleton-toggle {
+      flex: 0 0 44px;
+      height: 24px;
+      border-radius: 999px;
+    }
+
+    .email-settings-page__skeleton-select {
+      flex: 0 0 88px;
+      height: 42px;
+      border-radius: 10px;
+    }
+
+    .email-settings-page__save-area {
+      @include flex-col(null, flex-end, 16px);
+      margin-top: 24px;
+    }
+
+    .email-settings-page__save-notice {
+      @include notice($color-complete, 0);
+      align-self: stretch;
+
+      img {
+        flex: 0 0 auto;
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+      }
+    }
+
+    .email-settings-page__save-notice-error {
+      color: $color-warning;
+      background-color: rgba($color-warning, 0.1);
+      border-color: rgba($color-warning, 0.3);
+    }
+
+    .email-settings-page__save-button {
+      @include btn(l);
+      color: $color-on-primary;
+      background-color: $main-color;
+      box-shadow: 0 5px 12px $color-primary-shadow;
+
+      &:hover:not(:disabled) {
+        background-color: $color-primary-hover;
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+    }
+
+    .email-settings-page__sr-only {
+      @include visually-hidden;
+    }
+
+    // 뉴스 메일 받기 토글 스위치
+    .email-settings-page__toggle {
+      position: relative;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+
+      > input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+
+        &:checked + span {
+          background-color: $main-color;
+
+          &::after {
+            transform: translateX(20px);
+          }
+        }
+
+        &:focus-visible + span {
+          box-shadow: 0 0 0 3px $color-focus-ring;
+        }
+
+        &:disabled + span {
+          cursor: default;
+          opacity: 0.5;
+        }
+      }
+
+      > input + span {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        background-color: $color-input-border;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          width: 20px;
+          height: 20px;
+          background-color: $color-surface;
+          border-radius: 50%;
+          transition: transform 0.2s;
+        }
+      }
+    }
+
+    // 메일 받을 시간 선택 (30분 단위 select)
+    .email-settings-page__time-select {
+      position: relative;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+
+      .email-settings-page__time-select-icon {
+        position: absolute;
+        right: 14px;
+        width: 17px;
+        height: 17px;
+        color: $color-text-label;
+        pointer-events: none;
+        stroke-width: 2;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .email-settings-page__time-select-icon-open {
+        color: $main-color;
+        transform: rotate(180deg);
+      }
+
+      select:disabled + .email-settings-page__time-select-icon {
+        color: $color-placeholder;
+      }
+
+      select {
+        min-width: auto;
+        height: 42px;
+        padding: 0 38px 0 14px;
+        color: $color-input-text;
+        background-color: $color-surface;
+        border: 1px solid $color-input-border;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px $color-input-shadow;
+        font-size: 1.3rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        appearance: none;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background-color 0.2s,
+          box-shadow 0.2s;
+
+        &:hover:not(:disabled) {
+          border-color: $color-secondary-border;
+          background-color: $color-secondary-hover;
+        }
+
+        &:disabled {
+          color: $color-placeholder;
+          background-color: $color-read-only-background;
+          border-color: $color-read-only-border;
+          box-shadow: none;
+          cursor: $cursor-read-only;
+        }
+
+        &:focus-visible {
+          border-color: $main-color;
+          box-shadow: 0 0 0 3px $color-focus-ring;
+        }
+
+        option {
+          padding: 10px 14px;
+          color: $color-input-text;
+          background-color: $color-surface;
+          font-size: 1.3rem;
+          font-weight: 500;
+        }
+
+        option:checked {
+          color: $color-on-primary;
+          background-color: $main-color;
+        }
+      }
+    }
+  }
+}
+
+@keyframes email-settings-skeleton {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(#emailSettingsPage) {
+    .email-settings-page__time-select-icon {
+      transition: color 0.2s;
+    }
+
+    .email-settings-page__skeleton-text > span,
+    .email-settings-page__skeleton-toggle,
+    .email-settings-page__skeleton-select {
+      animation: none;
+    }
+  }
+}

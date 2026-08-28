@@ -43,6 +43,43 @@
       }
     }
 
+    .watchlist-register-page__tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 32px;
+      border-bottom: 1px solid $color-border;
+    }
+
+    .watchlist-register-page__tab {
+      min-height: 48px;
+      padding: 0 16px;
+      color: $color-text-secondary;
+      border-bottom: 2px solid transparent;
+      font-size: 1.4rem;
+      font-weight: 600;
+      transition:
+        color 0.2s,
+        background-color 0.2s,
+        border-color 0.2s;
+
+      &:hover {
+        color: $main-color;
+        background-color: rgba($main-color, 0.04);
+      }
+
+      &:focus-visible {
+        position: relative;
+        z-index: 1;
+        outline: 2px solid $main-color;
+        outline-offset: -2px;
+      }
+    }
+
+    .watchlist-register-page__tab--active {
+      color: $main-color;
+      border-bottom-color: $main-color;
+    }
+
     .watchlist-register-page__contents {
       @include grid(repeat(1, minmax(0, 1fr)), null, 42px);
       align-items: start;
@@ -52,9 +89,18 @@
       min-width: 0;
       padding: 0;
 
+      &[hidden] {
+        display: none;
+      }
+
       & + .watchlist-register-page__panel {
         padding-top: 32px;
         border-top: 1px solid $color-border;
+      }
+
+      &[hidden] + .watchlist-register-page__panel {
+        padding-top: 0;
+        border-top: 0;
       }
     }
 

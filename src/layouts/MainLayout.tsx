@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 import Header from '@/components/fixedContents/header/Header'
 import LeftContents from '@/components/fixedContents/leftContents/LeftContents'
 import useScrollToTop from '@/hooks/useScrollToTop'
-import LoadingSpinner from '@/components/common/LoadingSpinner'
+import ListSkeleton from '@/components/common/ListSkeleton'
 import StockChat from '@/components/fixedContents/stockChat/StockChat'
 import styles from '@/assets/styles/layout/main/mainLayout.module.scss'
 
@@ -35,13 +35,7 @@ export default function MainLayout() {
         <Header></Header>
 
         <section className={styles['main-layout__content']}>
-          <Suspense
-            fallback={
-              <section className={styles['main-layout__loading']}>
-                <LoadingSpinner label="화면을 불러오는 중"></LoadingSpinner>
-              </section>
-            }
-          >
+          <Suspense fallback={<ListSkeleton count={6}></ListSkeleton>}>
             <Outlet></Outlet>
           </Suspense>
         </section>
