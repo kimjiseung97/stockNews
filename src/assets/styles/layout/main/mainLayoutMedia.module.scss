@@ -1,0 +1,11 @@
+@media (max-width: 1024px) {
+  :global(#mainLayout) {
+    &.main-layout {
+      width: 100%;
+      grid-template-columns: unset;
+      .main-layout__left {
+        display: none;
+      }
+    }
+  }
+}

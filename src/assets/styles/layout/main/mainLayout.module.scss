@@ -2,10 +2,12 @@
   &.main-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 550px);
-    column-gap: 120px;
+    column-gap: 50px;
     max-width: 1280px;
     height: 100vh;
+    width: 90%;
     margin: 0 auto;
+    transform: translateZ(0);
 
     .main-layout__left {
       position: sticky;

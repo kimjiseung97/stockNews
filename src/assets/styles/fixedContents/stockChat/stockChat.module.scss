@@ -1,7 +1,8 @@
 :global(#stockChat) {
   &.stock-chat {
     position: fixed;
-    right: max(24px, calc((100vw - 1280px) / 2 + 24px));
+    left: 24px;
+    right: 24px;
     bottom: 24px;
     z-index: 30;
     @include flex(null, flex-end);
@@ -10,7 +11,8 @@
     .stock-chat__panel {
       display: grid;
       grid-template-rows: auto minmax(0, 1fr) auto;
-      width: 372px;
+      width: 100%;
+      max-width: 370px;
       height: min(510px, calc(100vh - 96px));
       overflow: hidden;
       background-color: $color-surface;

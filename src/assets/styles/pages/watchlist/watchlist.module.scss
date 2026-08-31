@@ -161,13 +161,6 @@
       @include flex-col(null, null, 5px);
       min-width: 0;
 
-      strong,
-      small {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
       strong {
         font-size: 1.35rem;
         font-weight: 600;
@@ -180,12 +173,16 @@
     }
 
     .watchlist-page__theme {
+      max-width: 110px;
       padding: 4px 9px;
+      overflow: hidden;
       color: $color-text-label;
       background-color: $color-divider;
       border-radius: 999px;
       font-size: 1.2rem;
       font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .watchlist-page__arrow {

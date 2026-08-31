@@ -80,6 +80,7 @@
 
     .header-container__email {
       max-width: 240px;
+      overflow: hidden;
       color: $color-account-text;
       font-size: 14px;
       font-weight: 600;

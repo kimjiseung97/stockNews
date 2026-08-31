@@ -1,27 +1,17 @@
 @media (max-width: 550px) {
   :global(#watchlistRegisterPage) {
     &.watchlist-register-page {
-      .watchlist-register-page__list-actions {
-        align-items: stretch;
-        flex-direction: column;
-      }
+      .watchlist-register-page__register-button {
+        min-width: 32px;
+        padding: 0;
 
-      .watchlist-register-page__select-all {
-        min-height: 34px;
-      }
+        .watchlist-register-page__register-button-label {
+          display: none;
+        }
 
-      .watchlist-register-page__action-buttons {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .watchlist-register-page__selected-register-button {
-        width: 100%;
-      }
-
-      .watchlist-register-page__item {
-        grid-template-columns: 15px 52px minmax(0, 1fr) auto;
-        gap: 8px;
+        :global([role='status']) span {
+          display: none;
+        }
       }
     }
   }
