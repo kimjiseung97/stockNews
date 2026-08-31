@@ -58,8 +58,11 @@ class StockChatService(
         validateQuestion(question)
 
         val newsContext = findNewsContext(question)
-        val answer = nvidiaChatClient.chatToLLm(systemPrompt(newsContext), question)
-            ?: throw BusinessException(ResultCode.STOCK_CHAT_FAILED)
+        val answer = try {
+            nvidiaChatClient.chatToLLm(systemPrompt(newsContext), question)
+        } catch (e: NvidiaChatException) {
+            throw BusinessException(ResultCode.STOCK_CHAT_FAILED, cause = e)
+        }
 
         return StockChatResponse(answer)
     }
