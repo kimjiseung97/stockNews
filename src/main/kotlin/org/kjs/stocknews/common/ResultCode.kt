@@ -5,6 +5,17 @@ enum class ResultCode(val code: String, val message: String) {
     BAD_REQUEST("BAD_REQUEST", "잘못된 요청입니다."),
     NOT_FOUND("NOT_FOUND", "요청한 리소스를 찾을 수 없습니다."),
     INTERNAL_ERROR("INTERNAL_ERROR", "서버 오류가 발생했습니다."),
+
+    // 요청 형식 자체가 잘못된 경우 - 클라이언트 실수를 INTERNAL_ERROR로 감추지 않기 위해 분리한다.
+    MALFORMED_REQUEST_BODY("MALFORMED_REQUEST_BODY", "요청 본문을 읽을 수 없습니다. 형식을 확인해주세요."),
+    METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED", "지원하지 않는 요청 방식입니다."),
+
+    // 인프라 장애 - 프론트/운영자가 응답 코드만으로 원인 계층을 구분할 수 있도록 분리한다.
+    DATABASE_UNAVAILABLE("DATABASE_UNAVAILABLE", "데이터베이스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."),
+    DATABASE_TIMEOUT("DATABASE_TIMEOUT", "데이터 조회가 지연되고 있습니다. 잠시 후 다시 시도해주세요."),
+    DATABASE_ERROR("DATABASE_ERROR", "데이터 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."),
+    EXTERNAL_API_UNAVAILABLE("EXTERNAL_API_UNAVAILABLE", "외부 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."),
+    EXTERNAL_API_ERROR("EXTERNAL_API_ERROR", "외부 서비스 연동 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."),
     EMAIL_ALREADY_REGISTERED("EMAIL_ALREADY_REGISTERED", "이미 가입된 이메일입니다."),
     VERIFICATION_NOT_FOUND("VERIFICATION_NOT_FOUND", "인증 요청 내역을 찾을 수 없습니다."),
     VERIFICATION_EXPIRED("VERIFICATION_EXPIRED", "인증코드가 만료되었습니다."),
