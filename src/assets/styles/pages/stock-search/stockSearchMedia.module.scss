@@ -1,17 +1,6 @@
 @media (max-width: 550px) {
   :global(#stockSearchPage) {
     &.stock-search-page {
-      .stock-search-page__item {
-        grid-template-columns: 52px minmax(0, 1fr) auto;
-        gap: 8px;
-      }
-
-      .stock-search-page__theme {
-        max-width: 90px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
     }
   }
 }

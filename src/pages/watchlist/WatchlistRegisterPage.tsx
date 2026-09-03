@@ -468,21 +468,34 @@ function WatchlistRegisterPage() {
                         </span>
                         <button
                           type="button"
-                          className={styles['watchlist-register-page__register-button']}
+                          className={`${styles['watchlist-register-page__register-button']} ${mediaStyles['watchlist-register-page__register-button']}`}
                           disabled={isRegistered || isProcessing || isBulkProcessing}
+                          aria-label={isRegistered ? '등록됨' : isProcessing ? '등록 중' : '등록'}
                           onClick={() => void handleRegister(stock)}
                         >
                           {isRegistered ? (
                             <>
                               <Check aria-hidden="true"></Check>
-                              등록됨
+                              <span
+                                className={
+                                  mediaStyles['watchlist-register-page__register-button-label']
+                                }
+                              >
+                                등록됨
+                              </span>
                             </>
                           ) : isProcessing ? (
                             <LoadingSpinner label="등록 중"></LoadingSpinner>
                           ) : (
                             <>
                               <Plus aria-hidden="true"></Plus>
-                              등록
+                              <span
+                                className={
+                                  mediaStyles['watchlist-register-page__register-button-label']
+                                }
+                              >
+                                등록
+                              </span>
                             </>
                           )}
                         </button>

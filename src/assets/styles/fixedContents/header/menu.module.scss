@@ -1,14 +1,9 @@
 :global(#headerContainer) {
   .header-menu {
-    overflow: hidden;
-    cursor: grab;
+    overflow-x: auto;
+    overflow-y: hidden;
     border-top: 1px solid $color-skeleton-base;
     border-bottom: 1px solid $color-menu-border;
-    user-select: none;
-
-    &:active {
-      cursor: grabbing;
-    }
 
     &::-webkit-scrollbar {
       width: 0;

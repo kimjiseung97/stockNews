@@ -1,87 +1,12 @@
-import { useRef, type MouseEvent, type PointerEvent } from 'react'
 import { NavLink } from 'react-router-dom'
 import styles from '@/assets/styles/fixedContents/header/menu.module.scss'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Menu() {
   const { email } = useAuth()
-  const menuRef = useRef<HTMLElement>(null)
-  const isDragging = useRef(false)
-  const hasMoved = useRef(false)
-  const dragStartX = useRef(0)
-  const dragStartScrollLeft = useRef(0)
-
-  function handlePointerDown(event: PointerEvent<HTMLElement>) {
-    if (event.pointerType === 'mouse' && event.button !== 0) {
-      return
-    }
-
-    const menu = menuRef.current
-
-    if (!menu) {
-      return
-    }
-
-    isDragging.current = true
-    hasMoved.current = false
-    dragStartX.current = event.clientX
-    dragStartScrollLeft.current = menu.scrollLeft
-  }
-
-  function handlePointerMove(event: PointerEvent<HTMLElement>) {
-    const menu = menuRef.current
-
-    if (!menu || !isDragging.current) {
-      return
-    }
-
-    const movedDistance = event.clientX - dragStartX.current
-
-    if (Math.abs(movedDistance) > 5) {
-      hasMoved.current = true
-
-      if (!menu.hasPointerCapture(event.pointerId)) {
-        menu.setPointerCapture(event.pointerId)
-      }
-    }
-
-    menu.scrollLeft = dragStartScrollLeft.current - movedDistance
-  }
-
-  function handlePointerEnd(event: PointerEvent<HTMLElement>) {
-    const menu = menuRef.current
-
-    isDragging.current = false
-
-    if (menu?.hasPointerCapture(event.pointerId)) {
-      menu.releasePointerCapture(event.pointerId)
-    }
-
-    window.setTimeout(() => {
-      hasMoved.current = false
-    }, 0)
-  }
-
-  function handleClick(event: MouseEvent<HTMLElement>) {
-    if (!hasMoved.current) {
-      return
-    }
-
-    event.preventDefault()
-    event.stopPropagation()
-  }
 
   return (
-    <nav
-      ref={menuRef}
-      className={styles['header-menu']}
-      aria-label="주요 메뉴"
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerEnd}
-      onPointerCancel={handlePointerEnd}
-      onClickCapture={handleClick}
-    >
+    <nav className={styles['header-menu']} aria-label="주요 메뉴">
       <ul>
         <li>
           <NavLink

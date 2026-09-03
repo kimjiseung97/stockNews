@@ -1,0 +1,29 @@
+@media (max-width: 400px) {
+  :global(#headerContainer) {
+    &.header-container {
+      .header-container__top {
+        min-height: 64px;
+        padding: 0 16px;
+      }
+
+      .header-container__brand img {
+        width: 28px;
+      }
+
+      .header-container__account {
+        gap: 6px;
+
+        a,
+        button {
+          height: 36px;
+          padding: 0 10px;
+          font-size: 12px;
+        }
+      }
+
+      .header-container__email {
+        max-width: 100px;
+      }
+    }
+  }
+}

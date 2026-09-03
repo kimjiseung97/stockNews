@@ -1,9 +1,6 @@
 @media (max-width: 550px) {
   :global(#stockDetailPage) {
     &.stock-detail-page {
-      .stock-detail-page__information {
-        grid-template-columns: minmax(0, 1fr);
-      }
     }
   }
 }

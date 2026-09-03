@@ -6,6 +6,7 @@ import useScrollToTop from '@/hooks/useScrollToTop'
 import ListSkeleton from '@/components/common/ListSkeleton'
 import StockChat from '@/components/fixedContents/stockChat/StockChat'
 import styles from '@/assets/styles/layout/main/mainLayout.module.scss'
+import mediaStyles from '@/assets/styles/layout/main/mainLayoutMedia.module.scss'
 
 export default function MainLayout() {
   const scrollContainerRef = useRef<HTMLElement>(null)
@@ -13,8 +14,11 @@ export default function MainLayout() {
   useScrollToTop(scrollContainerRef)
 
   return (
-    <section id="mainLayout" className={styles['main-layout']}>
-      <aside className={styles['main-layout__left']}>
+    <section
+      id="mainLayout"
+      className={`${styles['main-layout']} ${mediaStyles['main-layout']}`}
+    >
+      <aside className={`${styles['main-layout__left']} ${mediaStyles['main-layout__left']}`}>
         <LeftContents
           eyebrow="미국 주식 뉴스 이메일 서비스"
           headline={
@@ -24,7 +28,7 @@ export default function MainLayout() {
           }
           description={
             <>
-              기업명이나 티커를 검색해 관심 종목을 등록하면 최신 뉴스를 정리해 <br /> 이메일로
+              기업명이나 티커를 검색해 관심 종목을 등록하면 <br /> 최신 뉴스를 정리해 이메일로
               보내드립니다.
             </>
           }

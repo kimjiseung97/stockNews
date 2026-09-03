@@ -167,7 +167,7 @@ function WatchlistPage() {
             {filteredWatchList.map((stock) => (
               <li key={stock.id}>
                 <Link
-                  className={styles['watchlist-page__item']}
+                  className={`${styles['watchlist-page__item']} ${mediaStyles['watchlist-page__item']}`}
                   to={`/stocks/detail?limit=${stock.stockId}`}
                   state={{
                     ticker: stock.ticker,
@@ -181,7 +181,11 @@ function WatchlistPage() {
                     {stock.koreanName && <small>{stock.name}</small>}
                   </span>
                   {stock.theme && (
-                    <span className={styles['watchlist-page__theme']}>{stock.theme}</span>
+                    <span
+                      className={`${styles['watchlist-page__theme']} ${mediaStyles['watchlist-page__theme']}`}
+                    >
+                      {stock.theme}
+                    </span>
                   )}
                   <ArrowRight
                     className={styles['watchlist-page__arrow']}

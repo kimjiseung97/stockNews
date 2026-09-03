@@ -1,4 +1,5 @@
 import styles from '@/assets/styles/fixedContents/header/header.module.scss'
+import mediaStyles from '@/assets/styles/fixedContents/header/headerMedia.module.scss'
 import { Link, useNavigate } from 'react-router-dom'
 import Menu from './menu/Menu'
 import { logout } from '@/api/login/login'
@@ -22,20 +23,27 @@ export default function Header() {
   }
 
   return (
-    <header id="headerContainer" className={styles['header-container']}>
-      <div className={styles['header-container__top']}>
+    <header
+      id="headerContainer"
+      className={`${styles['header-container']} ${mediaStyles['header-container']}`}
+    >
+      <div className={`${styles['header-container__top']} ${mediaStyles['header-container__top']}`}>
         <Link
-          className={styles['header-container__brand']}
+          className={`${styles['header-container__brand']} ${mediaStyles['header-container__brand']}`}
           to="/"
           aria-label="StockNews 홈으로 이동"
         >
           <img src={logo} alt="로고" />
         </Link>
 
-        <ul className={styles['header-container__account']}>
+        <ul className={`${styles['header-container__account']} ${mediaStyles['header-container__account']}`}>
           {email ? (
             <>
-              <li className={styles['header-container__email']}>{email}</li>
+              <li
+                className={`${styles['header-container__email']} ${mediaStyles['header-container__email']}`}
+              >
+                {email}
+              </li>
               <li>
                 <button
                   className={styles['header-container__logout']}
