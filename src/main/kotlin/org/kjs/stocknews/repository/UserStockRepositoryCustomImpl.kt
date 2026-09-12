@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import org.kjs.stocknews.model.dto.UserStockNewsView
 import org.kjs.stocknews.model.dto.UserStockResponse
 import org.kjs.stocknews.model.table.QStock.stock
+import org.kjs.stocknews.model.table.QStockDetail.stockDetail
 import org.kjs.stocknews.model.table.QUserStock.userStock
 import org.kjs.stocknews.model.table.Stock
 import org.springframework.data.domain.Page
@@ -34,12 +35,13 @@ class UserStockRepositoryCustomImpl(
                         stock.id,
                         stock.ticker,
                         stock.name,
-                        stock.theme,
+                        stockDetail.industryName,
                         stock.koreanName,
                     ),
                 )
                 .from(userStock)
                 .join(stock).on(userStock.stockId.eq(stock.id))
+                .leftJoin(stockDetail).on(stockDetail.stockId.eq(stock.id))
                 .where(userStock.userId.eq(userId))
                 .orderBy(*orderSpecifiers.toTypedArray())
                 .offset(pageable.offset)

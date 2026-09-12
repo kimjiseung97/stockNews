@@ -23,7 +23,7 @@ class StockService(
     private val stockNewsRepository: StockNewsRepository,
 ) {
     fun search(keyword: String?, pageable: Pageable): Page<StockResponse> =
-        stockRepository.search(keyword, pageable).map { StockResponse.from(it) }
+        stockRepository.search(keyword, pageable)
 
     fun getDetail(stockId: Long): StockDetailResponse {
         val stockDetail = stockDetailRepository.findByStockId(stockId)

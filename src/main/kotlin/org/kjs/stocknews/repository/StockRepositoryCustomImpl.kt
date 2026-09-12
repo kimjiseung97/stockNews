@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.kjs.stocknews.model.dto.PopularStockResponse
+import org.kjs.stocknews.model.dto.StockResponse
 import org.kjs.stocknews.model.table.QStock.stock
 import org.kjs.stocknews.model.table.QStockDetail.stockDetail
 import org.kjs.stocknews.model.table.QStockSearchCount.stockSearchCount
@@ -71,12 +72,25 @@ class StockRepositoryCustomImpl(
             .limit(limit.toLong())
             .fetch()
 
-    override fun search(keyword: String?, pageable: Pageable): Page<Stock> {
+    // 종목 목록에 내려줄 업종 라벨은 TB_STOCK_DETAIL의 한글 산업명(네이버 기업개요 출처)을 쓴다.
+    // 상세정보가 아직 수집 안 된 종목도 목록에서 빠지면 안 되므로 leftJoin으로 붙이고, 없으면 null로 내려간다.
+    override fun search(keyword: String?, pageable: Pageable): Page<StockResponse> {
         val orderSpecifiers = orderSpecifiers(pageable.sort).ifEmpty { listOf(stock.id.asc()) }
 
         val content =
             queryFactory
-                .selectFrom(stock)
+                .select(
+                    Projections.constructor(
+                        StockResponse::class.java,
+                        stock.id,
+                        stock.ticker,
+                        stock.name,
+                        stockDetail.industryName,
+                        stock.koreanName,
+                    ),
+                )
+                .from(stock)
+                .leftJoin(stockDetail).on(stockDetail.stockId.eq(stock.id))
                 .where(keywordContains(keyword))
                 .orderBy(*orderSpecifiers.toTypedArray())
                 .offset(pageable.offset)
@@ -104,15 +118,16 @@ class StockRepositoryCustomImpl(
                     stock.id,
                     stock.ticker,
                     stock.name,
-                    stock.theme,
+                    stockDetail.industryName,
                     stock.koreanName,
                     stockSearchCount.id.count(),
                 ),
             )
             .from(stockSearchCount)
             .join(stock).on(stockSearchCount.stockId.eq(stock.id))
+            .leftJoin(stockDetail).on(stockDetail.stockId.eq(stock.id))
             .where(stockSearchCount.createdAt.goe(todayStart), stockSearchCount.createdAt.lt(todayEnd))
-            .groupBy(stock.id)
+            .groupBy(stock.id, stockDetail.industryName)
             .orderBy(stockSearchCount.id.count().desc())
             .limit(limit.toLong())
             .fetch()

@@ -57,6 +57,8 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
 
 **뉴스 수집/정리 배치는 이 프로젝트가 아니라 형제 Node 프로젝트(`stockNewsSchedule`)가 담당한다.** `StockNewsCollectScheduler`, `StockNewsCleanupScheduler`는 코드는 남아있지만 `@Scheduled` 트리거가 주석처리되어 자동 실행되지 않는다 — `TB_STOCK_NEWS`에 대한 중복 수집/삭제를 막기 위함. 뉴스 다이제스트 이메일 발송(`NewsDispatchJobConfig`, `news.dispatch.*`)은 이 프로젝트가 계속 담당한다(Node 프로젝트는 이메일 발송을 다루지 않음).
 
+**종목 업종 라벨은 `TB_STOCK.THEME`(SEC SIC 기반 `StockTheme` enum)이 아니라 `TB_STOCK_DETAIL.INDUSTRY_NAME`(네이버 기업개요 한글 산업명)이다.** SIC 분류가 실제 업종과 어긋나는 종목이 많아(예: NKE/PG → `MATERIALS`, WMT → `CONSUMER_DISCRETIONARY`, GOOGL → `IT`) 목록 API(`StockResponse`/`PopularStockResponse`/`UserStockResponse`의 `theme` 필드)가 `TB_STOCK_DETAIL`을 leftJoin해 산업명을 내려주도록 바꿨다. 이에 따라 `StockThemeEnrichScheduler`는 `@Scheduled`를 주석처리해 비활성화했고 `THEME` 컬럼은 어떤 응답에도 쓰이지 않는다 — 산업명 수집은 `StockDetailEnrichScheduler`가 담당한다. 상세정보가 아직 없는 종목은 `theme`이 `null`로 내려간다(leftJoin이라 목록에서 빠지지는 않음).
+
 ## sql 쿼리 기능 개발시
 - where 조건이 2개이상 들어가는 쿼리를 작성하게되면 querydsl로 구현할 것.
 - 복잡한 join , in절 등의 쿼리가 필요하게 되면 querydsl로 구현할 것.
@@ -82,3 +84,6 @@ Spring Boot(Kotlin) + React 개인 프로젝트. 미국 주식 유니버스를 S
 - 외부 API 응답을 역직렬화하는 DTO는 `@JsonIgnoreProperties(ignoreUnknown = true)` 사용, 실제 사용하는 필드만 선언.
 - 컨트롤러는 직접 `ApiResponse`를 만들지 않고 원본 값/DTO만 반환 — 래핑은 `ApiResponseAdvice`가 담당. 예상 가능한 실패는 `BusinessException(ResultCode.X)`로 던질 것.
 - 프론트 페이지는 `src/pages/<케밥-케이스-이름>/<파스칼케이스Page>.tsx` 단위로 기능별 하나씩 위치하고, `src/App.tsx`에서 공통 `MainLayout` 안에 라우팅. 스타일은 CSS 모듈 SCSS(`*.module.scss`)로 컴포넌트 경로를 그대로 미러링해 `src/assets/styles/...` 아래 위치.
+
+## 기능 구현
+- 반드시 기능구현완료후 codex에게 에러발생가능성 , 보안취약점 , 성능개선점 상의후에 보고하고 반영할것

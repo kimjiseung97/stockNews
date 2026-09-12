@@ -1,6 +1,7 @@
 package org.kjs.stocknews.repository
 
 import org.kjs.stocknews.model.dto.PopularStockResponse
+import org.kjs.stocknews.model.dto.StockResponse
 import org.kjs.stocknews.model.table.Stock
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -11,7 +12,7 @@ interface StockRepositoryCustom {
     fun findByKoreanNameIsNull(): List<Stock>
     fun findByNameEqualsTicker(limit: Int): List<Stock>
     fun findWithoutDetail(limit: Int): List<Stock>
-    fun search(keyword: String?, pageable: Pageable): Page<Stock>
+    fun search(keyword: String?, pageable: Pageable): Page<StockResponse>
     fun findPopularStocks(limit: Int): List<PopularStockResponse>
     fun findFirstMentionedInText(text: String): Stock?
 }
