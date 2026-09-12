@@ -122,7 +122,7 @@ jobs:
             docker compose up -d --remove-orphans
             docker image prune -f
 
-            for i in $(seq 1 30); do
+            for i in $(seq 1 90); do
               if curl -fsS http://localhost:8080/actuator/health > /dev/null 2>&1; then
                 echo "healthy"; exit 0
               fi
