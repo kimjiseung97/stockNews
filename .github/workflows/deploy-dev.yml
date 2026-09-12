@@ -1,24 +1,23 @@
-# .github/workflows/deploy.yml
-# main → 프로덕션
+# .github/workflows/deploy-dev.yml
+# dev → GCP 개발망
 #
-# 기존 파일을 최소 변경한 버전. 바뀐 점:
-#  - 이미지에 커밋 SHA 태그 추가 (롤백 가능)
-#  - .env 에 IMAGE_TAG 주입 → compose.yml 에서 ${IMAGE_TAG} 참조
-#  - git pull → fetch + reset --hard (브랜치 꼬임 방지)
-#  - environment: production (Environment secrets / 승인 게이트)
-#  - concurrency (연속 push 시 이전 배포 취소)
-#  - 헬스체크 (컨테이너만 뜨고 앱이 죽은 상태를 잡음)
-#  - 텔레그램 알림 활성화
+# deploy.yml 과 구조는 같고 다음만 다름:
+#  - 트리거: dev 브랜치
+#  - 이미지 태그: :dev (prod 의 :latest 를 덮어쓰지 않음)
+#  - environment: development (개발망 전용 secrets)
+#  - SCHEDULER_ENABLED=false  ← 수집 배치 중복 방지 (필요하면 true 로)
+#  - 승인 게이트 없음
 
-name: Deploy
+name: Deploy (dev)
 
 on:
   push:
     branches:
-      - main
+      - dev
+  workflow_dispatch:
 
 concurrency:
-  group: deploy-main
+  group: deploy-dev
   cancel-in-progress: true
 
 env:
@@ -46,7 +45,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:dev
             ${{ env.IMAGE }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -54,7 +53,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    environment: production        # ← Environment secrets + 승인 게이트
+    environment: development
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -78,22 +77,20 @@ jobs:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
           DOMAIN: ${{ secrets.DOMAIN }}
-          SCHEDULER_ENABLED: "true"
+          SCHEDULER_ENABLED: "false"
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: 2222
+          key: ${{ secrets.SSH_KEY }}
           command_timeout: 40m
           envs: IMAGE_TAG,DB_HOST,DB_PORT,DB_NAME,DB_USERNAME,DB_PASSWORD,MAIL_HOST,MAIL_PORT,MAIL_USERNAME,MAIL_PASSWORD,MAIL_FROM_NAME,NAVER_CLIENT_ID,NAVER_CLIENT_SECRET,TOSS_CLIENT_ID,TOSS_CLIENT_SECRET,NVIDIA_API_KEY,FINNHUB_API_KEY,CORS_ALLOWED_ORIGINS,DOMAIN,SCHEDULER_ENABLED
           script: |
             set -e
             cd ~/stockNews
 
-            # 브랜치를 명시적으로 맞춤 (git pull 은 체크아웃된 브랜치에 따라 결과가 달라짐)
             git fetch --prune origin
-            git checkout -B main origin/main
-            git reset --hard origin/main
+            git checkout -B dev origin/dev
+            git reset --hard origin/dev
 
             cat > .env <<EOF
             IMAGE_TAG=$IMAGE_TAG
@@ -122,7 +119,6 @@ jobs:
             docker compose up -d --remove-orphans
             docker image prune -f
 
-            # 헬스체크 — 경로/포트는 프로젝트에 맞게 수정
             for i in $(seq 1 30); do
               if curl -fsS http://localhost:8080/actuator/health > /dev/null 2>&1; then
                 echo "healthy"; exit 0
@@ -132,26 +128,3 @@ jobs:
             echo "::error::health check failed"
             docker compose logs --tail=80
             exit 1
-
-  # notify:
-  #   needs: [build-and-push, deploy]
-  #   if: always()
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Send Telegram notification
-  #       env:
-  #         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-  #         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-  #         STATUS: ${{ needs.deploy.result == 'success' && '✅ 배포 성공 (prod)' || '❌ 배포 실패 (prod)' }}
-  #       if: env.TELEGRAM_BOT_TOKEN != ''
-  #       run: |
-  #         MESSAGE="${STATUS}
-  #         repo: ${{ github.repository }}
-  #         branch: ${{ github.ref_name }}
-  #         commit: ${{ github.sha }}
-  #         actor: ${{ github.actor }}
-  #         run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-  #
-  #         curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-  #           --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-  #           --data-urlencode "text=${MESSAGE}"
