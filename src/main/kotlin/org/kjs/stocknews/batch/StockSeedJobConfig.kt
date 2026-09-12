@@ -52,18 +52,24 @@ class StockSeedJobConfig(
                 log.info("fetching sec + nasdaq/other exchange + toss ticker lists...")
                 val existingTickers = stockRepository.findAllTickers().toHashSet()
 
-                val secCandidates = secTickerClient.fetchAllTickers()
+                val secCandidates = runCatching { secTickerClient.fetchAllTickers() }
+                    .onFailure { log.warn("sec ticker fetch failed, skipping this source for this run", it) }
+                    .getOrDefault(emptyList())
                     .filterNot { it.ticker in existingTickers }
                     .map { Stock(ticker = it.ticker, name = it.title, cik = it.cikStr) }
 
                 val seenAfterSec = existingTickers.plus(secCandidates.map { it.ticker })
-                val exchangeCandidates = nasdaqListedClient.fetchAllListed()
+                val exchangeCandidates = runCatching { nasdaqListedClient.fetchAllListed() }
+                    .onFailure { log.warn("nasdaq listed fetch failed, skipping this source for this run", it) }
+                    .getOrDefault(emptyList())
                     .distinctBy { it.ticker }
                     .filterNot { it.ticker in seenAfterSec }
                     .map { Stock(ticker = it.ticker, name = it.name, cik = null) }
 
                 val seenAfterExchange = seenAfterSec.plus(exchangeCandidates.map { it.ticker })
-                val tossCandidates = tossStockClient.fetchAllUsListed()
+                val tossCandidates = runCatching { tossStockClient.fetchAllUsListed() }
+                    .onFailure { log.warn("toss listed fetch failed, skipping this source for this run", it) }
+                    .getOrDefault(emptyList())
                     .filterNot { it.symbol in seenAfterExchange }
                     .map { Stock(ticker = it.symbol, name = it.symbol, cik = null).apply { koreanName = it.name } }
 
