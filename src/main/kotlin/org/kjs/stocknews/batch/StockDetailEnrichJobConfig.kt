@@ -1,5 +1,6 @@
 package org.kjs.stocknews.batch
 
+import org.kjs.stocknews.common.HtmlTextUtils
 import org.kjs.stocknews.model.table.Stock
 import org.kjs.stocknews.model.table.StockDetail
 import org.kjs.stocknews.repository.StockDetailRepository
@@ -79,14 +80,15 @@ class StockDetailEnrichJobConfig(
             }
 
             log.info("{} -> {}", stock.ticker, reutersCode)
+            // 네이버 기업개요 텍스트에는 <br> 등 HTML 태그/엔티티가 섞여 오므로 저장 전에 제거한다.
             StockDetail(
                 stockId = stock.id!!,
-                summary = overview.summary,
-                representativeName = overview.summaries?.representativeName,
-                nation = overview.summaries?.nation,
-                city = overview.summaries?.city,
-                homepageUrl = overview.summaries?.url,
-                industryName = overview.industry?.industryGroupKor,
+                summary = HtmlTextUtils.stripHtmlOrNull(overview.summary),
+                representativeName = HtmlTextUtils.stripHtmlOrNull(overview.summaries?.representativeName),
+                nation = HtmlTextUtils.stripHtmlOrNull(overview.summaries?.nation),
+                city = HtmlTextUtils.stripHtmlOrNull(overview.summaries?.city),
+                homepageUrl = HtmlTextUtils.stripHtmlOrNull(overview.summaries?.url),
+                industryName = HtmlTextUtils.stripHtmlOrNull(overview.industry?.industryGroupKor),
                 listedAt = overview.stockItemListedInfo?.listedAt?.let { parseListedAt(it) },
             )
         } catch (e: Exception) {

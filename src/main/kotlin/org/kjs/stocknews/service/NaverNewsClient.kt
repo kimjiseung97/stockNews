@@ -1,5 +1,6 @@
 package org.kjs.stocknews.service
 
+import org.kjs.stocknews.common.HtmlTextUtils
 import org.kjs.stocknews.model.dto.NaverNewsSearchResponse
 import org.kjs.stocknews.model.dto.NewsArticle
 import org.slf4j.LoggerFactory
@@ -13,8 +14,6 @@ import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 private data class CachedNaverNews(val articles: List<NewsArticle>, val fetchedAt: Instant)
-
-private val HTML_TAG_REGEX = Regex("<.*?>")
 
 @Component
 class NaverNewsClient(
@@ -81,11 +80,5 @@ class NaverNewsClient(
             ?: emptyList()
     }
 
-    private fun unescapeHtml(text: String): String =
-        text.replace(HTML_TAG_REGEX, "")
-            .replace("&quot;", "\"")
-            .replace("&amp;", "&")
-            .replace("&lt;", "<")
-            .replace("&gt;", ">")
-            .replace("&#39;", "'")
+    private fun unescapeHtml(text: String): String = HtmlTextUtils.stripHtml(text)
 }
