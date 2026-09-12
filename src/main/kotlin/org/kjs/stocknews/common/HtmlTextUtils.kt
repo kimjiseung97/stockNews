@@ -7,7 +7,9 @@ package org.kjs.stocknews.common
 object HtmlTextUtils {
 
     // <br>, </p> 처럼 줄바꿈 의미를 가지는 태그는 개행으로 바꾼 뒤 나머지 태그를 제거한다.
-    private val LINE_BREAK_TAG_REGEX = Regex("""<\s*/?\s*(br|p|div|li|tr|hr)\s*[^>]*>""", RegexOption.IGNORE_CASE)
+    // 태그명 뒤 경계를 강제하지 않으면 <price>, <link>, <header> 같은 태그가 각각 p/li/hr로 오인돼
+    // 엉뚱한 개행이 들어가므로 (?=[\s/>]) lookahead 로 태그명이 거기서 끝나는 경우만 잡는다.
+    private val LINE_BREAK_TAG_REGEX = Regex("""<\s*/?\s*(?:br|p|div|li|tr|hr)(?=[\s/>])[^>]*>""", RegexOption.IGNORE_CASE)
     private val HTML_TAG_REGEX = Regex("""<[^>]*>""")
     private val NUMERIC_ENTITY_REGEX = Regex("""&#(x[0-9a-fA-F]+|[0-9]+);""")
     private val SPACE_RUN_REGEX = Regex("""[ \t ]+""")
@@ -47,7 +49,9 @@ object HtmlTextUtils {
             } else {
                 raw.toIntOrNull()
             }
-            if (code != null && code in 1..0x10FFFF) String(Character.toChars(code)) else match.value
+            // 서로게이트 영역(0xD800~0xDFFF)은 짝 없이 들어가면 DB/JSON 인코딩 단계에서 깨지므로 원문 그대로 남긴다.
+            val isValidCodePoint = code != null && code in 1..0x10FFFF && code !in 0xD800..0xDFFF
+            if (isValidCodePoint) String(Character.toChars(code)) else match.value
         }
 
         return NAMED_ENTITIES.fold(decodedNumeric) { acc, (entity, replacement) ->
