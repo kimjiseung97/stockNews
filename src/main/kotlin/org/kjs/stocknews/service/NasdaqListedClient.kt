@@ -50,11 +50,19 @@ class NasdaqListedClient(
             .filter { it.isNotBlank() && !it.startsWith("File Creation Time") }
             .mapNotNull { line ->
                 val cols = line.split("|")
-                if (cols.size <= testIssueIndex) return@mapNotNull null
-                if (cols[testIssueIndex] == "Y") return@mapNotNull null
+                if (cols.size <= testIssueIndex) {
+                    return@mapNotNull null
+                }
+                if (cols[testIssueIndex] == "Y") {
+                    return@mapNotNull null
+                }
                 val symbol = cols[0].trim()
                 val name = cols[1].trim()
-                if (symbol.isBlank()) null else NasdaqListedEntry(ticker = symbol, name = name)
+                if (symbol.isBlank()) {
+                    null
+                } else {
+                    NasdaqListedEntry(ticker = symbol, name = name)
+                }
             }
             .toList()
 }

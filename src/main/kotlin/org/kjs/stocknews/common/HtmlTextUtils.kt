@@ -51,7 +51,11 @@ object HtmlTextUtils {
             }
             // 서로게이트 영역(0xD800~0xDFFF)은 짝 없이 들어가면 DB/JSON 인코딩 단계에서 깨지므로 원문 그대로 남긴다.
             val isValidCodePoint = code != null && code in 1..0x10FFFF && code !in 0xD800..0xDFFF
-            if (isValidCodePoint) String(Character.toChars(code)) else match.value
+            if (isValidCodePoint) {
+                String(Character.toChars(code))
+            } else {
+                match.value
+            }
         }
 
         return NAMED_ENTITIES.fold(decodedNumeric) { acc, (entity, replacement) ->

@@ -89,7 +89,9 @@ class NewsMailTestService(
                 now
             }
         }
-        if (!reserved) throw BusinessException(ResultCode.NEWS_MAIL_TEST_TOO_FREQUENT)
+        if (!reserved) {
+            throw BusinessException(ResultCode.NEWS_MAIL_TEST_TOO_FREQUENT)
+        }
     }
 
     // 내가 선점한 슬롯일 때만 되돌린다(그 사이 다른 요청이 선점했다면 건드리지 않는다).
@@ -99,7 +101,9 @@ class NewsMailTestService(
 
     private fun collectArticles(userId: Long): Map<String, List<NewsArticle>> {
         val stockViews = userStockRepository.findNewsViewsByUserIdIn(listOf(userId))
-        if (stockViews.isEmpty()) throw BusinessException(ResultCode.NEWS_MAIL_NO_STOCKS)
+        if (stockViews.isEmpty()) {
+            throw BusinessException(ResultCode.NEWS_MAIL_NO_STOCKS)
+        }
 
         // 설정값이 0 이하로 들어오면 PageRequest.of가 IllegalArgumentException을 던지므로 최소 1건은 보장한다.
         val pageable = PageRequest.of(0, maxArticlesPerStock.coerceAtLeast(1))
@@ -108,9 +112,13 @@ class NewsMailTestService(
             val articles = stockNewsRepository.findByStockIdOrderByCollectedAtDesc(stock.stockId, pageable)
                 .content
                 .map { NewsArticle(title = it.title, url = it.url, description = it.content) }
-            if (articles.isNotEmpty()) articlesByTicker.put(stock.ticker, articles)
+            if (articles.isNotEmpty()) {
+                articlesByTicker.put(stock.ticker, articles)
+            }
         }
-        if (articlesByTicker.isEmpty()) throw BusinessException(ResultCode.NEWS_MAIL_NO_ARTICLES)
+        if (articlesByTicker.isEmpty()) {
+            throw BusinessException(ResultCode.NEWS_MAIL_NO_ARTICLES)
+        }
         return articlesByTicker
     }
 }
