@@ -23,9 +23,9 @@ import java.time.LocalTime
 @Entity
 @Table(
     name = "TB_MAIL_DISPATCH_LOG",
+    // 유저별 조회는 아래 유니크 키의 선두 컬럼(USER_ID, DISPATCH_DATE)이 그대로 처리하므로 별도 인덱스를 두지 않는다.
     indexes = [
         Index(name = "IDX_TB_MAIL_DISPATCH_LOG_DATE", columnList = "DISPATCH_DATE"),
-        Index(name = "IDX_TB_MAIL_DISPATCH_LOG_USER", columnList = "USER_ID, DISPATCH_DATE"),
     ],
     uniqueConstraints = [
         UniqueConstraint(name = "UK_TB_MAIL_DISPATCH_LOG_SLOT", columnNames = ["USER_ID", "DISPATCH_DATE", "DISPATCH_TIME"]),
