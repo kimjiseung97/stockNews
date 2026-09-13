@@ -35,7 +35,11 @@ class PromptService(
     // compute로 감싸 같은 코드에 대한 갱신을 직렬화한다 - TTL이 끝나는 순간 동시 요청이 몰려도 DB 조회는 한 번만 나간다.
     private fun contentOf(promptCode: PromptCode): String =
         cache.compute(promptCode) { code, cached ->
-            if (cached != null && !cached.isExpired()) cached else CachedPrompt(load(code, cached), Instant.now().plus(cacheTtl))
+            if (cached != null && !cached.isExpired()) {
+                cached
+            } else {
+                CachedPrompt(load(code, cached), Instant.now().plus(cacheTtl))
+            }
         }!!.content
 
     private fun load(promptCode: PromptCode, cached: CachedPrompt?): String {

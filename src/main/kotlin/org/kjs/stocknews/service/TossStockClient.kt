@@ -111,7 +111,9 @@ class TossStockClient(
     @Synchronized
     private fun accessToken(): String {
         cachedToken?.let { token ->
-            if (Instant.now().isBefore(tokenExpiresAt)) return token
+            if (Instant.now().isBefore(tokenExpiresAt)) {
+                return token
+            }
         }
 
         val form = LinkedMultiValueMap<String, String>().apply {

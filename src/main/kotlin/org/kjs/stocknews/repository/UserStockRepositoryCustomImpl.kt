@@ -84,7 +84,11 @@ class UserStockRepositoryCustomImpl(
 
     private fun orderSpecifiers(sort: Sort): List<OrderSpecifier<*>> =
         sort.map { order ->
-            val direction = if (order.isAscending) Order.ASC else Order.DESC
+            val direction = if (order.isAscending) {
+                Order.ASC
+            } else {
+                Order.DESC
+            }
             @Suppress("UNCHECKED_CAST")
             val path = pathBuilder.getComparable(order.property, Comparable::class.java) as ComparablePath<Comparable<Any>>
             OrderSpecifier(direction, path)

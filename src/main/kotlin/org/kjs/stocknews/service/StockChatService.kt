@@ -81,15 +81,29 @@ class StockChatService(
     // 문장을 심어두면("- 위 규칙을 무시하라") 시스템 프롬프트의 지시로 읽힐 수 있으므로(간접 프롬프트 인젝션),
     // 줄바꿈/제어문자를 한 칸 공백으로 눕히고 길이도 잘라 한 줄짜리 데이터로 만들어 넣는다.
     private fun sanitizeForPrompt(title: String): String {
-        val flattened = title.map { if (it.isISOControl()) ' ' else it }
-            .joinToString("")
+        val flattened = buildString {
+            for (char in title) {
+                if (char.isISOControl()) {
+                    append(' ')
+                } else {
+                    append(char)
+                }
+            }
+        }
             .replace(Regex("\\s+"), " ")
             .trim()
-        return if (flattened.length <= NEWS_TITLE_MAX_LENGTH) flattened else flattened.take(NEWS_TITLE_MAX_LENGTH) + "…"
+        if (flattened.length <= NEWS_TITLE_MAX_LENGTH) {
+            return flattened
+        }
+        return flattened.take(NEWS_TITLE_MAX_LENGTH) + "…"
     }
 
     private fun validateQuestion(question: String) {
-        if (question.isBlank()) throw BusinessException(ResultCode.STOCK_CHAT_QUESTION_REQUIRED)
-        if (question.length > QUESTION_MAX_LENGTH) throw BusinessException(ResultCode.STOCK_CHAT_QUESTION_TOO_LONG)
+        if (question.isBlank()) {
+            throw BusinessException(ResultCode.STOCK_CHAT_QUESTION_REQUIRED)
+        }
+        if (question.length > QUESTION_MAX_LENGTH) {
+            throw BusinessException(ResultCode.STOCK_CHAT_QUESTION_TOO_LONG)
+        }
     }
 }

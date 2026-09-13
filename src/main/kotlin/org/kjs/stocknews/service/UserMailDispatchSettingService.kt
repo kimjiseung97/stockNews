@@ -34,7 +34,11 @@ class UserMailDispatchSettingService(
     }
 
     private fun validateDispatchTime(dispatchTime: LocalTime) {
-        val isAligned = dispatchTime.minute % DISPATCH_SLOT_MINUTES == 0 && dispatchTime.second == 0 && dispatchTime.nano == 0
-        if (!isAligned) throw BusinessException(ResultCode.INVALID_MAIL_DISPATCH_TIME)
+        val isAligned = dispatchTime.minute % DISPATCH_SLOT_MINUTES == 0 &&
+            dispatchTime.second == 0 &&
+            dispatchTime.nano == 0
+        if (!isAligned) {
+            throw BusinessException(ResultCode.INVALID_MAIL_DISPATCH_TIME)
+        }
     }
 }

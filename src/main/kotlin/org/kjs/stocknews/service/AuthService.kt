@@ -273,25 +273,45 @@ class AuthService(
     }
 
     private fun validateEmail(email: String) {
-        if (email.isBlank()) throw BusinessException(ResultCode.EMAIL_REQUIRED)
-        if (!EMAIL_REGEX.matches(email)) throw BusinessException(ResultCode.INVALID_EMAIL_FORMAT)
-        if (email.length > 50) throw BusinessException(ResultCode.EMAIL_TOO_LONG)
+        if (email.isBlank()) {
+            throw BusinessException(ResultCode.EMAIL_REQUIRED)
+        }
+        if (!EMAIL_REGEX.matches(email)) {
+            throw BusinessException(ResultCode.INVALID_EMAIL_FORMAT)
+        }
+        if (email.length > 50) {
+            throw BusinessException(ResultCode.EMAIL_TOO_LONG)
+        }
     }
 
     private fun validateRecoveryEmail(recoveryEmail: String) {
-        if (recoveryEmail.isBlank()) throw BusinessException(ResultCode.RECOVERY_EMAIL_REQUIRED)
-        if (!EMAIL_REGEX.matches(recoveryEmail)) throw BusinessException(ResultCode.INVALID_RECOVERY_EMAIL_FORMAT)
-        if (recoveryEmail.length > 50) throw BusinessException(ResultCode.RECOVERY_EMAIL_TOO_LONG)
+        if (recoveryEmail.isBlank()) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_REQUIRED)
+        }
+        if (!EMAIL_REGEX.matches(recoveryEmail)) {
+            throw BusinessException(ResultCode.INVALID_RECOVERY_EMAIL_FORMAT)
+        }
+        if (recoveryEmail.length > 50) {
+            throw BusinessException(ResultCode.RECOVERY_EMAIL_TOO_LONG)
+        }
     }
 
     private fun validatePassword(password: String) {
-        if (password.isBlank()) throw BusinessException(ResultCode.PASSWORD_REQUIRED)
-        if (password.length !in 8..20) throw BusinessException(ResultCode.INVALID_PASSWORD_LENGTH)
+        if (password.isBlank()) {
+            throw BusinessException(ResultCode.PASSWORD_REQUIRED)
+        }
+        if (password.length !in 8..20) {
+            throw BusinessException(ResultCode.INVALID_PASSWORD_LENGTH)
+        }
     }
 
     private fun validateCode(code: String) {
-        if (code.isBlank()) throw BusinessException(ResultCode.VERIFICATION_CODE_REQUIRED)
-        if (code.length != codeLength) throw BusinessException(ResultCode.INVALID_VERIFICATION_CODE_LENGTH)
+        if (code.isBlank()) {
+            throw BusinessException(ResultCode.VERIFICATION_CODE_REQUIRED)
+        }
+        if (code.length != codeLength) {
+            throw BusinessException(ResultCode.INVALID_VERIFICATION_CODE_LENGTH)
+        }
     }
 
     private fun generateCode(): String =

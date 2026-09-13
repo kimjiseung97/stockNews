@@ -18,7 +18,11 @@ object PromptTemplate {
     fun render(template: String, variables: Map<String, String?>): String {
         val sectionsApplied = SECTION_PATTERN.replace(template) { match ->
             val name = match.groupValues[1]
-            if (variables[name].isNullOrBlank()) "" else match.groupValues[2]
+            if (variables[name].isNullOrBlank()) {
+                ""
+            } else {
+                match.groupValues[2]
+            }
         }
         return VARIABLE_PATTERN.replace(sectionsApplied) { match ->
             val name = match.groupValues[1]

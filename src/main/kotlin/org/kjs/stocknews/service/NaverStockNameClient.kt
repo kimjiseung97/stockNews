@@ -25,7 +25,9 @@ class NaverStockNameClient {
 
     private fun searchItem(ticker: String): NaverStockSearchItem? {
         val item = search(ticker)
-        if (item != null) return item
+        if (item != null) {
+            return item
+        }
 
         // Naver uses "." for share-class tickers (e.g. BRK.B) where our data uses "-" (e.g. BRK-B).
         if (ticker.contains('-')) {

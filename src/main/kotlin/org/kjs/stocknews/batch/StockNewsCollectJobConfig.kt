@@ -71,7 +71,11 @@ class StockNewsCollectJobConfig(
         val lock = Any()
         return ItemReader {
             synchronized(lock) {
-                if (stocks.hasNext()) stocks.next() else null
+                if (stocks.hasNext()) {
+                    stocks.next()
+                } else {
+                    null
+                }
             }
         }
     }

@@ -26,7 +26,9 @@ class StockSearchCountService(
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun saveSearchCountAll(stockIds: List<Long>) {
-        if (stockIds.isEmpty()) return
+        if (stockIds.isEmpty()) {
+            return
+        }
         try {
             stockSearchCountRepository.saveAll(stockIds.map { StockSearchCount(stockId = it) })
         } catch (e: Exception) {

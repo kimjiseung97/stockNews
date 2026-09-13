@@ -25,7 +25,9 @@ class ApiResponseAdvice(
         request: ServerHttpRequest,
         response: ServerHttpResponse,
     ): Any? {
-        if (body is ApiResponse<*>) return body
+        if (body is ApiResponse<*>) {
+            return body
+        }
 
         val wrapped = ApiResponse.success(body)
 
