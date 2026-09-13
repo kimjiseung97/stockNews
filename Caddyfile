@@ -2,3 +2,10 @@
     encode gzip zstd
     reverse_proxy app:8080
 }
+
+# stockNewsAdmin - 같은 stocknews_default 네트워크에 붙은 컨테이너를 이름으로 찾아간다.
+# app/db 컨테이너와는 무관하며, 이 블록만 재배포/재기동 대상이다.
+{$ADMIN_DOMAIN} {
+    encode gzip zstd
+    reverse_proxy stocknewsadmin-app-1:8081
+}
