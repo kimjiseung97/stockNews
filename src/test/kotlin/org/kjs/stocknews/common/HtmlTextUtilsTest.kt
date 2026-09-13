@@ -48,6 +48,21 @@ class HtmlTextUtilsTest {
     }
 
     @Test
+    @DisplayName("줄바꿈 태그와 이름이 겹치는 다른 태그는 개행이 되지 않는다")
+    fun doesNotBreakLineForSimilarlyNamedTags() {
+        // <price>가 p로, <link>가 li로 오인되면 엉뚱한 개행이 들어간다.
+        assertEquals("1000원", HtmlTextUtils.stripHtml("<price>1000</price>원"))
+        assertEquals("애플뉴스", HtmlTextUtils.stripHtml("<link/>애플<header>뉴스</header>"))
+    }
+
+    @Test
+    @DisplayName("짝 없는 서로게이트 엔티티는 원문 그대로 남는다")
+    fun keepsLoneSurrogateEntityAsIs() {
+        assertEquals("A&#xD800;B", HtmlTextUtils.stripHtml("A&#xD800;B"))
+        assertEquals("A😀B", HtmlTextUtils.stripHtml("A&#128512;B"))
+    }
+
+    @Test
     @DisplayName("태그가 없는 평문은 그대로 유지된다")
     fun keepsPlainText() {
         assertEquals("반도체와 소프트웨어", HtmlTextUtils.stripHtml("반도체와 소프트웨어"))
