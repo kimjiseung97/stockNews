@@ -136,7 +136,8 @@ nvidia:
   api:
     base-url: https://integrate.api.nvidia.com/v1
     key: ${NVIDIA_API_KEY}
-    model: moonshotai/kimi-k3
+    model: openai/gpt-oss-20b
+    fallback-models: z-ai/glm-5.3-flash,mistralai/mistral-nemotron
     max-tokens: 1024
     top-p: 0.95
     connect-timeout-ms: 10000
