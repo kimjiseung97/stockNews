@@ -48,4 +48,10 @@ enum class ResultCode(val code: String, val message: String) {
     STOCK_CHAT_QUESTION_TOO_LONG("STOCK_CHAT_QUESTION_TOO_LONG", "질문은 300자 이하로 입력해주세요."),
     STOCK_CHAT_FAILED("STOCK_CHAT_FAILED", "AI 응답을 받아오지 못했습니다. 잠시 후 다시 시도해주세요."),
     INVALID_MAIL_DISPATCH_TIME("INVALID_MAIL_DISPATCH_TIME", "발송시간대는 30분 단위(예: 09:00, 09:30)로만 설정할 수 있습니다."),
+
+    // 뉴스 다이제스트 테스트 발송 - 실패 원인을 구분해줘야 사용자가 다음 행동(종목 등록/대기/재시도)을 고를 수 있다.
+    NEWS_MAIL_NO_STOCKS("NEWS_MAIL_NO_STOCKS", "등록된 관심종목이 없습니다. 관심종목을 먼저 등록해주세요."),
+    NEWS_MAIL_NO_ARTICLES("NEWS_MAIL_NO_ARTICLES", "관심종목에 발송할 뉴스가 아직 없습니다."),
+    NEWS_MAIL_SEND_FAILED("NEWS_MAIL_SEND_FAILED", "메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    NEWS_MAIL_TEST_TOO_FREQUENT("NEWS_MAIL_TEST_TOO_FREQUENT", "테스트 발송은 1분에 한 번만 가능합니다. 잠시 후 다시 시도해주세요."),
 }
