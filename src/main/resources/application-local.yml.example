@@ -12,6 +12,11 @@ spring:
     username: <db-username>
     password: <db-password>
     driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      # 뉴스 발송 배치는 워커 스레드(news.dispatch.thread-pool-size, 기본 8)마다 청크 트랜잭션 커넥션을 잡은 채
+      # 발송 로그용 REQUIRES_NEW 커넥션을 하나 더 요구한다. 기본값 10이면 모든 워커가 두 번째 커넥션을
+      # 서로 기다리다 멈출 수 있어 워커 수의 2배 + 여유만큼 잡는다.
+      maximum-pool-size: ${DB_POOL_SIZE:20}
 
   task:
     scheduling:

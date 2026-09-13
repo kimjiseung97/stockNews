@@ -4,9 +4,11 @@ import org.kjs.stocknews.model.dto.EligibleMailUserView
 import org.kjs.stocknews.model.dto.NewsArticle
 import org.kjs.stocknews.model.dto.UserNewsMail
 import org.kjs.stocknews.model.dto.UserStockNewsView
+import org.kjs.stocknews.model.table.MailDispatchStatus
 import org.kjs.stocknews.repository.StockNewsRepository
 import org.kjs.stocknews.repository.UserMailSendSettingRepository
 import org.kjs.stocknews.repository.UserStockRepository
+import org.kjs.stocknews.service.MailDispatchLogService
 import org.kjs.stocknews.service.NewsClient
 import org.kjs.stocknews.service.NewsMailSender
 import org.springframework.batch.core.configuration.annotation.StepScope
@@ -55,6 +57,7 @@ class NewsDispatchJobConfig(
     private val newsClient: NewsClient,
     private val stockNewsRepository: StockNewsRepository,
     private val newsMailSender: NewsMailSender,
+    private val mailDispatchLogService: MailDispatchLogService,
     @Value("\${news.dispatch.thread-pool-size:8}") private val threadPoolSize: Int,
     @Value("\${news.dispatch.max-articles-per-stock:1}") private val maxArticlesPerStock: Int,
 ) {
@@ -134,6 +137,7 @@ class NewsDispatchJobConfig(
         return ItemProcessor { it ->
             val stockViews = stockViewsByUserId.get(it.userId)
             if (stockViews.isNullOrEmpty()) {
+                recordSkipped(it, stockCount = 0)
                 return@ItemProcessor null
             }
 
@@ -146,18 +150,59 @@ class NewsDispatchJobConfig(
             }
 
             if (articlesByTicker.isEmpty()) {
+                recordSkipped(it, stockCount = stockViews.size)
                 null
             } else {
-                UserNewsMail(it.email, articlesByTicker)
+                UserNewsMail(
+                    userId = it.userId,
+                    email = it.email,
+                    dispatchTime = it.dispatchTime,
+                    articlesByTicker = articlesByTicker,
+                )
             }
         }
     }
 
-    // Writer: 청크로 모인 UserNewsMail을 순회하며 실제 다이제스트 메일을 발송한다.
+    // 관심종목이 없거나 보낼 뉴스가 하나도 없어 발송하지 않은 유저도 기록을 남긴다.
+    // 어드민 발송현황에서 "왜 이 유저는 메일이 안 왔나"를 설명할 수 있어야 하기 때문.
+    private fun recordSkipped(user: EligibleMailUserView, stockCount: Int) {
+        mailDispatchLogService.record(
+            userId = user.userId,
+            email = user.email,
+            dispatchTime = user.dispatchTime,
+            status = MailDispatchStatus.SKIPPED,
+            stockCount = stockCount,
+            articleCount = 0,
+        )
+    }
+
+    // Writer: 청크로 모인 UserNewsMail을 순회하며 실제 다이제스트 메일을 발송하고 결과를 기록한다.
+    // 발송 실패는 기록만 남기고 그대로 던져, 기존대로 스텝의 skip 정책이 해당 유저만 건너뛰게 한다.
     @Bean
     fun newsDispatchWriter(): ItemWriter<UserNewsMail> = ItemWriter { mails ->
         for (mail in mails.items) {
-            newsMailSender.sendNewsDigest(mail.email, mail.articlesByTicker)
+            try {
+                newsMailSender.sendNewsDigest(mail.email, mail.articlesByTicker)
+            } catch (e: MailException) {
+                mailDispatchLogService.record(
+                    userId = mail.userId,
+                    email = mail.email,
+                    dispatchTime = mail.dispatchTime,
+                    status = MailDispatchStatus.FAILED,
+                    stockCount = mail.stockCount,
+                    articleCount = mail.articleCount,
+                    errorMessage = e.message,
+                )
+                throw e
+            }
+            mailDispatchLogService.record(
+                userId = mail.userId,
+                email = mail.email,
+                dispatchTime = mail.dispatchTime,
+                status = MailDispatchStatus.SUCCESS,
+                stockCount = mail.stockCount,
+                articleCount = mail.articleCount,
+            )
         }
     }
 

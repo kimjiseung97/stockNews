@@ -45,6 +45,7 @@ flowchart TD
 ```
 
 - 종목 시딩/보강 배치는 단일 tasklet 위주(순차 처리), 뉴스 발송 배치만 유저를 20명 단위 청크로 나눠 스레드풀(`newsDispatchTaskExecutor`)에서 병렬 처리.
+- 발송 결과는 유저·슬롯 단위로 `TB_MAIL_DISPATCH_LOG`에 남긴다(SUCCESS / FAILED / 보낼 뉴스가 없어 건너뛴 SKIPPED). 어드민(stockNewsAdmin) 발송현황·대시보드가 이 테이블을 읽는다. 발송 실패로 청크가 롤백돼도 기록이 남도록 별도 트랜잭션으로 쓰고, 재처리 시 같은 슬롯 기록은 마지막 결과로 덮어쓴다. 테스트 발송(`POST /users/me/news-mail/test`)은 운영 통계를 흐리지 않도록 기록하지 않는다.
 - 각 배치는 `*Scheduler`가 cron으로 트리거하며, 애플리케이션 기동 시 자동 실행되지 않음(`BatchJobLauncherAutoConfiguration` 제외).
 - `POST /users/me/news-mail/test` — 로그인한 본인에게 뉴스 다이제스트 메일을 즉시 테스트 발송(발송시간대/발송여부 설정 무시, 유저당 1분 쿨다운). 발송 배치를 기다리지 않고 메일 형식·SMTP 설정을 확인할 때 사용.
 
