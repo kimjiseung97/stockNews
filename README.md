@@ -48,6 +48,25 @@ flowchart TD
 - 각 배치는 `*Scheduler`가 cron으로 트리거하며, 애플리케이션 기동 시 자동 실행되지 않음(`BatchJobLauncherAutoConfiguration` 제외).
 - `POST /users/me/news-mail/test` — 로그인한 본인에게 뉴스 다이제스트 메일을 즉시 테스트 발송(발송시간대/발송여부 설정 무시, 유저당 1분 쿨다운). 발송 배치를 기다리지 않고 메일 형식·SMTP 설정을 확인할 때 사용.
 
+### 챗봇 프롬프트 (DB 소싱)
+
+```mermaid
+flowchart LR
+    Admin(["운영자"]) --> AdminApp["stockNewsAdmin<br/>/prompts"]
+    AdminApp --> PromptTable[("TB_PROMPT<br/>CODE = STOCK_CHAT_SYSTEM")]
+    Question(["사용자 질문"]) --> ChatSvc["StockChatService"]
+    PromptTable --> PromptSvc["PromptService<br/>(코드별 조회 + 60초 캐시)"]
+    ChatSvc --> StockLookup["질문에서 종목 탐지<br/>→ TB_STOCK_NEWS 최신 뉴스"]
+    StockLookup --> PromptSvc
+    PromptSvc --> Template["PromptTemplate<br/>{{today}} {{stockLabel}} {{newsContext}} 치환"]
+    Template --> LLM["NvidiaChatClient (NVIDIA NIM)"]
+```
+
+- 챗봇 시스템 프롬프트는 코드가 아니라 어드민이 `TB_PROMPT`에 등록한 본문을 쓴다(`PromptCode.STOCK_CHAT_SYSTEM`). 프롬프트를 고치는 데 배포가 필요 없다.
+- 본문의 `{{today}}`(오늘 날짜) / `{{stockLabel}}`(질문에서 찾은 종목) / `{{newsContext}}`(그 종목의 최신 뉴스 헤드라인)는 요청마다 실제 값으로 치환되고, `{{#newsContext}}...{{/newsContext}}` 구간은 값이 있을 때만 남는다.
+- 행이 없거나 `ENABLED=0`이거나 DB 조회가 실패하면 코드에 들고 있는 기본 프롬프트(`PromptCode.fallback`)로 동작한다 — 어드민 설정 실수로 챗봇이 멈추지 않는다.
+- 조회 결과는 `prompt.cache-ttl-seconds`(기본 60초) 동안 캐싱되므로 어드민 수정은 최대 그만큼 뒤에 반영된다.
+
 ## 프론트엔드
 
 ---
