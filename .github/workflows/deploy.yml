@@ -123,6 +123,11 @@ jobs:
             SCHEDULER_ENABLED=$SCHEDULER_ENABLED
             EOF
 
+            # compose.yml 이 external 로 참조하는 망. 어느 프로젝트도 소유하지 않아야
+            # (docker compose down 시 삭제되지 않아야) 하므로 여기서 멱등하게 만든다.
+            docker network inspect edge >/dev/null 2>&1 || docker network create edge
+            docker network inspect stocknews_internal >/dev/null 2>&1 || docker network create stocknews_internal
+
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f

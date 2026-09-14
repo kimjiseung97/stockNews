@@ -26,6 +26,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 6
+    networks:
+      # 과도기: admin/schedule 이 아직 이 망에서 db 를 찾는다. 각자 내부망으로 옮긴 뒤 제거한다.
+      default: {}
+      stocknews_internal:
+        # 다른 compose 프로젝트에서 DB_URL/DATABASE_URL 이 db 로 접속하므로 별칭을 고정한다.
+        aliases: [db]
 
   app:
     image: ${IMAGE:-ghcr.io/kimjiseung97/stocknews}:${IMAGE_TAG:-latest}
@@ -41,6 +47,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      # 과도기: 아래 caddy 서비스가 아직 이 망에서 app 을 찾는다. 프록시 교체 후 제거한다.
+      default: {}
+      edge:
+        # 세 앱(stockNews/Admin/schedule)의 compose 서비스명이 모두 app 이라 별칭이 충돌한다.
+        # 분리한 Caddy(~/infra/edge)는 이 고유 별칭으로 찾아온다.
+        aliases: [stocknews-app]
+      stocknews_internal: {}
 
   caddy:
     image: caddy:2-alpine
@@ -57,6 +71,19 @@ services:
       - caddy_config:/config
     depends_on:
       - app
+
+networks:
+  # 기본망의 소유권을 포기한다. 이 프로젝트가 소유하면 docker compose down 한 번에
+  # 네트워크가 사라져 같은 망에 붙은 admin/schedule/n8n 이 전부 끊긴다.
+  default:
+    external: true
+    name: stocknews_default
+  # 리버스 프록시(~/infra/edge) ↔ 외부 노출이 필요한 앱
+  edge:
+    external: true
+  # 앱 ↔ DB. 외부 노출 없음. n8n 은 여기 붙지 않는다.
+  stocknews_internal:
+    external: true
 
 volumes:
   caddy_data:
