@@ -1,6 +1,9 @@
+# stockNews - app 은 세 레포(stockNews/Admin/schedule)의 compose 서비스명이 모두 app 이라
+# 같은 네트워크에서 별칭이 3중으로 충돌한다. Caddy 가 다른 앱의 IP 로 연결해 502 가 나므로
+# 컨테이너 이름처럼 유일한 이름으로 찾아가야 한다.
 {$DOMAIN} {
     encode gzip zstd
-    reverse_proxy app:8080
+    reverse_proxy stocknews-app-1:8080
 }
 
 # stockNewsAdmin - 같은 stocknews_default 네트워크에 붙은 컨테이너를 이름으로 찾아간다.
