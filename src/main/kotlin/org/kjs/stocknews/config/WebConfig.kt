@@ -35,7 +35,12 @@ class WebConfig(
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(authInterceptor)
-            .addPathPatterns("/users/me/**")
+            .addPathPatterns(
+                "/users/me/**",
+                "/watchlist",
+                "/watchlist/register",
+                "/email-settings",
+            )
     }
 
     // Vite가 해시 파일명으로 만드는 정적 자산은 영구 캐시, 나머지(=SPA 라우트)는 index.html로 폴백
