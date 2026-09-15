@@ -36,7 +36,9 @@ export default function Header() {
           <img src={logo} alt="로고" />
         </Link>
 
-        <ul className={`${styles['header-container__account']} ${mediaStyles['header-container__account']}`}>
+        <ul
+          className={`${styles['header-container__account']} ${mediaStyles['header-container__account']}`}
+        >
           {email ? (
             <>
               <li

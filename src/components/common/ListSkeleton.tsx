@@ -10,17 +10,22 @@ export default function ListSkeleton({
   label = '목록을 불러오는 중입니다.',
 }: ListSkeletonProps) {
   return (
-    <ul className={styles['list-skeleton']} aria-label={label} aria-busy="true">
-      {Array.from({ length: count }, (_, index) => (
-        <li className={styles['list-skeleton__item']} key={index}>
-          <span className={styles['list-skeleton__leading']} />
-          <span className={styles['list-skeleton__content']}>
-            <i />
-            <i />
-          </span>
-          <span className={styles['list-skeleton__trailing']} />
-        </li>
-      ))}
-    </ul>
+    <>
+      <p className={styles['list-skeleton__label']} role="status">
+        {label}
+      </p>
+      <ul className={styles['list-skeleton']} aria-hidden="true">
+        {Array.from({ length: count }, (_, index) => (
+          <li className={styles['list-skeleton__item']} key={index}>
+            <span className={styles['list-skeleton__leading']} />
+            <span className={styles['list-skeleton__content']}>
+              <i />
+              <i />
+            </span>
+            <span className={styles['list-skeleton__trailing']} />
+          </li>
+        ))}
+      </ul>
+    </>
   )
 }

@@ -5,10 +5,12 @@
     right: 24px;
     bottom: 24px;
     z-index: 30;
-    @include flex(null, flex-end);
-    flex-direction: column;
+    @include flex-col(null, flex-end);
+    pointer-events: none;
 
     .stock-chat__panel {
+      position: static;
+      pointer-events: auto;
       display: grid;
       grid-template-rows: auto minmax(0, 1fr) auto;
       width: 100%;
@@ -28,10 +30,6 @@
       color: $color-text-primary;
       background-color: $color-surface;
       border-bottom: 1px solid #e8edf4;
-    }
-
-    .stock-chat__title-wrap {
-      @include flex(null, center);
     }
 
     .stock-chat__title {
@@ -71,9 +69,7 @@
     }
 
     .stock-chat__messages {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+      @include flex-col(null, null, 16px);
       min-height: 0;
       padding: 18px;
       overflow-y: auto;
@@ -83,40 +79,41 @@
     }
 
     .stock-chat__welcome {
-      @include flex(null, flex-start, 5px);
+      @include flex-col(null, null, 6px);
       color: $color-text-primary;
+    }
+
+    .stock-chat__message-author {
+      @include flex(null, center, 5px);
+
+      strong {
+        color: $color-text-label;
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
     }
 
     .stock-chat__message-profile {
       flex: 0 0 auto;
-      width: 50px;
-      height: 46px;
+      width: 22px;
+      height: 22px;
       object-fit: contain;
-      transform: scale(1.25);
-      transform-origin: center top;
+      transform: scale(2);
+      margin-right: 3px;
     }
 
     .stock-chat__answer-content {
-      max-width: calc(100% - 55px);
-
-      strong {
-        color: $color-text-label;
-        font-size: 12px;
-        font-weight: 600;
-      }
-
-      p {
-        margin-top: 6px;
-        padding: 11px 13px;
-        color: $color-text-primary;
-        background-color: $color-surface;
-        border: 1px solid #e2e8f0;
-        border-radius: 3px 13px 13px;
-        box-shadow: 0 2px 7px rgba(#243550, 0.05);
-        font-size: 13px;
-        line-height: 1.55;
-        white-space: pre-wrap;
-      }
+      display: block;
+      min-width: 0;
+      padding: 11px 13px;
+      color: $color-text-primary;
+      background-color: $color-surface;
+      border: 1px solid #e2e8f0;
+      border-radius: 3px 13px 13px;
+      box-shadow: 0 2px 7px rgba(#243550, 0.05);
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre-wrap;
     }
 
     .stock-chat__message {
@@ -139,7 +136,7 @@
     }
 
     .stock-chat__message--assistant {
-      @include flex(null, flex-start, 5px);
+      @include flex-col(null, flex-start, 6px);
       width: 100%;
       max-width: 100%;
       padding: 0;
@@ -147,8 +144,9 @@
     }
 
     .stock-chat__loading {
-      @include flex(null, flex-start, 8px);
-      color: $color-text-secondary;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
     }
 
     .stock-chat__loading-answer {
@@ -188,11 +186,7 @@
     }
 
     .stock-chat__label {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
+      @include visually-hidden;
     }
 
     .stock-chat__input {
@@ -203,7 +197,6 @@
       padding: 15px 58px 36px 16px;
       overflow-y: auto;
       color: $color-input-text;
-      background-color: transparent;
       border-radius: 18px;
       font-size: 14px;
       line-height: 21px;
@@ -251,13 +244,13 @@
       }
 
       &:disabled {
-        color: $color-on-primary;
         background-color: #c5cdf0;
         cursor: not-allowed;
       }
     }
 
     .stock-chat__floating-button {
+      pointer-events: auto;
       @include flex(center, center);
       position: relative;
       width: 74px;
@@ -325,12 +318,6 @@
         box-shadow: 0 3px 9px rgba(#17365f, 0.14);
       }
     }
-  }
-}
-
-@keyframes stock-chat-spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 

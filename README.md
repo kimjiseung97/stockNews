@@ -81,6 +81,7 @@ flowchart LR
 - Axios
 - React Router
 - Lucide React
+- Zustand
 
 ---
 
@@ -166,6 +167,28 @@ function SearchButton() {
     </button>
   );
 }
+```
+
+### Zustand
+
+```bash
+npm install zustand
+```
+
+여러 컴포넌트/페이지가 함께 쓰는 전역 상태를 관리하기 위한 라이브러리
+
+```ts
+import { create } from "zustand";
+
+interface CounterState {
+  value: number;
+  increment: () => void;
+}
+
+export const useCounterStore = create<CounterState>((set) => ({
+  value: 0,
+  increment: () => set((state) => ({ value: state.value + 1 })),
+}));
 ```
 
 ### React Router

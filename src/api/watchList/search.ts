@@ -57,3 +57,20 @@ export async function watchListSearch({
     throw e
   }
 }
+
+// 관심목록 전체 페이지를 한 번에 조회
+export async function fetchAllWatchListStocks(size = 100): Promise<WatchListStock[]> {
+  const firstPage = await watchListSearch({ page: 0, size })
+
+  if (firstPage.totalPages <= 1) {
+    return firstPage.content
+  }
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: firstPage.totalPages - 1 }, (_, index) =>
+      watchListSearch({ page: index + 1, size }),
+    ),
+  )
+
+  return [firstPage.content, ...remainingPages.map((page) => page.content)].flat()
+}

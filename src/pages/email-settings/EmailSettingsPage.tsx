@@ -23,30 +23,31 @@ const DISPATCH_TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
 // 이메일 설정 목록 스켈레톤
 function EmailSettingsSkeleton() {
   return (
-    <ul
-      className={`${styles['email-settings-page__list']} ${styles['email-settings-page__skeleton']}`}
-      aria-label="이메일 설정을 불러오는 중"
-      aria-busy="true"
-    >
-      <li
-        className={`${styles['email-settings-page__item']} ${mediaStyles['email-settings-page__item']}`}
-      >
-        <span className={styles['email-settings-page__skeleton-text']}>
-          <span></span>
-          <span></span>
-        </span>
-        <span className={styles['email-settings-page__skeleton-toggle']}></span>
-      </li>
-      <li
-        className={`${styles['email-settings-page__item']} ${mediaStyles['email-settings-page__item']}`}
-      >
-        <span className={styles['email-settings-page__skeleton-text']}>
-          <span></span>
-          <span></span>
-        </span>
-        <span className={styles['email-settings-page__skeleton-select']}></span>
-      </li>
-    </ul>
+    <>
+      <p role="status" className={styles['email-settings-page__sr-only']}>
+        이메일 설정을 불러오는 중
+      </p>
+      <ul className={`${styles['email-settings-page__list']}`} aria-hidden="true">
+        <li
+          className={`${styles['email-settings-page__item']} ${mediaStyles['email-settings-page__item']}`}
+        >
+          <span className={styles['email-settings-page__skeleton-text']}>
+            <span></span>
+            <span></span>
+          </span>
+          <span className={styles['email-settings-page__skeleton-toggle']}></span>
+        </li>
+        <li
+          className={`${styles['email-settings-page__item']} ${mediaStyles['email-settings-page__item']}`}
+        >
+          <span className={styles['email-settings-page__skeleton-text']}>
+            <span></span>
+            <span></span>
+          </span>
+          <span className={styles['email-settings-page__skeleton-select']}></span>
+        </li>
+      </ul>
+    </>
   )
 }
 
@@ -124,15 +125,11 @@ function EmailSettingsPage() {
   }
 
   return (
-    <main
-      id="emailSettingsPage"
-      className={`${styles['email-settings-page']} ${mediaStyles['email-settings-page']}`}
-    >
-      <section className={styles['email-settings-page__heading']}>
-        <p className={styles['email-settings-page__eyebrow']}>EMAIL SETTINGS</p>
+    <main id="emailSettingsPage" className={styles['email-settings-page']}>
+      <hgroup className={styles['email-settings-page__heading']}>
         <h1>이메일 설정</h1>
         <p>뉴스 메일 수신 여부와 받을 시간을 설정하세요.</p>
-      </section>
+      </hgroup>
 
       {errorMessage && (
         <p className={styles['email-settings-page__notice']} role="alert">
@@ -148,13 +145,14 @@ function EmailSettingsPage() {
             <li
               className={`${styles['email-settings-page__item']} ${mediaStyles['email-settings-page__item']}`}
             >
-              <div className={styles['email-settings-page__item-text']}>
+              <p className={styles['email-settings-page__item-text']}>
                 <strong>뉴스 메일 받기</strong>
                 <span>매일 관심종목 뉴스 를 이메일로 받습니다.</span>
-              </div>
+              </p>
               <label className={styles['email-settings-page__toggle']}>
                 <input
                   type="checkbox"
+                  role="switch"
                   checked={mailEnabled}
                   disabled={!isSettingsLoaded || isSaving}
                   onChange={handleToggleMailEnabled}
@@ -169,15 +167,16 @@ function EmailSettingsPage() {
             <li
               className={`${styles['email-settings-page__item']} ${mediaStyles['email-settings-page__item']}`}
             >
-              <div className={styles['email-settings-page__item-text']}>
+              <p className={styles['email-settings-page__item-text']}>
                 <strong>메일 받을 시간</strong>
-                <span>30분 단위로 받고 싶은 시간을 선택하세요.</span>
-              </div>
+                <span id="dispatchTimeHint">30분 단위로 받고 싶은 시간을 선택하세요.</span>
+              </p>
               <label
                 className={`${styles['email-settings-page__time-select']} ${mediaStyles['email-settings-page__time-select']}`}
               >
                 <span className={styles['email-settings-page__sr-only']}>메일 받을 시간 선택</span>
                 <select
+                  aria-describedby="dispatchTimeHint"
                   value={dispatchTime}
                   disabled={!isSettingsLoaded || !mailEnabled || isSaving}
                   aria-busy={!isSettingsLoaded}
@@ -213,7 +212,8 @@ function EmailSettingsPage() {
             </li>
           </ul>
 
-          <section className={styles['email-settings-page__save-area']}>
+          <fieldset className={styles['email-settings-page__save-area']}>
+            <legend className={styles['email-settings-page__sr-only']}>이메일 설정 저장</legend>
             {saveStatus && (
               <p
                 className={`${styles['email-settings-page__save-notice']} ${
@@ -229,13 +229,13 @@ function EmailSettingsPage() {
             )}
             <button
               type="button"
-              className={`${styles['email-settings-page__save-button']} ${mediaStyles['email-settings-page__save-button']}`}
+              className={styles['email-settings-page__save-button']}
               disabled={isSaving}
               onClick={handleSaveSettings}
             >
               {isSaving ? <LoadingSpinner label="저장 중"></LoadingSpinner> : '저장'}
             </button>
-          </section>
+          </fieldset>
         </>
       )}
     </main>

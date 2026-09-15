@@ -8,7 +8,7 @@ interface LoadingSpinnerProps {
 export default function LoadingSpinner({ label = '처리 중' }: LoadingSpinnerProps) {
   return (
     <span className={styles['loading-spinner']} role="status">
-      <LoaderCircle aria-hidden="true" />
+      <LoaderCircle aria-hidden="true"></LoaderCircle>
       <span>{label}</span>
     </span>
   )

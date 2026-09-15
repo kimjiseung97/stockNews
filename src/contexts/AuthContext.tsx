@@ -1,28 +1,14 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { logout } from '@/api/login/login'
+import { useAuthStore } from '@/store/authStore'
 
 const USER_EMAIL_KEY = 'stockNews.userEmail'
 const SESSION_EXPIRES_AT_KEY = 'stockNews.sessionExpiresAt'
 const SESSION_DURATION = 30 * 60 * 1000
 
-interface AuthContextValue {
-  email: string | null
-  setLoggedInUser: (email: string) => void
-  clearLoggedInUser: () => void
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null)
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [email, setEmail] = useState<string | null>(() => localStorage.getItem(USER_EMAIL_KEY))
+  const email = useAuthStore((state) => state.email)
+  const setEmail = useAuthStore((state) => state.setEmail)
   const isSessionExpiring = useRef(false)
 
   // 로그인 후 30분이 지나면 세션 종료
@@ -81,34 +67,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.clearInterval(sessionTimer)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [email])
+  }, [email, setEmail])
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      email,
-      setLoggedInUser: (userEmail) => {
-        localStorage.setItem(USER_EMAIL_KEY, userEmail)
-        localStorage.setItem(SESSION_EXPIRES_AT_KEY, String(Date.now() + SESSION_DURATION))
-        setEmail(userEmail)
-      },
-      clearLoggedInUser: () => {
-        localStorage.removeItem(USER_EMAIL_KEY)
-        localStorage.removeItem(SESSION_EXPIRES_AT_KEY)
-        setEmail(null)
-      },
-    }),
-    [email],
-  )
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <>{children}</>
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const email = useAuthStore((state) => state.email)
+  const setEmail = useAuthStore((state) => state.setEmail)
 
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider')
-  }
+  const setLoggedInUser = useCallback(
+    (userEmail: string) => {
+      localStorage.setItem(USER_EMAIL_KEY, userEmail)
+      localStorage.setItem(SESSION_EXPIRES_AT_KEY, String(Date.now() + SESSION_DURATION))
+      setEmail(userEmail)
+    },
+    [setEmail],
+  )
 
-  return context
+  const clearLoggedInUser = useCallback(() => {
+    localStorage.removeItem(USER_EMAIL_KEY)
+    localStorage.removeItem(SESSION_EXPIRES_AT_KEY)
+    setEmail(null)
+  }, [setEmail])
+
+  return { email, setLoggedInUser, clearLoggedInUser }
 }

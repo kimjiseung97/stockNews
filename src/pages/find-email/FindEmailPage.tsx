@@ -116,18 +116,19 @@ function FindEmailPage() {
           로그인으로 돌아가기
         </Link>
 
-        <section className={styles['find-email-page__heading']}>
+        <hgroup className={styles['find-email-page__heading']}>
           <h1>{step === 3 ? '아이디 찾기 완료' : '아이디 찾기'}</h1>
           <p>
             {step === 3
               ? '가입 시 등록한 복구용 이메일로 인증이 완료되었습니다.'
               : '가입 시 등록한 복구용 이메일로 인증합니다.'}
           </p>
-        </section>
+        </hgroup>
 
         {warningMessage ? (
           <p
             className={`${styles['find-email-page__notice']} ${styles['find-email-page__notice-warning']}`}
+            id="findEmailError"
             role="alert"
           >
             <img src={warningIcon} alt=""></img>
@@ -150,11 +151,15 @@ function FindEmailPage() {
 
         {step === 1 && (
           <form className={styles['find-email-page__form']} onSubmit={handleEmailSubmit} noValidate>
-            <label className={styles['find-email-page__field']}>
-              <span>복구용 이메일</span>
+            <p className={styles['find-email-page__field']}>
+              <label htmlFor="find-email-recovery-email">복구용 이메일</label>
               <span className={styles['find-email-page__input-box']}>
                 <input
                   id="find-email-recovery-email"
+                  aria-describedby={
+                    `findEmailRecoveryHint ${warningMessage ? 'findEmailError' : ''}`.trim() ||
+                    undefined
+                  }
                   type="email"
                   name="recoveryEmail"
                   value={recoveryEmail}
@@ -169,15 +174,21 @@ function FindEmailPage() {
                 />
                 <Mail aria-hidden="true"></Mail>
               </span>
-              <small>회원가입 시 입력한 복구용 이메일을 입력하세요.</small>
-            </label>
+              <small id="findEmailRecoveryHint">
+                회원가입 시 입력한 복구용 이메일을 입력하세요.
+              </small>
+            </p>
 
             <button
               type="submit"
               className={styles['find-email-page__submit']}
               disabled={isSubmitting}
             >
-              {showSubmitting ? <LoadingSpinner label="발송 중" /> : '인증 코드 발송'}
+              {showSubmitting ? (
+                <LoadingSpinner label="발송 중"></LoadingSpinner>
+              ) : (
+                '인증 코드 발송'
+              )}
             </button>
           </form>
         )}
@@ -189,12 +200,19 @@ function FindEmailPage() {
               onSubmit={handleCodeSubmit}
               noValidate
             >
-              <label className={styles['find-email-page__field']}>
-                <span>인증 코드</span>
+              <p className={styles['find-email-page__field']}>
+                <label htmlFor="find-email-verification-code">인증 코드</label>
                 <span className={styles['find-email-page__input-box']}>
                   <input
                     id="find-email-verification-code"
-                    type="number"
+                    aria-describedby={
+                      `findEmailCodeHint ${warningMessage ? 'findEmailError' : ''}`.trim() ||
+                      undefined
+                    }
+                    type="text"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
                     name="verificationCode"
                     value={verificationCode}
                     placeholder="6자리 코드 입력"
@@ -206,19 +224,15 @@ function FindEmailPage() {
                     required
                   />
                 </span>
-                <small>이메일에서 받은 코드를 입력하세요.</small>
-              </label>
+                <small id="findEmailCodeHint">이메일에서 받은 코드를 입력하세요.</small>
+              </p>
 
               <button
                 type="submit"
                 className={styles['find-email-page__submit']}
                 disabled={isSubmitting}
               >
-                {showSubmitting ? (
-                  <LoadingSpinner label="확인 중"></LoadingSpinner>
-                ) : (
-                  '아이디 확인'
-                )}
+                {showSubmitting ? <LoadingSpinner label="확인 중"></LoadingSpinner> : '아이디 확인'}
               </button>
               <button
                 type="button"
@@ -248,11 +262,11 @@ function FindEmailPage() {
           </>
         )}
 
-        <section className={styles['find-email-page__divider']} aria-hidden="true">
+        <p className={styles['find-email-page__divider']} aria-hidden="true">
           <span></span>
           <em>또는</em>
           <span></span>
-        </section>
+        </p>
 
         <Link className={styles['find-email-page__forgot-password']} to="/find-password">
           비밀번호 찾기

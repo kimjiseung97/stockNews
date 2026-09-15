@@ -16,9 +16,3 @@
     transform: rotate(360deg);
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .loading-spinner svg {
-    animation-duration: 1.6s;
-  }
-}

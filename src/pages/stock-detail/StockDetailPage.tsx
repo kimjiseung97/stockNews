@@ -4,16 +4,18 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { watchListDetail, type WatchListDetail } from '@/api/watchList/detail'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
+import { useAuth } from '@/contexts/AuthContext'
 import styles from '@/assets/styles/pages/stock-detail/stockDetail.module.scss'
-import mediaStyles from '@/assets/styles/pages/stock-detail/stockDetailMedia.module.scss'
 
 interface StockDetailLocationState {
   ticker?: string
   displayName?: string
   name?: string
+  returnTo?: string
 }
 
 function StockDetailPage() {
+  const { email } = useAuth()
   const [searchParams] = useSearchParams()
   const limit = searchParams.get('limit')
   const location = useLocation()
@@ -55,30 +57,34 @@ function StockDetailPage() {
   }
 
   return (
-    <main
-      id="stockDetailPage"
-      className={`${styles['stock-detail-page']} ${mediaStyles['stock-detail-page']}`}
-    >
-      <Link className={styles['stock-detail-page__back']} to="/watchlist">
+    <main id="stockDetailPage" className={styles['stock-detail-page']}>
+      <Link
+        className={styles['stock-detail-page__back']}
+        to={email ? '/watchlist' : stockInformation?.returnTo || '/stock-search'}
+      >
         <ArrowLeft aria-hidden="true"></ArrowLeft>
-        내 관심종목으로 돌아가기
+        {email ? '내 관심종목으로 돌아가기' : '종목 검색으로 돌아가기'}
       </Link>
 
+      {!detail && <h1 className={styles['stock-detail-page__sr-only']}>기업 상세정보</h1>}
+
       {isLoading ? (
-        <section className={styles['stock-detail-page__status']}>
+        <p className={styles['stock-detail-page__status']}>
           <LoadingSpinner label="상세정보를 불러오는 중"></LoadingSpinner>
-        </section>
+        </p>
       ) : errorMessage ? (
         <p className={styles['stock-detail-page__error']} role="alert">
           {errorMessage}
         </p>
       ) : detail ? (
-        <article className={styles['stock-detail-page__card']}>
-          <section className={styles['stock-detail-page__heading']}>
-            <p>{stockInformation?.ticker || `STOCK #${detail.stockId}`}</p>
-            <h1>{stockInformation?.displayName || '기업 상세정보'}</h1>
-            {stockInformation?.name && <span>{stockInformation.name}</span>}
-          </section>
+        <>
+          <hgroup className={styles['stock-detail-page__heading']}>
+            <span className={styles['stock-detail-page__title-group']}>
+              <h1>{stockInformation?.displayName || '기업 상세정보'}</h1>
+              <p>{stockInformation?.ticker || `STOCK #${detail.stockId}`}</p>
+            </span>
+            {stockInformation?.name && <p>{stockInformation.name}</p>}
+          </hgroup>
 
           <section className={styles['stock-detail-page__overview']}>
             <h2>기업 소개</h2>
@@ -114,12 +120,13 @@ function StockDetailPage() {
               href={detail.homepageUrl}
               target="_blank"
               rel="noreferrer"
+              aria-label="기업 홈페이지 방문"
             >
               기업 홈페이지 방문
               <ExternalLink aria-hidden="true"></ExternalLink>
             </a>
           )}
-        </article>
+        </>
       ) : null}
     </main>
   )

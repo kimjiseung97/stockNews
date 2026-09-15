@@ -39,24 +39,25 @@ function LoginPage() {
   return (
     <main id="loginPage" className={styles['login-page']}>
       <article className={styles['login-page__card']}>
-        <section className={styles['login-page__heading']}>
+        <hgroup className={styles['login-page__heading']}>
           <h1>로그인</h1>
           <p>관심 종목의 뉴스를 지금 바로 확인하세요.</p>
-        </section>
+        </hgroup>
 
         {warningMessage && (
-          <p className={styles['login-page__notice']} role="alert">
+          <p id="loginError" className={styles['login-page__notice']} role="alert">
             <img src={warningIcon} alt=""></img>
             {warningMessage}
           </p>
         )}
 
         <form className={styles['login-page__form']} onSubmit={handleSubmit}>
-          <label className={styles['login-page__field']}>
-            <span>이메일</span>
+          <p className={styles['login-page__field']}>
+            <label htmlFor="login-email">이메일</label>
             <span className={styles['login-page__input-box']}>
               <input
                 id="login-email"
+                aria-describedby={warningMessage ? 'loginError' : undefined}
                 type="email"
                 name="email"
                 value={email}
@@ -68,13 +69,14 @@ function LoginPage() {
               />
               <Mail aria-hidden="true"></Mail>
             </span>
-          </label>
+          </p>
 
-          <label className={styles['login-page__field']}>
-            <span>비밀번호</span>
+          <p className={styles['login-page__field']}>
+            <label htmlFor="login-password">비밀번호</label>
             <span className={styles['login-page__input-box']}>
               <input
                 id="login-password"
+                aria-describedby={warningMessage ? 'loginError' : undefined}
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
                 value={password}
@@ -90,6 +92,7 @@ function LoginPage() {
                 className={styles['login-page__password-toggle']}
                 onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                 aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
+                aria-controls="login-password"
               >
                 {isPasswordVisible ? (
                   <EyeOff aria-hidden="true"></EyeOff>
@@ -98,7 +101,7 @@ function LoginPage() {
                 )}
               </button>
             </span>
-          </label>
+          </p>
 
           <button
             type="button"
@@ -109,15 +112,15 @@ function LoginPage() {
           </button>
 
           <button type="submit" className={styles['login-page__submit']} disabled={isSubmitting}>
-            {showSubmitting ? <LoadingSpinner label="로그인 중" /> : '로그인'}
+            {showSubmitting ? <LoadingSpinner label="로그인 중"></LoadingSpinner> : '로그인'}
           </button>
         </form>
 
-        <section className={styles['login-page__divider']} aria-hidden="true">
+        <p className={styles['login-page__divider']} aria-hidden="true">
           <span></span>
           <em>또는</em>
           <span></span>
-        </section>
+        </p>
 
         <Link className={styles['login-page__sign-up']} to="/sign-up">
           회원가입

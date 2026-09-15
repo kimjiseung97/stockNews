@@ -1,3 +1,7 @@
+.list-skeleton__label {
+  @include visually-hidden;
+}
+
 .list-skeleton {
   @include flex-col(null, null, 10px);
   width: 100%;

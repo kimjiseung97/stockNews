@@ -12,33 +12,8 @@
     }
 
     .header-container__brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      width: fit-content;
-      height: auto;
-      color: $color-text-primary;
-
       img {
         width: 35px;
-      }
-
-      span {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        color: $color-on-primary;
-        background-color: $main-color;
-        border-radius: 11px;
-        font-weight: 700;
-      }
-
-      strong {
-        font-size: 20px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
       }
     }
 
@@ -79,13 +54,9 @@
     }
 
     .header-container__email {
-      max-width: 240px;
-      overflow: hidden;
       color: $color-account-text;
       font-size: 14px;
       font-weight: 600;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
     .header-container__logout {

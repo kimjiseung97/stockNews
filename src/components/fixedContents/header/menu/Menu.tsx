@@ -1,9 +1,11 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import styles from '@/assets/styles/fixedContents/header/menu.module.scss'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Menu() {
   const { email } = useAuth()
+  const { pathname } = useLocation()
+  const isWatchlistActive = pathname === '/watchlist' || pathname === '/stocks/detail'
 
   return (
     <nav className={styles['header-menu']} aria-label="주요 메뉴">
@@ -29,7 +31,7 @@ export default function Menu() {
           <>
             <li>
               <NavLink
-                className={({ isActive }) => (isActive ? styles['header-menu__active'] : undefined)}
+                className={isWatchlistActive ? styles['header-menu__active'] : undefined}
                 to="/watchlist"
                 end
               >

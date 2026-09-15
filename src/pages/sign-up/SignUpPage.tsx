@@ -5,6 +5,7 @@ import { signUp } from '@/api/sign/sign'
 import { duplicateCheck } from '@/api/sign/duplicateCheck'
 import { emailAuth } from '@/api/emailAuth/emailAuth'
 import styles from '@/assets/styles/pages/sign-up/signUp.module.scss'
+import mediaStyles from '@/assets/styles/pages/sign-up/signUpMedia.module.scss'
 import { useStableLoading } from '@/hooks/useStableLoading'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 
@@ -178,15 +179,17 @@ function SignUpPage() {
   return (
     <main id="signUpPage" className={styles['sign-up-page']}>
       <article className={styles['sign-up-page__card']}>
-        <section className={styles['sign-up-page__heading']}>
+        <hgroup className={styles['sign-up-page__heading']}>
           <h1>회원가입</h1>
           <p>계정을 만들고 관심 종목의 뉴스를 받아보세요.</p>
-        </section>
+        </hgroup>
 
         <form className={styles['sign-up-page__form']} onSubmit={handleSubmit} noValidate>
-          <label className={styles['sign-up-page__field']}>
-            <span>이메일</span>
-            <span className={styles['sign-up-page__email-row']}>
+          <p className={styles['sign-up-page__field']}>
+            <label htmlFor="sign-up-email">이메일</label>
+            <span
+              className={`${styles['sign-up-page__email-row']} ${mediaStyles['sign-up-page__email-row']}`}
+            >
               <span className={styles['sign-up-page__input-box']}>
                 <input
                   id="sign-up-email"
@@ -202,26 +205,28 @@ function SignUpPage() {
               </span>
               <button
                 type="button"
-                tabIndex={-1}
-                className={styles['sign-up-page__verify']}
+                className={`${styles['sign-up-page__verify']} ${mediaStyles['sign-up-page__verify']}`}
                 onClick={handleDuplicateCheck}
-                aria-disabled={isEmailDuplicateChecked}
+                disabled={isEmailDuplicateChecked}
               >
                 {isEmailDuplicateChecked ? '확인완료' : '중복확인'}
               </button>
             </span>
-          </label>
+          </p>
 
           {isVerificationCodeVisible && (
-            <label className={styles['sign-up-page__field']}>
-              <span>인증코드</span>
-              <span className={styles['sign-up-page__email-row']}>
+            <p className={styles['sign-up-page__field']}>
+              <label htmlFor="sign-up-verification-code">인증코드</label>
+              <span
+                className={`${styles['sign-up-page__email-row']} ${mediaStyles['sign-up-page__email-row']}`}
+              >
                 <span className={styles['sign-up-page__input-box']}>
                   <input
                     id="sign-up-verification-code"
-                    type="number"
+                    type="text"
                     inputMode="numeric"
-                    pattern="[0-9]*"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
                     name="verificationCode"
                     value={verificationCode}
                     onChange={(event) => handleVerificationCodeChange(event.target.value)}
@@ -233,21 +238,22 @@ function SignUpPage() {
                 </span>
                 <button
                   type="button"
-                  className={styles['sign-up-page__verify']}
+                  className={`${styles['sign-up-page__verify']} ${mediaStyles['sign-up-page__verify']}`}
                   onClick={handleEmailAuth}
-                  aria-disabled={!isVerificationCodeSent || isEmailVerified}
+                  disabled={!isVerificationCodeSent || isEmailVerified}
                 >
                   {isEmailVerified ? '인증완료' : '확인'}
                 </button>
               </span>
-            </label>
+            </p>
           )}
 
-          <label className={styles['sign-up-page__field']}>
-            <span>비밀번호</span>
+          <p className={styles['sign-up-page__field']}>
+            <label htmlFor="sign-up-password">비밀번호</label>
             <span className={styles['sign-up-page__input-box']}>
               <input
                 id="sign-up-password"
+                aria-describedby="signUpPasswordHint"
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
                 value={passwordValue}
@@ -260,7 +266,6 @@ function SignUpPage() {
               />
               <button
                 type="button"
-                tabIndex={-1}
                 className={styles['sign-up-page__password-toggle']}
                 onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                 aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
@@ -272,14 +277,16 @@ function SignUpPage() {
                 )}
               </button>
             </span>
-            <small>영문, 숫자, 특수문자 포함 8~20자</small>
-          </label>
+            <small id="signUpPasswordHint">영문, 숫자, 특수문자 포함 8~20자</small>
+          </p>
 
-          <label className={styles['sign-up-page__field']}>
-            <span>비밀번호 확인</span>
+          <p className={styles['sign-up-page__field']}>
+            <label htmlFor="sign-up-password-confirm">비밀번호 확인</label>
             <span className={styles['sign-up-page__input-box']}>
               <input
                 id="sign-up-password-confirm"
+                aria-invalid={isPasswordMismatch}
+                aria-describedby={isPasswordMismatch ? 'signUpPasswordError' : undefined}
                 type={isPasswordConfirmVisible ? 'text' : 'password'}
                 name="passwordConfirm"
                 value={passwordConfirmValue}
@@ -292,7 +299,6 @@ function SignUpPage() {
               />
               <button
                 type="button"
-                tabIndex={-1}
                 className={styles['sign-up-page__password-toggle']}
                 onClick={() => setIsPasswordConfirmVisible(!isPasswordConfirmVisible)}
                 aria-label={
@@ -307,17 +313,23 @@ function SignUpPage() {
               </button>
             </span>
             {isPasswordMismatch && (
-              <small className={styles['sign-up-page__password-error']} role="alert">
+              <small
+                id="signUpPasswordError"
+                className={styles['sign-up-page__password-error']}
+                role="alert"
+              >
                 비밀번호가 일치하지 않습니다.
               </small>
             )}
-          </label>
+          </p>
 
-          <label className={styles['sign-up-page__field']}>
-            <span>복구 이메일</span>
+          <p className={styles['sign-up-page__field']}>
+            <label htmlFor="sign-up-recovery-email">복구 이메일</label>
             <span className={styles['sign-up-page__input-box']}>
               <input
                 id="sign-up-recovery-email"
+                aria-describedby="signUpRecoveryHint"
+                required
                 type="email"
                 name="recoveryEmail"
                 placeholder="비상 연락용 이메일"
@@ -326,27 +338,29 @@ function SignUpPage() {
               />
               <Mail aria-hidden="true"></Mail>
             </span>
-            <small>비밀번호 분실 시 복구 용도로 사용됩니다.</small>
-          </label>
+            <small id="signUpRecoveryHint">비밀번호 분실 시 복구 용도로 사용됩니다.</small>
+          </p>
 
           <button
             type="submit"
             className={styles['sign-up-page__submit']}
             disabled={isSubmitting || (isVerificationCodeSent && !isEmailVerified)}
           >
-            {showSubmitting
-              ? <LoadingSpinner label="가입 중" />
-              : isVerificationCodeSent && !isEmailVerified
-                ? '인증 대기중'
-                : '회원가입'}
+            {showSubmitting ? (
+              <LoadingSpinner label="가입 중"></LoadingSpinner>
+            ) : isVerificationCodeSent && !isEmailVerified ? (
+              '인증 대기중'
+            ) : (
+              '회원가입'
+            )}
           </button>
         </form>
 
-        <section className={styles['sign-up-page__divider']} aria-hidden="true">
+        <p className={styles['sign-up-page__divider']} aria-hidden="true">
           <span></span>
           <em>또는</em>
           <span></span>
-        </section>
+        </p>
 
         <Link className={styles['sign-up-page__login']} to="/login">
           로그인

@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import styles from '@/assets/styles/pages/home/home.module.scss'
 
 const startSteps = [
@@ -35,12 +34,6 @@ export default function StartGuide() {
           </li>
         ))}
       </ol>
-      <aside className={styles['home-page__guide-callout']}>
-        <p>
-          <strong>검색하고 담아두면 끝.</strong> 이후에는 StockNews가 새로운 소식을 정리해 전달합니다.
-        </p>
-        <Link to="/stock-search">관심 종목 등록하기 →</Link>
-      </aside>
     </section>
   )
 }

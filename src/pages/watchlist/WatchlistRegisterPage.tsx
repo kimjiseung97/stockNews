@@ -1,15 +1,17 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Check, Plus, Search, Trash2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { stockSearch, type Stock, type StockSearchResponse } from '@/api/stockSearch/stockSearch'
 import { watchListRegist } from '@/api/watchList/regist'
 import { watchListRemove } from '@/api/watchList/remove'
-import { watchListSearch, type WatchListStock } from '@/api/watchList/search'
+import type { WatchListStock } from '@/api/watchList/search'
 import ListSkeleton from '@/components/common/ListSkeleton'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import completeIcon from '@/assets/images/icons/complete.png'
 import styles from '@/assets/styles/pages/watchlist/watchlistRegister.module.scss'
 import mediaStyles from '@/assets/styles/pages/watchlist/watchlistRegisterMedia.module.scss'
+import { useWatchlistStore } from '@/store/watchlistStore'
+import StockNameBadge from '@/components/common/StockNameBadge'
 
 const PAGE_SIZE = 10
 
@@ -22,7 +24,10 @@ function WatchlistRegisterPage() {
   const [searchedWatchListKeyword, setSearchedWatchListKeyword] = useState(koreaName)
   const [watchListCurrentPage, setWatchListCurrentPage] = useState(0)
   const [searchResult, setSearchResult] = useState<StockSearchResponse | null>(null)
-  const [watchList, setWatchList] = useState<WatchListStock[]>([])
+  const watchList = useWatchlistStore((state) => state.stocks)
+  const setStocks = useWatchlistStore((state) => state.setStocks)
+  const fetchWatchList = useWatchlistStore((state) => state.fetchWatchList)
+  const refreshWatchList = useWatchlistStore((state) => state.refreshWatchList)
   const [isSearching, setIsSearching] = useState(true)
   const [isWatchListLoading, setIsWatchListLoading] = useState(true)
   const [processingStockId, setProcessingStockId] = useState<number | null>(null)
@@ -32,33 +37,20 @@ function WatchlistRegisterPage() {
   const [message, setMessage] = useState('')
   const [activeTab, setActiveTab] = useState<'search' | 'registered'>('search')
 
-  const loadWatchList = async () => {
-    setIsWatchListLoading(true)
+  const loadWatchList = useCallback(
+    async (forceRefresh = false) => {
+      setIsWatchListLoading(true)
 
-    try {
-      const response = await watchListSearch()
-      console.log('등록된 관심 종목 조회 응답', response)
-
-      if (response.totalPages <= 1) {
-        setWatchList(response.content)
-        return
+      try {
+        await (forceRefresh ? refreshWatchList() : fetchWatchList())
+      } catch {
+        setMessage('관심종목 목록을 불러오지 못했습니다.')
+      } finally {
+        setIsWatchListLoading(false)
       }
-
-      const remainingResponses = await Promise.all(
-        Array.from({ length: response.totalPages - 1 }, (_, index) =>
-          watchListSearch({ page: index + 1, size: response.size }),
-        ),
-      )
-      setWatchList([
-        ...response.content,
-        ...remainingResponses.flatMap((remainingResponse) => remainingResponse.content),
-      ])
-    } catch {
-      setMessage('관심종목 목록을 불러오지 못했습니다.')
-    } finally {
-      setIsWatchListLoading(false)
-    }
-  }
+    },
+    [fetchWatchList, refreshWatchList],
+  )
 
   const loadStocks = async (searchKeyword: string, page: number) => {
     setIsSearching(true)
@@ -75,7 +67,7 @@ function WatchlistRegisterPage() {
 
   useEffect(() => {
     void loadWatchList()
-  }, [])
+  }, [loadWatchList])
 
   useEffect(() => {
     setKeyword(koreaName)
@@ -125,7 +117,7 @@ function WatchlistRegisterPage() {
 
     try {
       await watchListRegist({ stockIds: [stock.stockId] })
-      setWatchList((currentWatchList) =>
+      setStocks((currentWatchList) =>
         currentWatchList.some((watchListStock) => watchListStock.stockId === stock.stockId)
           ? currentWatchList
           : [...currentWatchList, { ...stock, id: stock.stockId }],
@@ -133,7 +125,7 @@ function WatchlistRegisterPage() {
       setWatchListKeyword('')
       setSearchedWatchListKeyword('')
       setWatchListCurrentPage(0)
-      await loadWatchList()
+      await loadWatchList(true)
       setSelectedSearchStockIds((currentStockIds) =>
         currentStockIds.filter((stockId) => stockId !== stock.stockId),
       )
@@ -158,7 +150,7 @@ function WatchlistRegisterPage() {
 
     try {
       await watchListRemove({ stockIds: [stock.stockId] })
-      setWatchList((currentWatchList) =>
+      setStocks((currentWatchList) =>
         currentWatchList.filter((watchListStock) => watchListStock.stockId !== stock.stockId),
       )
       setSelectedWatchListStockIds((currentStockIds) =>
@@ -196,7 +188,7 @@ function WatchlistRegisterPage() {
 
     try {
       await watchListRegist({ stockIds })
-      setWatchList((currentWatchList) => {
+      setStocks((currentWatchList) => {
         const currentStockIds = new Set(currentWatchList.map((stock) => stock.stockId))
         const newStocks = selectedStocks
           .filter((stock) => !currentStockIds.has(stock.stockId))
@@ -207,7 +199,7 @@ function WatchlistRegisterPage() {
       setWatchListKeyword('')
       setSearchedWatchListKeyword('')
       setWatchListCurrentPage(0)
-      await loadWatchList()
+      await loadWatchList(true)
       setSelectedSearchStockIds([])
       setMessage(`선택한 ${stockIds.length}개 종목을 등록했습니다.`)
     } catch {
@@ -240,10 +232,8 @@ function WatchlistRegisterPage() {
 
     try {
       await watchListRemove({ stockIds: selectedWatchListStockIds })
-      setWatchList((currentWatchList) =>
-        currentWatchList.filter(
-          (stock) => !selectedWatchListStockIds.includes(stock.stockId),
-        ),
+      setStocks((currentWatchList) =>
+        currentWatchList.filter((stock) => !selectedWatchListStockIds.includes(stock.stockId)),
       )
       setMessage(`선택한 ${selectedWatchListStockIds.length}개 종목을 삭제했습니다.`)
       setSelectedWatchListStockIds([])
@@ -270,7 +260,7 @@ function WatchlistRegisterPage() {
 
     try {
       await watchListRemove({ stockIds })
-      setWatchList([])
+      setStocks([])
       setSelectedWatchListStockIds([])
       setMessage(`등록된 관심종목 ${stockIds.length}개를 모두 삭제했습니다.`)
     } catch {
@@ -280,23 +270,37 @@ function WatchlistRegisterPage() {
     }
   }
 
-  const registeredStockIds = new Set(watchList.map((stock) => stock.stockId))
+  const registeredStockIds = useMemo(
+    () => new Set(watchList.map((stock) => stock.stockId)),
+    [watchList],
+  )
   const normalizedWatchListKeyword = searchedWatchListKeyword.toLowerCase()
-  const filteredWatchList = watchList.filter((stock) =>
-    [stock.ticker, stock.name, stock.koreanName]
-      .filter(Boolean)
-      .some((stockName) => stockName?.toLowerCase().includes(normalizedWatchListKeyword)),
+  const filteredWatchList = useMemo(
+    () =>
+      watchList.filter((stock) =>
+        [stock.ticker, stock.name, stock.koreanName]
+          .filter(Boolean)
+          .some((stockName) => stockName?.toLowerCase().includes(normalizedWatchListKeyword)),
+      ),
+    [watchList, normalizedWatchListKeyword],
   )
   const watchListPageSize = PAGE_SIZE
   const watchListTotalPages = Math.ceil(filteredWatchList.length / watchListPageSize)
-  const pagedWatchList = filteredWatchList.slice(
-    watchListCurrentPage * watchListPageSize,
-    (watchListCurrentPage + 1) * watchListPageSize,
+  const pagedWatchList = useMemo(
+    () =>
+      filteredWatchList.slice(
+        watchListCurrentPage * watchListPageSize,
+        (watchListCurrentPage + 1) * watchListPageSize,
+      ),
+    [filteredWatchList, watchListCurrentPage, watchListPageSize],
   )
-  const selectableSearchStockIds =
-    searchResult?.content
-      .filter((stock) => !registeredStockIds.has(stock.stockId))
-      .map((stock) => stock.stockId) ?? []
+  const selectableSearchStockIds = useMemo(
+    () =>
+      searchResult?.content
+        .filter((stock) => !registeredStockIds.has(stock.stockId))
+        .map((stock) => stock.stockId) ?? [],
+    [searchResult, registeredStockIds],
+  )
   const isAllSearchStocksSelected =
     selectableSearchStockIds.length > 0 &&
     selectableSearchStockIds.every((stockId) => selectedSearchStockIds.includes(stockId))
@@ -329,24 +333,48 @@ function WatchlistRegisterPage() {
     }
   }, [watchListCurrentPage, watchListTotalPages])
 
+  // 방향키로 관심종목 관리 탭 이동
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLParagraphElement>) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+
+    const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'))
+    const currentIndex = tabs.indexOf(document.activeElement as HTMLButtonElement)
+    let nextIndex = 0
+
+    if (event.key === 'End') nextIndex = tabs.length - 1
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length
+    if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length
+
+    event.preventDefault()
+    tabs[nextIndex]?.focus()
+    tabs[nextIndex]?.click()
+  }
+
   return (
     <main
       id="watchlistRegisterPage"
       className={`${styles['watchlist-register-page']} ${mediaStyles['watchlist-register-page']}`}
     >
-      <section className={styles['watchlist-register-page__heading']}>
-        <p className={styles['watchlist-register-page__eyebrow']}>MY WATCHLIST</p>
+      <hgroup className={styles['watchlist-register-page__heading']}>
         <h1>관심 종목 관리</h1>
         <p>관심 있는 종목을 검색해 등록하고, 더 이상 필요하지 않은 종목은 삭제하세요.</p>
-      </section>
+      </hgroup>
 
-      <nav className={styles['watchlist-register-page__tabs']} aria-label="관심 종목 관리 메뉴">
+      <p
+        className={styles['watchlist-register-page__tabs']}
+        role="tablist"
+        aria-label="관심 종목 관리 메뉴"
+        onKeyDown={handleTabKeyDown}
+      >
         <button
           type="button"
           className={`${styles['watchlist-register-page__tab']} ${
             activeTab === 'search' ? styles['watchlist-register-page__tab--active'] : ''
           }`}
-          aria-pressed={activeTab === 'search'}
+          id="watchlistSearchTab"
+          role="tab"
+          aria-selected={activeTab === 'search'}
+          tabIndex={activeTab === 'search' ? 0 : -1}
           aria-controls="watchlistSearchPanel"
           onClick={() => setActiveTab('search')}
         >
@@ -357,13 +385,16 @@ function WatchlistRegisterPage() {
           className={`${styles['watchlist-register-page__tab']} ${
             activeTab === 'registered' ? styles['watchlist-register-page__tab--active'] : ''
           }`}
-          aria-pressed={activeTab === 'registered'}
+          id="registeredWatchlistTab"
+          role="tab"
+          aria-selected={activeTab === 'registered'}
+          tabIndex={activeTab === 'registered' ? 0 : -1}
           aria-controls="registeredWatchlistPanel"
           onClick={() => setActiveTab('registered')}
         >
           등록된 관심 종목
         </button>
-      </nav>
+      </p>
 
       {message && (
         <p className={styles['watchlist-register-page__notice-success']} role="status">
@@ -372,16 +403,17 @@ function WatchlistRegisterPage() {
         </p>
       )}
 
-      <section className={styles['watchlist-register-page__contents']}>
-        <article
+      <>
+        <section
           id="watchlistSearchPanel"
+          role="tabpanel"
+          aria-labelledby="watchlistSearchTab"
           className={styles['watchlist-register-page__panel']}
           hidden={activeTab !== 'search'}
         >
-          <section className={styles['watchlist-register-page__panel-heading']}>
-            <h2>관심 종목 검색</h2>
-            <strong>{searchResult?.totalElements.toLocaleString() ?? 0}개</strong>
-          </section>
+          <h2 className={styles['watchlist-register-page__panel-heading']}>
+            관심 종목 검색 <strong>{searchResult?.totalElements.toLocaleString() ?? 0}개</strong>
+          </h2>
           <form
             className={styles['watchlist-register-page__search-form']}
             onSubmit={handleSearchSubmit}
@@ -390,7 +422,6 @@ function WatchlistRegisterPage() {
               <Search aria-hidden="true"></Search>
               <span className={styles['watchlist-register-page__sr-only']}>기업명 또는 티커</span>
               <input
-                type="search"
                 value={keyword}
                 placeholder="예: 엔비디아, NVDA"
                 maxLength={100}
@@ -405,14 +436,14 @@ function WatchlistRegisterPage() {
             </button>
           </form>
 
-          <section className={styles['watchlist-register-page__result']}>
+          <>
             {isSearching ? (
               <ListSkeleton count={6} label="전체 종목을 불러오는 중입니다."></ListSkeleton>
             ) : searchResult && searchResult.content.length === 0 && !isSearching ? (
               <p className={styles['watchlist-register-page__empty']}>검색 결과가 없습니다.</p>
             ) : searchResult ? (
               <>
-                <section className={styles['watchlist-register-page__list-actions']}>
+                <p className={styles['watchlist-register-page__list-actions']}>
                   <label className={styles['watchlist-register-page__select-all']}>
                     <input
                       type="checkbox"
@@ -437,7 +468,7 @@ function WatchlistRegisterPage() {
                       `선택 등록 (${selectedSearchStockIds.length})`
                     )}
                   </button>
-                </section>
+                </p>
                 <ul className={styles['watchlist-register-page__list']}>
                   {searchResult.content.map((stock) => {
                     const isRegistered = registeredStockIds.has(stock.stockId)
@@ -459,18 +490,16 @@ function WatchlistRegisterPage() {
                             {stock.koreanName || stock.name} 선택
                           </span>
                         </label>
-                        <span className={styles['watchlist-register-page__ticker']}>
-                          {stock.ticker}
-                        </span>
-                        <span className={styles['watchlist-register-page__names']}>
-                          <strong>{stock.koreanName || stock.name}</strong>
-                          {stock.koreanName && <small>{stock.name}</small>}
-                        </span>
+                        <StockNameBadge
+                          ticker={stock.ticker}
+                          displayName={stock.koreanName || stock.name}
+                          secondaryName={stock.koreanName ? stock.name : undefined}
+                        ></StockNameBadge>
                         <button
                           type="button"
                           className={`${styles['watchlist-register-page__register-button']} ${mediaStyles['watchlist-register-page__register-button']}`}
                           disabled={isRegistered || isProcessing || isBulkProcessing}
-                          aria-label={isRegistered ? '등록됨' : isProcessing ? '등록 중' : '등록'}
+                          aria-label={`${stock.koreanName || stock.name} ${isRegistered ? '등록됨' : isProcessing ? '등록 중' : '등록'}`}
                           onClick={() => void handleRegister(stock)}
                         >
                           {isRegistered ? (
@@ -530,18 +559,19 @@ function WatchlistRegisterPage() {
                 )}
               </>
             ) : null}
-          </section>
-        </article>
+          </>
+        </section>
 
-        <article
+        <section
           id="registeredWatchlistPanel"
+          role="tabpanel"
+          aria-labelledby="registeredWatchlistTab"
           className={styles['watchlist-register-page__panel']}
           hidden={activeTab !== 'registered'}
         >
-          <section className={styles['watchlist-register-page__panel-heading']}>
-            <h2>등록된 관심 종목</h2>
-            <strong>{watchList.length}</strong>
-          </section>
+          <h2 className={styles['watchlist-register-page__panel-heading']}>
+            등록된 관심 종목 <strong>{watchList.length}</strong>
+          </h2>
 
           <form
             className={styles['watchlist-register-page__search-form']}
@@ -553,7 +583,6 @@ function WatchlistRegisterPage() {
                 등록된 관심종목 기업명 또는 티커
               </span>
               <input
-                type="search"
                 value={watchListKeyword}
                 placeholder="등록된 관심종목 검색"
                 maxLength={100}
@@ -578,7 +607,7 @@ function WatchlistRegisterPage() {
             <p className={styles['watchlist-register-page__empty']}>검색 결과가 없습니다.</p>
           ) : (
             <>
-              <section className={styles['watchlist-register-page__list-actions']}>
+              <p className={styles['watchlist-register-page__list-actions']}>
                 <label className={styles['watchlist-register-page__select-all']}>
                   <input
                     type="checkbox"
@@ -609,7 +638,7 @@ function WatchlistRegisterPage() {
                     모두 삭제
                   </button>
                 </span>
-              </section>
+              </p>
               <ul className={styles['watchlist-register-page__list']}>
                 {pagedWatchList.map((stock) => (
                   <li key={stock.id} className={styles['watchlist-register-page__item']}>
@@ -627,13 +656,11 @@ function WatchlistRegisterPage() {
                         {stock.koreanName || stock.name} 선택
                       </span>
                     </label>
-                    <span className={styles['watchlist-register-page__ticker']}>
-                      {stock.ticker}
-                    </span>
-                    <span className={styles['watchlist-register-page__names']}>
-                      <strong>{stock.koreanName || stock.name}</strong>
-                      {stock.koreanName && <small>{stock.name}</small>}
-                    </span>
+                    <StockNameBadge
+                      ticker={stock.ticker}
+                      displayName={stock.koreanName || stock.name}
+                      secondaryName={stock.koreanName ? stock.name : undefined}
+                    ></StockNameBadge>
                     <button
                       type="button"
                       className={styles['watchlist-register-page__remove-button']}
@@ -673,8 +700,8 @@ function WatchlistRegisterPage() {
               )}
             </>
           )}
-        </article>
-      </section>
+        </section>
+      </>
     </main>
   )
 }

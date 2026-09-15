@@ -7,7 +7,6 @@
   line-height: 1;
   width: 100%;
   height: 40px;
-  cursor: pointer;
   transition:
     color 0.2s,
     border-color 0.2s,
@@ -34,12 +33,14 @@
   } @else if $size == full {
     max-width: none;
   } @else if $size == icon {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
     border-radius: 0;
   } @else if $size == text {
     width: auto;
     height: auto;
+    min-height: 24px;
     border-radius: 0;
     font-weight: 400;
   }

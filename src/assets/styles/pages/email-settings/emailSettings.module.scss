@@ -1,19 +1,10 @@
 :global(#emailSettingsPage) {
   &.email-settings-page {
-    margin: 0 auto;
     padding: 12px 0 40px;
     color: $color-text-primary;
 
     .email-settings-page__heading {
       margin-bottom: 36px;
-
-      .email-settings-page__eyebrow {
-        margin-bottom: 10px;
-        color: $color-text-muted;
-        font-size: 1.2rem;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-      }
 
       h1 {
         margin-bottom: 12px;
@@ -45,6 +36,9 @@
 
     .email-settings-page__item-text {
       @include flex-col(null, null, 5px);
+      flex: 1;
+      min-width: 0;
+      line-height: 1.5;
 
       strong {
         font-size: 1.4rem;
@@ -101,11 +95,12 @@
 
     .email-settings-page__save-area {
       @include flex-col(null, flex-end, 16px);
+      min-width: 0;
       margin-top: 24px;
     }
 
     .email-settings-page__save-notice {
-      @include notice($color-complete, 0);
+      @include notice($color-success-text, 0);
       align-self: stretch;
 
       img {
@@ -163,10 +158,6 @@
           }
         }
 
-        &:focus-visible + span {
-          box-shadow: 0 0 0 3px $color-focus-ring;
-        }
-
         &:disabled + span {
           cursor: default;
           opacity: 0.5;
@@ -178,7 +169,7 @@
         display: inline-block;
         width: 44px;
         height: 24px;
-        background-color: $color-input-border;
+        background-color: $color-text-secondary;
         border-radius: 999px;
         cursor: pointer;
         transition: background-color 0.2s;
@@ -211,7 +202,6 @@
         height: 17px;
         color: $color-text-label;
         pointer-events: none;
-        stroke-width: 2;
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
@@ -225,7 +215,6 @@
       }
 
       select {
-        min-width: auto;
         height: 42px;
         padding: 0 38px 0 14px;
         color: $color-input-text;
@@ -256,13 +245,7 @@
           cursor: $cursor-read-only;
         }
 
-        &:focus-visible {
-          border-color: $main-color;
-          box-shadow: 0 0 0 3px $color-focus-ring;
-        }
-
         option {
-          padding: 10px 14px;
           color: $color-input-text;
           background-color: $color-surface;
           font-size: 1.3rem;
@@ -285,19 +268,5 @@
 
   to {
     background-position: -200% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :global(#emailSettingsPage) {
-    .email-settings-page__time-select-icon {
-      transition: color 0.2s;
-    }
-
-    .email-settings-page__skeleton-text > span,
-    .email-settings-page__skeleton-toggle,
-    .email-settings-page__skeleton-select {
-      animation: none;
-    }
   }
 }

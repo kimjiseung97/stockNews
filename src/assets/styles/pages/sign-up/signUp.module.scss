@@ -6,7 +6,7 @@
     color: $color-text-primary;
 
     .sign-up-page__card {
-      width: 90%;
+      width: 100%;
       padding: 32px 28px 28px;
       background-color: $color-surface;
       border: 1px solid $color-border;
@@ -50,12 +50,12 @@
     }
 
     .sign-up-page__email-row {
-      @include grid(minmax(0, 1fr) 68px, null, 8px);
+      @include flex(null, null, 8px);
     }
 
     .sign-up-page__input-box {
       @include form-input-box(42px, 0 12px, 9px);
-
+      width: 100%;
       &:has(input:read-only) {
         background-color: $color-read-only-background;
         border-color: $color-read-only-border;
@@ -85,7 +85,6 @@
 
     .sign-up-page__verify {
       @include btn(s);
-      max-width: none;
       height: 42px;
       color: $color-on-primary;
       background-color: $main-color;
@@ -95,13 +94,9 @@
         background-color: $color-primary-hover;
       }
 
-      &[aria-disabled='true'] {
+      &:disabled {
         background-color: $color-disabled-background;
         cursor: $cursor-read-only;
-
-        &:hover {
-          background-color: $color-disabled-background;
-        }
       }
     }
 
@@ -133,10 +128,7 @@
       font-size: 1.3rem;
 
       a {
-        width: auto;
-        height: auto;
         color: $main-color;
-        font-size: 1.3rem;
         font-weight: 600;
       }
     }

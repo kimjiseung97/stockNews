@@ -1,17 +1,18 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Search } from 'lucide-react'
-import { useSearchParams } from 'react-router-dom'
+import { ArrowRight, Search } from 'lucide-react'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { ApiError } from '@/api/common/commonApi'
 import { stockSearch, type StockSearchResponse } from '@/api/stockSearch/stockSearch'
 import styles from '@/assets/styles/pages/stock-search/stockSearch.module.scss'
-import mediaStyles from '@/assets/styles/pages/stock-search/stockSearchMedia.module.scss'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import ListSkeleton from '@/components/common/ListSkeleton'
 import warningIcon from '@/assets/images/icons/x.png'
+import StockNameBadge from '@/components/common/StockNameBadge'
 
 const PAGE_SIZE = 10
 
 function StockSearchPage() {
+  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const koreaName = searchParams.get('koreaName')?.trim() ?? ''
   const [keyword, setKeyword] = useState(koreaName)
@@ -59,15 +60,11 @@ function StockSearchPage() {
   }
 
   return (
-    <main
-      id="stockSearchPage"
-      className={`${styles['stock-search-page']} ${mediaStyles['stock-search-page']}`}
-    >
-      <section className={styles['stock-search-page__heading']}>
-        <p className={styles['stock-search-page__eyebrow']}>STOCK SEARCH</p>
+    <main id="stockSearchPage" className={styles['stock-search-page']}>
+      <hgroup className={styles['stock-search-page__heading']}>
         <h1>종목 검색</h1>
         <p>미국 주식 티커 또는 기업명을 입력해 원하는 종목을 찾아보세요.</p>
-      </section>
+      </hgroup>
 
       <form className={styles['stock-search-page__search-form']} onSubmit={handleSubmit}>
         <label className={styles['stock-search-page__search-box']}>
@@ -75,7 +72,7 @@ function StockSearchPage() {
           <span className={styles['stock-search-page__sr-only']}>티커 또는 기업명</span>
           <input
             id="stock-search-query"
-            type="search"
+
             value={keyword}
             placeholder="예: 엔비디아, 애플"
             maxLength={100}
@@ -99,20 +96,34 @@ function StockSearchPage() {
         <ListSkeleton count={6} label="종목 목록을 불러오는 중입니다."></ListSkeleton>
       ) : result && result.content.length > 0 ? (
         <>
-          <p className={styles['stock-search-page__summary']}>
+          <p className={styles['stock-search-page__summary']} role="status">
             총&nbsp;<strong>{result.totalElements.toLocaleString()}</strong>&nbsp;개의 종목
           </p>
           <ul className={styles['stock-search-page__list']}>
             {result.content.map((stock) => (
-              <li className={styles['stock-search-page__item']} key={stock.id}>
-                <span className={styles['stock-search-page__ticker']}>{stock.ticker}</span>
-                <span className={styles['stock-search-page__names']}>
-                  <strong>{stock.koreanName || stock.name}</strong>
-                  {stock.koreanName && <small>{stock.name}</small>}
-                </span>
-                {stock.theme && (
-                  <span className={styles['stock-search-page__theme']}>{stock.theme}</span>
-                )}
+              <li key={stock.id}>
+                <Link
+                  aria-label={`${stock.ticker} ${stock.koreanName || stock.name} ${stock.koreanName ? stock.name : ''} ${stock.theme || ''}`}
+                  className={styles['stock-search-page__item']}
+                  to={`/stocks/detail?limit=${stock.stockId}`}
+                  state={{
+                    ticker: stock.ticker,
+                    displayName: stock.koreanName || stock.name,
+                    name: stock.koreanName ? stock.name : '',
+                    returnTo: `${location.pathname}${location.search}`,
+                  }}
+                >
+                  <StockNameBadge
+                    ticker={stock.ticker}
+                    displayName={stock.koreanName || stock.name}
+                    secondaryName={stock.koreanName ? stock.name : undefined}
+                    theme={stock.theme}
+                  ></StockNameBadge>
+                  <ArrowRight
+                    className={styles['stock-search-page__arrow']}
+                    aria-hidden="true"
+                  ></ArrowRight>
+                </Link>
               </li>
             ))}
           </ul>
@@ -141,7 +152,7 @@ function StockSearchPage() {
         </>
       ) : (
         !errorMessage && (
-          <p className={styles['stock-search-page__status']}>
+          <p className={styles['stock-search-page__status']} role="status">
             {searchedKeyword
               ? `“${searchedKeyword}”에 해당하는 종목이 없습니다.`
               : '등록된 종목이 없습니다.'}

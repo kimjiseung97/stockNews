@@ -1,0 +1,42 @@
+.stock-name-badge__ticker {
+  justify-self: start;
+  color: $color-text-label;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.stock-name-badge__names {
+  @include flex-col(null, null, 5px);
+  min-width: 0;
+
+  strong,
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  strong {
+    font-size: 1.35rem;
+    font-weight: 600;
+  }
+
+  small {
+    color: $color-text-muted;
+    font-size: 1.3rem;
+  }
+}
+
+.stock-name-badge__theme {
+  max-width: 110px;
+  padding: 4px 9px;
+  overflow: hidden;
+  color: $color-text-label;
+  background-color: $color-divider;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -11,6 +11,8 @@ import ListSkeleton from '@/components/common/ListSkeleton'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import styles from '@/assets/styles/pages/watchlist/watchlist.module.scss'
 import mediaStyles from '@/assets/styles/pages/watchlist/watchlistMedia.module.scss'
+import { useWatchlistStore } from '@/store/watchlistStore'
+import StockNameBadge from '@/components/common/StockNameBadge'
 
 const PAGE_SIZE = 10
 
@@ -24,35 +26,27 @@ function WatchlistPage() {
   const [currentPage, setCurrentPage] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+  const fetchWatchList = useWatchlistStore((state) => state.fetchWatchList)
 
   useEffect(() => {
     const loadWatchList = async () => {
       try {
         setIsLoading(true)
-        const response = await watchListSearch({
-          page: searchedKeyword ? 0 : currentPage,
-          size: PAGE_SIZE,
-        })
 
         if (!searchedKeyword) {
+          const response = await watchListSearch({ page: currentPage, size: PAGE_SIZE })
           setWatchList(response.content)
           setWatchListPage(response)
           return
         }
 
-        const remainingResponses = await Promise.all(
-          Array.from({ length: Math.max(response.totalPages - 1, 0) }, (_, index) =>
-            watchListSearch({ page: index + 1, size: PAGE_SIZE }),
-          ),
-        )
+        const allWatchList = await fetchWatchList()
         const normalizedKeyword = searchedKeyword.toLowerCase()
-        const searchedWatchList = [response, ...remainingResponses]
-          .flatMap((page) => page.content)
-          .filter((stock) =>
-            [stock.ticker, stock.name, stock.koreanName]
-              .filter(Boolean)
-              .some((stockName) => stockName?.toLowerCase().includes(normalizedKeyword)),
-          )
+        const searchedWatchList = allWatchList.filter((stock) =>
+          [stock.ticker, stock.name, stock.koreanName]
+            .filter(Boolean)
+            .some((stockName) => stockName?.toLowerCase().includes(normalizedKeyword)),
+        )
         const totalPages = Math.ceil(searchedWatchList.length / PAGE_SIZE)
         const pagedWatchList = searchedWatchList.slice(
           currentPage * PAGE_SIZE,
@@ -61,7 +55,6 @@ function WatchlistPage() {
 
         setWatchList(pagedWatchList)
         setWatchListPage({
-          ...response,
           content: pagedWatchList,
           totalPages,
           totalElements: searchedWatchList.length,
@@ -82,7 +75,7 @@ function WatchlistPage() {
     }
 
     void loadWatchList()
-  }, [currentPage, searchedKeyword])
+  }, [currentPage, searchedKeyword, fetchWatchList])
 
   useEffect(() => {
     setKeyword(koreaName)
@@ -116,18 +109,16 @@ function WatchlistPage() {
       id="watchlistPage"
       className={`${styles['watchlist-page']} ${mediaStyles['watchlist-page']}`}
     >
-      <section className={styles['watchlist-page__heading']}>
-        <p className={styles['watchlist-page__eyebrow']}>MY WATCHLIST</p>
+      <hgroup className={styles['watchlist-page__heading']}>
         <h1>내 관심종목</h1>
         <p>관심종목을 선택해 기업 소개와 기본정보를 확인하세요.</p>
-      </section>
+      </hgroup>
 
       <form className={styles['watchlist-page__search-form']} onSubmit={handleSearchSubmit}>
         <label className={styles['watchlist-page__search-box']}>
           <Search aria-hidden="true"></Search>
           <span className={styles['watchlist-page__sr-only']}>기업명 또는 티커</span>
           <input
-            type="search"
             value={keyword}
             placeholder="관심종목에서 검색"
             maxLength={100}
@@ -155,14 +146,18 @@ function WatchlistPage() {
           <Link to="/watchlist/register">관심종목 추가하기</Link>
         </section>
       ) : filteredWatchList.length === 0 ? (
-        <p className={styles['watchlist-page__status']}>
+        <p className={styles['watchlist-page__status']} role="status">
           “{searchedKeyword}”에 해당하는 관심종목이 없습니다.
         </p>
       ) : (
-        <section className={styles['watchlist-page__result']}>
-          <p className={styles['watchlist-page__summary']}>
+        <section aria-labelledby="watchlistResultTitle">
+          <h2
+            id="watchlistResultTitle"
+            className={styles['watchlist-page__summary']}
+            aria-live="polite"
+          >
             관심종목 <strong>{watchListPage?.totalElements ?? filteredWatchList.length}</strong>개
-          </p>
+          </h2>
           <ul className={styles['watchlist-page__list']}>
             {filteredWatchList.map((stock) => (
               <li key={stock.id}>
@@ -175,18 +170,13 @@ function WatchlistPage() {
                     name: stock.koreanName ? stock.name : '',
                   }}
                 >
-                  <span className={styles['watchlist-page__ticker']}>{stock.ticker}</span>
-                  <span className={styles['watchlist-page__names']}>
-                    <strong>{stock.koreanName || stock.name}</strong>
-                    {stock.koreanName && <small>{stock.name}</small>}
-                  </span>
-                  {stock.theme && (
-                    <span
-                      className={`${styles['watchlist-page__theme']} ${mediaStyles['watchlist-page__theme']}`}
-                    >
-                      {stock.theme}
-                    </span>
-                  )}
+                  <StockNameBadge
+                    ticker={stock.ticker}
+                    displayName={stock.koreanName || stock.name}
+                    secondaryName={stock.koreanName ? stock.name : undefined}
+                    theme={stock.theme}
+                    themeClassName={mediaStyles['watchlist-page__theme']}
+                  ></StockNameBadge>
                   <ArrowRight
                     className={styles['watchlist-page__arrow']}
                     aria-hidden="true"
@@ -196,10 +186,7 @@ function WatchlistPage() {
             ))}
           </ul>
           {watchListPage && watchListPage.totalPages > 1 && (
-            <nav
-              className={styles['watchlist-page__pagination']}
-              aria-label="내 관심종목 페이지"
-            >
+            <nav className={styles['watchlist-page__pagination']} aria-label="내 관심종목 페이지">
               <button
                 type="button"
                 disabled={watchListPage.first || isLoading}

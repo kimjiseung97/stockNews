@@ -1,10 +1,4 @@
-@mixin grid(
-  $columns: null,
-  $rows: null,
-  $gap: null,
-  $align-items: null,
-  $justify-items: null
-) {
+@mixin grid($columns: null, $rows: null, $gap: null, $align-items: null, $justify-items: null) {
   display: grid;
 
   @if $columns {

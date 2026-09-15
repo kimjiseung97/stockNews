@@ -1,0 +1,13 @@
+@media (max-width: 400px) {
+  :global(#signUpPage) {
+    .sign-up-page__email-row {
+      flex-wrap: wrap;
+    }
+  }
+
+  :global(#signUpPage#signUpPage) {
+    .sign-up-page__verify {
+      max-width: 100%;
+    }
+  }
+}

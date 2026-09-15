@@ -1,6 +1,12 @@
-@media (max-width: 550px) {
+@media (max-width: 400px) {
   :global(#emailSettingsPage) {
-    &.email-settings-page {
+    .email-settings-page__item {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .email-settings-page__time-select {
+      margin-left: auto;
     }
   }
 }

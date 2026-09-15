@@ -33,10 +33,7 @@ function App() {
           <Route path="/email-settings" element={<EmailSettingsPage></EmailSettingsPage>}></Route>
           <Route path="/login" element={<LoginPage></LoginPage>}></Route>
           <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
-          <Route
-            path="/find-password"
-            element={<FindPasswordPage></FindPasswordPage>}
-          ></Route>
+          <Route path="/find-password" element={<FindPasswordPage></FindPasswordPage>}></Route>
           <Route path="/find-email" element={<FindEmailPage></FindEmailPage>}></Route>
         </Route>
       </Routes>

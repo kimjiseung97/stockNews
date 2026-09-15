@@ -1,19 +1,10 @@
 :global(#stockSearchPage) {
   &.stock-search-page {
-    margin: 0 auto;
     padding: 12px 0 40px;
     color: $color-text-primary;
 
     .stock-search-page__heading {
       margin-bottom: 36px;
-
-      .stock-search-page__eyebrow {
-        margin-bottom: 10px;
-        color: $color-text-muted;
-        font-size: 1.2rem;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-      }
 
       h1 {
         margin-bottom: 12px;
@@ -62,11 +53,6 @@
         width: 19px;
         stroke-width: 1.7;
       }
-
-      input,
-      input::placeholder {
-        font-size: 1.3rem;
-      }
     }
 
     .stock-search-page__sr-only {
@@ -107,7 +93,7 @@
     }
 
     .stock-search-page__item {
-      @include grid(55px minmax(0, 1fr) auto, null, 12px, center);
+      @include grid(45px minmax(0, 1fr) auto, null, 12px, center);
       min-height: 64px;
       padding: 12px 4px;
       border-bottom: 1px solid $color-border;
@@ -115,56 +101,26 @@
 
       &:hover {
         background-color: rgba($color-read-only-background, 0.5);
+
+        .stock-search-page__arrow {
+          color: $main-color;
+          transform: translateX(3px);
+        }
       }
     }
 
-    .stock-search-page__ticker {
-      flex: 0 0 auto;
-      padding: 0;
-      color: $color-text-label;
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
-    .stock-search-page__names {
-      @include flex-col(null, null, 5px);
-      min-width: 0;
-
-      strong {
-        overflow: hidden;
-        font-size: 1.3rem;
-        font-weight: 600;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      small {
-        color: $color-text-muted;
-        overflow: hidden;
-        font-size: 1.3rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-    }
-
-    .stock-search-page__theme {
-      flex: 0 0 auto;
-      padding: 4px 10px;
-      background-color: $color-divider;
-      border-radius: 999px;
-      color: $color-text-label;
-      font-size: 1.3rem;
-      font-weight: 600;
+    .stock-search-page__arrow {
+      grid-column: -1;
+      width: 18px;
+      color: $color-icon;
+      transition:
+        color 0.2s,
+        transform 0.2s;
     }
 
     .stock-search-page__pagination {
       @include pagination(16px);
       margin-top: 28px;
-
-      span {
-        font-size: 1.3rem;
-      }
     }
   }
 }

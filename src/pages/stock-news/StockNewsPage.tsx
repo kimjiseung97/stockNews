@@ -7,16 +7,17 @@ import { stockSearch, type Stock } from '@/api/stockSearch/stockSearch'
 import ListSkeleton from '@/components/common/ListSkeleton'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import styles from '@/assets/styles/pages/stock-news/stockNews.module.scss'
-import mediaStyles from '@/assets/styles/pages/stock-news/stockNewsMedia.module.scss'
+import StockNameBadge from '@/components/common/StockNameBadge'
 
 const PAGE_SIZE = 10
 
 function StockNewsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const selectedStockName = searchParams.get('stockName') ?? ''
+  const selectedStockName = searchParams.get('koreaName') ?? ''
   const [stockId, setStockId] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const [selectedTicker, setSelectedTicker] = useState('')
+  const [resolvedStockName, setResolvedStockName] = useState('')
   const [keyword, setKeyword] = useState('')
   const [searchedStocks, setSearchedStocks] = useState<Stock[]>([])
   const [newsPage, setNewsPage] = useState<StockNewsResponse | null>(null)
@@ -26,32 +27,61 @@ function StockNewsPage() {
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
+    setKeyword(selectedStockName)
+
     if (!selectedStockName) {
       setStockId(0)
       setSelectedTicker('')
+      setResolvedStockName('')
       setCurrentPage(0)
+      setNewsPage(null)
+      setIsNewsLoading(false)
       return
     }
 
+    let isActive = true
+
     const loadSelectedStock = async () => {
+      setStockId(0)
+      setCurrentPage(0)
+      setNewsPage(null)
+      setIsNewsLoading(true)
+      setErrorMessage('')
+
       try {
         const response = await stockSearch({ keyword: selectedStockName, page: 0, size: 10 })
         const selectedStock = response.content.find(
-          (stock) => stock.koreanName === selectedStockName || stock.name === selectedStockName,
+          (stock) =>
+            stock.ticker === selectedStockName ||
+            stock.koreanName === selectedStockName ||
+            stock.name === selectedStockName,
         )
+
+        if (!isActive) {
+          return
+        }
 
         if (!selectedStock) {
           setStockId(0)
           setSelectedTicker('')
+          setResolvedStockName('')
+          setIsNewsLoading(false)
           setErrorMessage('선택한 종목을 찾지 못했습니다.')
           return
         }
 
         setStockId(selectedStock.stockId)
         setSelectedTicker(selectedStock.ticker)
+        setResolvedStockName(selectedStockName)
       } catch (error) {
+        if (!isActive) {
+          return
+        }
+
         setStockId(0)
         setSelectedTicker('')
+        setResolvedStockName('')
+        setIsNewsLoading(false)
         setErrorMessage(
           error instanceof ApiError ? error.message : '선택한 종목을 찾지 못했습니다.',
         )
@@ -59,6 +89,10 @@ function StockNewsPage() {
     }
 
     void loadSelectedStock()
+
+    return () => {
+      isActive = false
+    }
   }, [selectedStockName])
 
   useEffect(() => {
@@ -67,23 +101,37 @@ function StockNewsPage() {
       return
     }
 
+    let isActive = true
+
     const loadNews = async () => {
       setIsNewsLoading(true)
       setErrorMessage('')
 
       try {
-        setNewsPage(await stockNews({ stockId, page: currentPage, size: PAGE_SIZE }))
+        const response = await stockNews({ stockId, page: currentPage, size: PAGE_SIZE })
+
+        if (isActive) {
+          setNewsPage(response)
+        }
       } catch (error) {
-        setNewsPage(null)
-        setErrorMessage(
-          error instanceof ApiError ? error.message : '종목 뉴스를 불러오지 못했습니다.',
-        )
+        if (isActive) {
+          setNewsPage(null)
+          setErrorMessage(
+            error instanceof ApiError ? error.message : '종목 뉴스를 불러오지 못했습니다.',
+          )
+        }
       } finally {
-        setIsNewsLoading(false)
+        if (isActive) {
+          setIsNewsLoading(false)
+        }
       }
     }
 
     void loadNews()
+
+    return () => {
+      isActive = false
+    }
   }, [currentPage, stockId])
 
   // 뉴스 조회 종목 검색
@@ -122,9 +170,12 @@ function StockNewsPage() {
   const handleStockSelect = (stock: Stock) => {
     setStockId(stock.stockId)
     setSelectedTicker(stock.ticker)
+    setResolvedStockName(stock.koreanName || stock.name)
     setCurrentPage(0)
+    setNewsPage(null)
+    setIsNewsLoading(true)
     setSearchParams({
-      stockName: stock.koreanName || stock.name,
+      koreaName: stock.koreanName || stock.name,
     })
     setKeyword('')
     setSearchedStocks([])
@@ -145,22 +196,17 @@ function StockNewsPage() {
     })
 
   return (
-    <main
-      id="stockNewsPage"
-      className={`${styles['stock-news-page']} ${mediaStyles['stock-news-page']}`}
-    >
-      <section className={styles['stock-news-page__heading']}>
-        <p className={styles['stock-news-page__eyebrow']}>STOCK NEWS</p>
+    <main id="stockNewsPage" className={styles['stock-news-page']}>
+      <hgroup className={styles['stock-news-page__heading']}>
         <h1>종목별 뉴스</h1>
         <p>궁금한 종목을 검색하고 최근 수집된 뉴스를 확인하세요.</p>
-      </section>
+      </hgroup>
 
       <form className={styles['stock-news-page__search-form']} onSubmit={handleStockSearch}>
         <label className={styles['stock-news-page__search-box']}>
           <Search aria-hidden="true"></Search>
           <span className={styles['stock-news-page__sr-only']}>종목 검색</span>
           <input
-            type="search"
             value={keyword}
             placeholder="종목을 검색해 주세요"
             maxLength={100}
@@ -185,14 +231,12 @@ function StockNewsPage() {
               {searchedStocks.map((stock) => (
                 <li key={stock.stockId}>
                   <button type="button" onClick={() => handleStockSelect(stock)}>
-                    <span className={styles['stock-news-page__ticker']}>{stock.ticker}</span>
-                    <span className={styles['stock-news-page__names']}>
-                      <strong>{stock.koreanName || stock.name}</strong>
-                      {stock.koreanName && <small>{stock.name}</small>}
-                    </span>
-                    {stock.theme && (
-                      <span className={styles['stock-news-page__theme']}>{stock.theme}</span>
-                    )}
+                    <StockNameBadge
+                      ticker={stock.ticker}
+                      displayName={stock.koreanName || stock.name}
+                      secondaryName={stock.koreanName ? stock.name : undefined}
+                      theme={stock.theme}
+                    ></StockNameBadge>
                     <ArrowRight
                       className={styles['stock-news-page__arrow']}
                       aria-hidden="true"
@@ -220,22 +264,29 @@ function StockNewsPage() {
             : ''
         }`}
       >
-        <Search aria-hidden="true"></Search>
-        <h2>찾고 싶은 종목을 입력해 보세요.</h2>
+        <hgroup className={styles['stock-news-page__empty-heading']}>
+          <h2>찾고 싶은 종목을 입력해 보세요.</h2>
+          <Search aria-hidden="true"></Search>
+        </hgroup>
         <p>종목명을 입력하면 관련 뉴스를 확인할 수 있습니다.</p>
       </section>
 
-      {selectedStockName && (
-        <section className={styles['stock-news-page__news']}>
-          <section className={styles['stock-news-page__selected-stock']}>
-            <span>{selectedTicker || 'SELECTED STOCK'}</span>
-            <h2>{selectedStockName || '선택한 종목'}</h2>
+      {selectedStockName &&
+      (selectedStockName !== resolvedStockName || (isNewsLoading && !newsPage)) ? (
+        <ListSkeleton count={5} label="선택한 종목의 뉴스를 불러오는 중입니다."></ListSkeleton>
+      ) : selectedStockName ? (
+        <section aria-labelledby="selectedStockTitle">
+          <div className={styles['stock-news-page__selected-stock']}>
+            <h2 id="selectedStockTitle">
+              {selectedStockName || '선택한 종목'}
+              <small>{selectedTicker || 'SELECTED STOCK'}</small>
+            </h2>
             {!isNewsLoading && newsPage && (
-              <p>
+              <span>
                 뉴스 <strong>{newsPage.totalElements.toLocaleString()}</strong>건
-              </p>
+              </span>
             )}
-          </section>
+          </div>
 
           {isNewsLoading ? (
             <ListSkeleton count={5} label="종목 뉴스를 불러오는 중입니다."></ListSkeleton>
@@ -251,8 +302,10 @@ function StockNewsPage() {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        <time dateTime={news.collectedAt}>{getCollectedDate(news.collectedAt)}</time>
                         <h3>{news.title}</h3>
+                        <time dateTime={news.collectedAt}>
+                          {getCollectedDate(news.collectedAt)}
+                        </time>
                         {news.content && <p>{news.content}</p>}
                         <span className={styles['stock-news-page__article-more']}>
                           기사 보기
@@ -292,13 +345,13 @@ function StockNewsPage() {
           ) : (
             !errorMessage && (
               <section className={styles['stock-news-page__empty']}>
-                <h2>수집된 뉴스가 없습니다.</h2>
+                <h3>수집된 뉴스가 없습니다.</h3>
                 <p>새로운 뉴스가 수집되면 이곳에 표시됩니다.</p>
               </section>
             )
           )}
         </section>
-      )}
+      ) : null}
     </main>
   )
 }

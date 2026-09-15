@@ -152,9 +152,7 @@ function FindPasswordPage() {
       alert('비밀번호 변경이 완료되었습니다.')
       window.location.href = '/login'
     } catch (error) {
-      setWarningMessage(
-        error instanceof ApiError ? error.message : '비밀번호 변경에 실패했습니다.',
-      )
+      setWarningMessage(error instanceof ApiError ? error.message : '비밀번호 변경에 실패했습니다.')
     } finally {
       setIsSubmitting(false)
     }
@@ -168,40 +166,37 @@ function FindPasswordPage() {
           로그인으로 돌아가기
         </Link>
 
-        <section className={styles['forgot-password-page__heading']}>
+        <hgroup className={styles['forgot-password-page__heading']}>
           <h1>비밀번호 찾기</h1>
           <p>가입한 이메일로 인증 후 비밀번호를 재설정합니다.</p>
-        </section>
+        </hgroup>
 
-        <section
+        <ol
           className={styles['forgot-password-page__progress']}
           aria-label="비밀번호 찾기 진행 단계"
         >
-          <ol>
-            {[1, 2, 3].map((progressStep) => (
-              <li
-                key={progressStep}
-                className={[
-                  progressStep <= step ? styles['forgot-password-page__progress-active'] : '',
-                  progressStep < step ? styles['forgot-password-page__progress-complete'] : '',
-                  progressStep === step ? styles['forgot-password-page__progress-current'] : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                aria-current={progressStep === step ? 'step' : undefined}
-              >
-                <span>
-                  {progressStep < step ? <Check aria-hidden="true"></Check> : progressStep}
-                </span>
-                <p>{stepLabels[progressStep - 1]}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
+          {[1, 2, 3].map((progressStep) => (
+            <li
+              key={progressStep}
+              className={[
+                progressStep <= step ? styles['forgot-password-page__progress-active'] : '',
+                progressStep < step ? styles['forgot-password-page__progress-complete'] : '',
+                progressStep === step ? styles['forgot-password-page__progress-current'] : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              aria-current={progressStep === step ? 'step' : undefined}
+            >
+              <span>{progressStep < step ? <Check aria-hidden="true"></Check> : progressStep}</span>
+              <p>{stepLabels[progressStep - 1]}</p>
+            </li>
+          ))}
+        </ol>
 
         {warningMessage ? (
           <p
             className={`${styles['forgot-password-page__notice']} ${styles['forgot-password-page__notice-warning']}`}
+            id="findPasswordError"
             role="alert"
           >
             <img src={warningIcon} alt=""></img>
@@ -228,11 +223,14 @@ function FindPasswordPage() {
             onSubmit={handleEmailSubmit}
             noValidate
           >
-            <label className={styles['forgot-password-page__field']}>
-              <span>가입한 이메일</span>
+            <p className={styles['forgot-password-page__field']}>
+              <label htmlFor="find-password-email">가입한 이메일</label>
               <span className={styles['forgot-password-page__input-box']}>
                 <input
                   id="find-password-email"
+                  aria-describedby={
+                    `${warningMessage ? 'findPasswordError' : ''}`.trim() || undefined
+                  }
                   type="email"
                   name="email"
                   value={email}
@@ -247,14 +245,18 @@ function FindPasswordPage() {
                 />
                 <Mail aria-hidden="true"></Mail>
               </span>
-            </label>
+            </p>
 
             <button
               type="submit"
               className={styles['forgot-password-page__submit']}
               disabled={isSubmitting}
             >
-              {showSubmitting ? <LoadingSpinner label="발송 중" /> : '인증 코드 발송'}
+              {showSubmitting ? (
+                <LoadingSpinner label="발송 중"></LoadingSpinner>
+              ) : (
+                '인증 코드 발송'
+              )}
             </button>
           </form>
         )}
@@ -266,12 +268,19 @@ function FindPasswordPage() {
               onSubmit={handleCodeSubmit}
               noValidate
             >
-              <label className={styles['forgot-password-page__field']}>
-                <span>인증 코드</span>
+              <p className={styles['forgot-password-page__field']}>
+                <label htmlFor="find-password-verification-code">인증 코드</label>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
                     id="find-password-verification-code"
-                    type="number"
+                    aria-describedby={
+                      `findPasswordCodeHint ${warningMessage ? 'findPasswordError' : ''}`.trim() ||
+                      undefined
+                    }
+                    type="text"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    maxLength={6}
                     name="verificationCode"
                     value={verificationCode}
                     placeholder="6자리 코드 입력"
@@ -283,8 +292,8 @@ function FindPasswordPage() {
                     required
                   />
                 </span>
-                <small>이메일에서 받은 코드를 입력하세요.</small>
-              </label>
+                <small id="findPasswordCodeHint">이메일에서 받은 코드를 입력하세요.</small>
+              </p>
 
               <button
                 type="submit"
@@ -311,11 +320,14 @@ function FindPasswordPage() {
               onSubmit={handlePasswordSubmit}
               noValidate
             >
-              <label className={styles['forgot-password-page__field']}>
-                <span>새 비밀번호</span>
+              <p className={styles['forgot-password-page__field']}>
+                <label htmlFor="find-password-new-password">새 비밀번호</label>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
                     id="find-password-new-password"
+                    aria-describedby={
+                      `${warningMessage ? 'findPasswordError' : ''}`.trim() || undefined
+                    }
                     type={isPasswordVisible ? 'text' : 'password'}
                     name="password"
                     value={password}
@@ -341,7 +353,6 @@ function FindPasswordPage() {
                     className={styles['forgot-password-page__password-toggle']}
                     onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                     aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
-                    tabIndex={-1}
                   >
                     {isPasswordVisible ? (
                       <EyeOff aria-hidden="true"></EyeOff>
@@ -350,13 +361,16 @@ function FindPasswordPage() {
                     )}
                   </button>
                 </span>
-              </label>
+              </p>
 
-              <label className={styles['forgot-password-page__field']}>
-                <span>새 비밀번호 확인</span>
+              <p className={styles['forgot-password-page__field']}>
+                <label htmlFor="find-password-new-password-confirm">새 비밀번호 확인</label>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
                     id="find-password-new-password-confirm"
+                    aria-describedby={
+                      `${warningMessage ? 'findPasswordError' : ''}`.trim() || undefined
+                    }
                     type="password"
                     name="passwordConfirm"
                     value={passwordConfirm}
@@ -378,7 +392,7 @@ function FindPasswordPage() {
                     required
                   />
                 </span>
-              </label>
+              </p>
 
               <button
                 type="submit"

@@ -1,19 +1,10 @@
 :global(#watchlistRegisterPage) {
   &.watchlist-register-page {
-    margin: 0 auto;
     padding: 12px 0 40px;
     color: $color-text-primary;
 
     .watchlist-register-page__heading {
       margin-bottom: 36px;
-
-      .watchlist-register-page__eyebrow {
-        margin-bottom: 10px;
-        color: $color-text-muted;
-        font-size: 1.2rem;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-      }
 
       h1 {
         margin-bottom: 12px;
@@ -66,13 +57,6 @@
         color: $main-color;
         background-color: rgba($main-color, 0.04);
       }
-
-      &:focus-visible {
-        position: relative;
-        z-index: 1;
-        outline: 2px solid $main-color;
-        outline-offset: -2px;
-      }
     }
 
     .watchlist-register-page__tab--active {
@@ -80,38 +64,29 @@
       border-bottom-color: $main-color;
     }
 
-    .watchlist-register-page__contents {
-      @include grid(repeat(1, minmax(0, 1fr)), null, 42px);
-      align-items: start;
-    }
-
     .watchlist-register-page__panel {
       min-width: 0;
-      padding: 0;
+      opacity: 1;
+      transition:
+        opacity 0.2s ease,
+        display 0.2s allow-discrete;
 
       &[hidden] {
-        display: none;
+        opacity: 0;
       }
 
-      & + .watchlist-register-page__panel {
-        padding-top: 32px;
-        border-top: 1px solid $color-border;
-      }
-
-      &[hidden] + .watchlist-register-page__panel {
-        padding-top: 0;
-        border-top: 0;
+      @starting-style {
+        &:not([hidden]) {
+          opacity: 0;
+        }
       }
     }
 
     .watchlist-register-page__panel-heading {
       @include flex(space-between, center, 10px);
-
-      h2 {
-        font-size: 1.6rem;
-        font-weight: 700;
-        letter-spacing: -0.03em;
-      }
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
 
       > strong {
         color: $main-color;
@@ -149,11 +124,6 @@
       svg {
         width: 19px;
       }
-
-      input,
-      input::placeholder {
-        font-size: 1.3rem;
-      }
     }
 
     .watchlist-register-page__sr-only {
@@ -177,6 +147,7 @@
 
     .watchlist-register-page__list-actions {
       @include flex(space-between, center, 12px);
+      flex-wrap: wrap;
       min-height: 34px;
       margin-bottom: 8px;
     }
@@ -185,6 +156,8 @@
     .watchlist-register-page__checkbox {
       @include flex(null, center, 7px);
       @include checkbox(15px, 3px, $main-color);
+      min-height: 24px;
+      min-width: 24px;
       color: $color-text-secondary;
       font-size: 1.3rem;
       cursor: pointer;
@@ -240,7 +213,7 @@
     }
 
     .watchlist-register-page__item {
-      @include grid(15px 55px minmax(0, 1fr) auto, null, 12px, center);
+      @include grid(24px 45px minmax(0, 1fr) auto, null, 12px, center);
       min-height: 64px;
       padding: 12px 4px;
       border-bottom: 1px solid $color-border;
@@ -248,37 +221,6 @@
 
       &:hover {
         background-color: rgba($color-read-only-background, 0.5);
-      }
-    }
-
-    .watchlist-register-page__ticker {
-      justify-self: start;
-      padding: 0;
-      color: $color-text-label;
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
-    .watchlist-register-page__names {
-      @include flex-col(null, null, 5px);
-      min-width: 0;
-
-      strong,
-      small {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      strong {
-        font-size: 1.3rem;
-        font-weight: 600;
-      }
-
-      small {
-        color: $color-text-muted;
-        font-size: 1.3rem;
       }
     }
 
@@ -292,8 +234,7 @@
       font-size: 1.2rem;
       font-weight: 600;
 
-      svg,
-      img {
+      svg {
         width: 15px;
         height: 15px;
       }
@@ -317,9 +258,8 @@
     }
 
     .watchlist-register-page__remove-button {
-      min-width: 34px;
       width: 32px;
-      height: 32px;
+      min-width: 32px;
       padding: 0;
       color: $color-warning;
       border: 1px solid $color-border;

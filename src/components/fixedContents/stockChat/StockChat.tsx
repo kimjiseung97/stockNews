@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowUp, X } from 'lucide-react'
 import { askStockChat } from '@/api/chat/chat'
 import { useAuth } from '@/contexts/AuthContext'
@@ -20,6 +20,19 @@ export default function StockChat() {
   const [isLoading, setIsLoading] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputError, setInputError] = useState(false)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const toggleButtonRef = useRef<HTMLButtonElement>(null)
+
+  // 채팅창을 열고 닫을 때 키보드 초점 이동
+  useEffect(() => {
+    if (!isOpen) return
+
+    titleRef.current?.focus()
+
+    return () => {
+      requestAnimationFrame(() => toggleButtonRef.current?.focus())
+    }
+  }, [isOpen])
 
   // 질문 전송
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -72,27 +85,39 @@ export default function StockChat() {
   }
 
   return (
-    <section id="stockChat" className={`${styles['stock-chat']} ${mediaStyles['stock-chat']}`}>
+    <aside
+      id="stockChat"
+      className={`${styles['stock-chat']} ${mediaStyles['stock-chat']}`}
+      aria-label="주식 챗봇"
+    >
       {isOpen && (
-        <article
+        <dialog
           id="stockChatPanel"
           className={styles['stock-chat__panel']}
-          role="dialog"
-          aria-modal="false"
+          open
           aria-labelledby="stockChatTitle"
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              event.stopPropagation()
+              setIsOpen(false)
+            }
+          }}
         >
-          <section className={styles['stock-chat__header']}>
-            <section className={styles['stock-chat__title-wrap']}>
-              <section>
-                <h2 id="stockChatTitle" className={styles['stock-chat__title']}>
-                  주식 챗봇 모아
-                </h2>
-                <p className={styles['stock-chat__status']}>
-                  <span aria-hidden="true"></span>
-                  질문할 수 있어요
-                </p>
-              </section>
-            </section>
+          <div className={styles['stock-chat__header']}>
+            <hgroup>
+              <h2
+                id="stockChatTitle"
+                className={styles['stock-chat__title']}
+                ref={titleRef}
+                tabIndex={-1}
+              >
+                주식 챗봇 모아
+              </h2>
+              <p className={styles['stock-chat__status']}>
+                <span aria-hidden="true"></span>
+                질문할 수 있어요
+              </p>
+            </hgroup>
 
             <button
               className={styles['stock-chat__close']}
@@ -100,25 +125,31 @@ export default function StockChat() {
               aria-label="채팅창 닫기"
               onClick={() => setIsOpen(false)}
             >
-              <X size={20}></X>
+              <X size={20} aria-hidden="true"></X>
             </button>
-          </section>
+          </div>
 
-          <ul className={styles['stock-chat__messages']} aria-live="polite">
+          <ul
+            className={styles['stock-chat__messages']}
+            aria-label="주식 챗봇 대화"
+            aria-live="polite"
+            aria-relevant="additions text"
+            tabIndex={0}
+          >
             <li className={styles['stock-chat__welcome']}>
-              <img
-                className={styles['stock-chat__message-profile']}
-                src={chatbotAnswerImage}
-                alt=""
-              ></img>
-              <section className={styles['stock-chat__answer-content']}>
+              <p className={styles['stock-chat__message-author']}>
+                <img
+                  className={styles['stock-chat__message-profile']}
+                  src={chatbotAnswerImage}
+                  alt=""
+                ></img>
                 <strong>모아</strong>
-                <p>
-                  아래 예시처럼 구체적으로 질문해 보세요!
-                  <br></br>“엔비디아의 최신 소식, 실적이나 공시,
-                  <br></br> 최근 발표된 뉴스를 알려줄래?”
-                </p>
-              </section>
+              </p>
+              <span className={styles['stock-chat__answer-content']}>
+                아래 예시처럼 구체적으로 질문해 보세요!
+                <br></br>“엔비디아의 최신 소식, 실적이나 공시,
+                <br></br> 최근 발표된 뉴스를 알려줄래?”
+              </span>
             </li>
 
             {messages.map((message) => (
@@ -132,15 +163,17 @@ export default function StockChat() {
               >
                 {message.role === 'assistant' ? (
                   <>
-                    <img
-                      className={styles['stock-chat__message-profile']}
-                      src={chatbotAnswerImage}
-                      alt=""
-                    ></img>
-                    <section className={styles['stock-chat__answer-content']}>
+                    <p className={styles['stock-chat__message-author']}>
+                      <img
+                        className={styles['stock-chat__message-profile']}
+                        src={chatbotAnswerImage}
+                        alt=""
+                      ></img>
                       <strong>모아</strong>
-                      <p>{message.content}</p>
-                    </section>
+                    </p>
+                    <span className={styles['stock-chat__answer-content']}>
+                      {message.content}
+                    </span>
                   </>
                 ) : (
                   <p>{message.content}</p>
@@ -151,21 +184,20 @@ export default function StockChat() {
             {isLoading && (
               <li
                 className={`${styles['stock-chat__message']} ${styles['stock-chat__message--assistant']} ${styles['stock-chat__loading']}`}
-                aria-label="답변을 작성하고 있습니다"
               >
                 <img
                   className={styles['stock-chat__message-profile']}
                   src={chatbotAnswerImage}
                   alt=""
                 ></img>
-                <section
-                  className={styles['stock-chat__loading-answer']}
-                  aria-label="모아가 답변을 작성하고 있습니다"
-                >
+                <p className={styles['stock-chat__loading-answer']} role="status">
                   <span className={styles['stock-chat__loading-dot']} aria-hidden="true"></span>
                   <span className={styles['stock-chat__loading-dot']} aria-hidden="true"></span>
                   <span className={styles['stock-chat__loading-dot']} aria-hidden="true"></span>
-                </section>
+                  <span className={styles['stock-chat__label']}>
+                    모아가 답변을 작성하고 있습니다
+                  </span>
+                </p>
               </li>
             )}
           </ul>
@@ -204,25 +236,25 @@ export default function StockChat() {
               aria-label="질문 보내기"
               disabled={!email || isLoading}
             >
-              <ArrowUp size={21}></ArrowUp>
+              <ArrowUp size={21} aria-hidden="true"></ArrowUp>
             </button>
           </form>
-        </article>
+        </dialog>
       )}
 
       {!isOpen && (
         <button
-          className={styles['stock-chat__floating-button']}
+          ref={toggleButtonRef}
+          className={`${styles['stock-chat__floating-button']} ${mediaStyles['stock-chat__floating-button']}`}
           type="button"
-          aria-label="주식 AI 채팅 열기"
-          aria-expanded={isOpen}
-          aria-controls="stockChatPanel"
+          aria-label="무엇이든 물어보세요. 주식 AI 채팅 열기"
+          aria-haspopup="dialog"
           onClick={() => setIsOpen(true)}
         >
           <span>무엇이든 물어보세요</span>
           <img src={chatbotImage} alt=""></img>
         </button>
       )}
-    </section>
+    </aside>
   )
 }
