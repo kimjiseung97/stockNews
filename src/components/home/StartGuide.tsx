@@ -1,4 +1,5 @@
 import styles from '@/assets/styles/pages/home/home.module.scss'
+import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 
 const startSteps = [
   {
@@ -29,15 +30,36 @@ export default function StartGuide() {
           복잡한 설정 없이 관심 종목을 고르고 이메일로 받아보세요.
         </p>
       </div>
-      <ol className={styles['home-page__step-list']}>
+      <ol
+        className={`${styles['home-page__step-list']} ${mediaStyles['home-page__step-list']}`}
+      >
         {startSteps.map((step) => (
-          <li key={step.number} className={styles['home-page__step']}>
-            <article className={styles['home-page__step-article']}>
-              <div className={styles['home-page__step-title-group']}>
-                <h3 className={styles['home-page__step-title']}>{step.title}</h3>
-                <strong className={styles['home-page__step-number']}>{step.number}</strong>
+          <li
+            key={step.number}
+            className={`${styles['home-page__step']} ${mediaStyles['home-page__step']}`}
+          >
+            <article
+              className={`${styles['home-page__step-article']} ${mediaStyles['home-page__step-article']}`}
+            >
+              <div
+                className={`${styles['home-page__step-title-group']} ${mediaStyles['home-page__step-title-group']}`}
+              >
+                <h3
+                  className={`${styles['home-page__step-title']} ${mediaStyles['home-page__step-title']}`}
+                >
+                  {step.title}
+                </h3>
+                <strong
+                  className={`${styles['home-page__step-number']} ${mediaStyles['home-page__step-number']}`}
+                >
+                  {step.number}
+                </strong>
               </div>
-              <p className={styles['home-page__step-text']}>{step.description}</p>
+              <p
+                className={`${styles['home-page__step-text']} ${mediaStyles['home-page__step-text']}`}
+              >
+                {step.description}
+              </p>
             </article>
           </li>
         ))}

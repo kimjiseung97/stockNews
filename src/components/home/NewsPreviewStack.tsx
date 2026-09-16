@@ -37,7 +37,7 @@ const newsPreviewItems: NewsPreviewItem[] = [
 ]
 
 const CARD_INACTIVE_VARS = { x: 0, scale: 1, opacity: 0.3 }
-const CARD_ACTIVE_VARS = { x: -8, scale: 1.06, opacity: 1 }
+const CARD_ACTIVE_VARS = { x: 35, scale: 1.3, opacity: 1 }
 
 const ACTIVE_CLASS = styles['home-page__news-card--active']
 
@@ -45,9 +45,7 @@ export default function NewsPreviewStack() {
   const trackRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<(HTMLLIElement | null)[]>([])
   const scrollContainerRef = useScrollContainer()
-  const [isMobile, setIsMobile] = useState(() =>
-    window.matchMedia('(max-width: 1024px)').matches,
-  )
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 1024px)').matches)
 
   useEffect(() => {
     const mobileQuery = window.matchMedia('(max-width: 1024px)')
@@ -71,19 +69,20 @@ export default function NewsPreviewStack() {
           gsap.fromTo(
             card,
             {
-              x: index % 2 === 0 ? -64 : 64,
+              xPercent: index % 2 === 0 ? -28 : 28,
               opacity: 0,
             },
             {
-              x: 0,
+              xPercent: 0,
               opacity: 1,
-              duration: 0.8,
-              ease: 'power2.out',
+              duration: 1.05,
+              ease: 'power3.out',
               scrollTrigger: {
                 trigger: card,
                 scroller: scrollContainerRef?.current ?? undefined,
-                start: 'top 88%',
+                start: 'top 65%',
                 toggleActions: 'play none none reverse',
+                invalidateOnRefresh: true,
               },
             },
           )
@@ -104,12 +103,13 @@ export default function NewsPreviewStack() {
         scrollTrigger: {
           trigger: trackRef.current,
           scroller: scrollContainerRef?.current ?? undefined,
-          start: `top ${headerHeight}`,
-          end: () => `+=${(newsPreviewItems.length - 1) * 280 + 220}`,
+          start: () => (window.innerHeight <= 800 ? 'top -8%' : `top ${headerHeight}`),
+          end: () => `+=${(newsPreviewItems.length - 1) * 360 + 220}`,
           pin: true,
           pinType: 'fixed',
           anticipatePin: 1,
-          scrub: 0.75,
+          scrub: 1.15,
+          invalidateOnRefresh: true,
         },
 
         onUpdate: function () {
@@ -181,10 +181,14 @@ export default function NewsPreviewStack() {
           <div
             className={`${styles['home-page__news-stack']} ${mediaStyles['home-page__news-stack']}`}
           >
-            <h3 className={styles['home-page__news-stack-title']}>
-              오늘 확인하면 좋은 관심 종목 뉴스
+            <h3
+              className={`${styles['home-page__news-stack-title']} ${mediaStyles['home-page__news-stack-title']}`}
+            >
+              오늘의 관심종목 뉴스
             </h3>
-            <ul className={styles['home-page__news-list']}>
+            <ul
+              className={`${styles['home-page__news-list']} ${mediaStyles['home-page__news-list']}`}
+            >
               {newsPreviewItems.map((item, index) => (
                 <li
                   key={item.headline}
@@ -193,15 +197,32 @@ export default function NewsPreviewStack() {
                   }}
                   className={`${styles['home-page__news-card']} ${mediaStyles['home-page__news-card']}`}
                 >
-                  <article className={styles['home-page__news-article']}>
+                  <article
+                    className={`${styles['home-page__news-article']} ${mediaStyles['home-page__news-article']}`}
+                  >
                     <div className={styles['home-page__news-title-group']}>
-                      <h4 className={styles['home-page__news-title']}>{item.headline}</h4>
-                      <strong className={styles['home-page__news-ticker']}>{item.ticker}</strong>
+                      <h4
+                        className={`${styles['home-page__news-title']} ${mediaStyles['home-page__news-title']}`}
+                      >
+                        {item.headline}
+                      </h4>
+                      <strong
+                        className={`${styles['home-page__news-ticker']} ${mediaStyles['home-page__news-ticker']}`}
+                      >
+                        {item.ticker}
+                      </strong>
                     </div>
-                    <time className={styles['home-page__news-date']} dateTime={item.dateTime}>
+                    <time
+                      className={`${styles['home-page__news-date']} ${mediaStyles['home-page__news-date']}`}
+                      dateTime={item.dateTime}
+                    >
                       {item.displayDate}
                     </time>
-                    <span className={styles['home-page__news-link']}>기사 보기 →</span>
+                    <span
+                      className={`${styles['home-page__news-link']} ${mediaStyles['home-page__news-link']}`}
+                    >
+                      기사 보기 →
+                    </span>
                   </article>
                 </li>
               ))}

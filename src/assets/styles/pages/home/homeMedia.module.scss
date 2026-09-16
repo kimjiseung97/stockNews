@@ -2,6 +2,8 @@
   :global(#homePage) {
     &.home-page {
       .home-page__news-preview {
+        overflow-x: clip;
+
         .home-page__news-preview__inner {
           width: 90%;
           padding: 40px 0 48px;
@@ -29,7 +31,7 @@
         .home-page__news-list {
           display: flex;
           flex-direction: column;
-          gap: 18px;
+          gap: 12px;
           width: 100%;
           margin: 0;
           padding: 4px 0 18px;
@@ -38,13 +40,14 @@
       }
 
       .home-page__news-card {
-        width: 92%;
-        min-height: 160px;
-        padding: clamp(18px, 4vw, 24px);
+        width: 80%;
+        min-width: 0;
+        min-height: 0;
+        padding: 16px;
         margin-bottom: 0;
         align-self: flex-start;
         border-color: $color-border;
-        border-radius: 18px;
+        border-radius: 14px;
         opacity: 1;
 
         &:nth-child(even) {
@@ -61,6 +64,19 @@
           flex-direction: column;
           justify-content: center;
         }
+
+        .home-page__news-ticker {
+          font-size: 1rem;
+        }
+
+        .home-page__news-title {
+          font-size: clamp(1.4rem, 2.7273vw, 1.5rem);
+        }
+
+        .home-page__news-date,
+        .home-page__news-link {
+          font-size: 1rem;
+        }
       }
     }
   }
@@ -71,6 +87,63 @@
     &.home-page {
       .home-page__feature-list {
         grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+
+      .home-page__step-list {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 32px;
+        margin-top: 36px;
+
+        &::before {
+          display: none;
+        }
+      }
+
+      .home-page__step {
+        position: relative;
+        text-align: left;
+
+        &:not(:last-child)::after {
+          position: absolute;
+          top: 19px;
+          left: 31px;
+          width: 1px;
+          height: calc(100% + 32px);
+          background-color: $color-border;
+          content: '';
+        }
+
+        .home-page__step-article {
+          display: grid;
+          grid-template-columns: 55px minmax(0, 1fr);
+          grid-template-rows: auto auto;
+          column-gap: 10px;
+        }
+
+        .home-page__step-title-group {
+          display: contents;
+        }
+
+        .home-page__step-number {
+          position: relative;
+          z-index: 1;
+          grid-row: 1 / 3;
+          grid-column: 1;
+          align-self: start;
+          justify-self: center;
+        }
+
+        .home-page__step-title {
+          grid-row: 1;
+          grid-column: 2;
+          margin-top: 3px;
+        }
+
+        .home-page__step-text {
+          grid-row: 2;
+          grid-column: 2;
+          margin-top: 8px;
+        }
       }
     }
   }
