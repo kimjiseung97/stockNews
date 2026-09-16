@@ -201,149 +201,113 @@
       }
     }
 
-    .home-page__email-preview {
+    .home-page__news-preview {
       background-color: $color-home-background;
       margin: 0 calc(-100% / 18);
 
-      .home-page__email-preview__inner {
-        padding: 62px 0 72px;
+      .home-page__news-preview__inner {
+        padding: 62px 0 0;
         width: 90%;
         margin: 0 auto;
       }
     }
 
-    .home-page__email-preview-heading {
+    .home-page__news-preview-heading {
       @include flex(null, null, 10px);
       flex-direction: column-reverse;
 
       h2 {
-        font-size: clamp(2.5rem, 3.2552vw, 3rem);
+        font-size: clamp(2.2rem, 2.8646vw, 2.6rem);
         font-weight: 700;
-        line-height: 1.35;
-        letter-spacing: -0.055em;
+        line-height: 1.4;
+        letter-spacing: -0.05em;
       }
     }
 
-    .home-page__email-description {
-      max-width: 390px;
-      margin-top: 20px;
+    .home-page__news-preview-description {
+      max-width: 420px;
+      margin-top: 14px;
       color: $color-text-secondary;
-      font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
       line-height: 1.75;
     }
 
-    .home-page__mail {
+    .home-page__phone-mock {
       position: relative;
-      width: 285px;
-      margin: 72px auto 0;
-      padding: 27px 23px;
-      background-color: $color-surface;
-      border: 1px solid $color-border;
-      border-radius: 17px;
-      box-shadow: 0 18px 40px rgba($main-color, 0.14);
-
-      > h3 {
-        margin-top: 30px;
-        font-size: 1.75rem;
-        font-weight: 700;
-        line-height: 1.45;
-        letter-spacing: -0.04em;
-      }
+      width: min(300px, 86vw);
+      margin: 56px auto 0;
     }
 
-    .home-page__mail-header {
-      @include flex(space-between, center);
-      strong {
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
-        font-weight: 700;
-      }
-
-      time {
-        color: $color-text-muted;
-        font-size: 0.9rem;
-      }
+    .home-page__phone-mock-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      pointer-events: none;
     }
 
-    .home-page__mail-kicker {
-      margin-top: 8px;
-      color: $color-text-muted;
-      font-size: 0.9rem;
-    }
-
-    .home-page__mail-summary {
-      margin-top: 10px;
-      color: $color-text-secondary;
-      font-size: 1.2rem;
-      line-height: 1.55;
-    }
-
-    .home-page__mail-news {
-      margin-top: 17px;
-
-      li {
-        padding: 13px 0;
-        border-top: 1px solid $color-divider;
-      }
-
-      strong,
-      span {
-        display: block;
-      }
-
-      strong {
-        font-size: 1.05rem;
-        font-weight: 700;
-        line-height: 1.45;
-      }
-
-      span {
-        margin-top: 6px;
-        color: $color-text-muted;
-        font-size: 0.8rem;
-      }
-    }
-
-    .home-page__stock-note {
+    .home-page__news-stack {
       position: absolute;
-      padding: 17px 15px;
-      background-color: rgba($color-surface, 0.96);
-      border: 1px solid $color-border;
-      border-radius: 15px;
-      box-shadow: 0 14px 30px rgba($main-color, 0.13);
+      top: 13%;
+      right: 5%;
+      left: 5%;
+      text-align: center;
 
-      > strong {
+      h3 {
+        font-weight: 700;
+        width: 90%;
+        margin: 0 auto 15px;
+      }
+
+      ul {
+        text-align: left;
+        width: 90%;
+        margin: 0 auto;
+      }
+    }
+
+    .home-page__news-card {
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      background-color: $color-surface;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba($main-color, 0.06);
+      transform-origin: right center;
+      transition:
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      strong {
         color: $main-color;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 700;
       }
 
       p {
-        margin-top: 7px;
-        font-size: 1.05rem;
+        margin-top: 6px;
+        color: $color-text-primary;
+        font-size: 0.95rem;
         font-weight: 700;
-        line-height: 1.45;
+        line-height: 1.4;
       }
 
+      time,
       span {
         display: block;
-        margin-top: 7px;
+        margin-top: 6px;
         color: $color-text-muted;
         font-size: 0.75rem;
       }
     }
 
-    .home-page__stock-note-icon {
-      display: none;
-    }
-
-    .home-page__stock-note--nvidia {
-      top: -50px;
-      left: -88px;
-    }
-
-    .home-page__stock-note--tesla {
-      right: -80px;
-      bottom: -28px;
+    // active인 카드만 그림자/테두리를 진하게 — transform은 gsap이 별도로 트윈한다
+    .home-page__news-card--active {
+      border-color: rgba($main-color, 0.15);
+      box-shadow: 0 10px 26px rgba($main-color, 0.18);
     }
 
     .home-page__cta {

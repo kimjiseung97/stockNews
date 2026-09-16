@@ -1,24 +1,76 @@
-:global(#homePage) {
-  &.home-page {
-    @media (max-width: 1024px) {
-      .home-page__mail {
-        width: 80%;
-        margin: 72px 0;
+@media (max-width: 1024px) {
+  :global(#homePage) {
+    &.home-page {
+      .home-page__news-preview {
+        .home-page__news-preview__inner {
+          width: 90%;
+          padding: 40px 0 48px;
+        }
       }
 
-      .home-page__stock-note {
-        z-index: 99;
+      .home-page__phone-mock {
+        position: static;
+        width: 100%;
+        margin-top: 28px;
       }
 
-      .home-page__stock-note--nvidia {
-        top: -30px;
-        left: unset;
-        right: -55px;
+      .home-page__news-preview-description {
+        margin-bottom: 0;
       }
 
-      .home-page__stock-note--tesla {
-        right: -55px;
-        bottom: -28px;
+      .home-page__news-stack {
+        position: static;
+        text-align: left;
+
+        h3 {
+          display: none;
+        }
+
+        ul {
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          width: 100%;
+          margin: 0;
+          padding: 4px 0 18px;
+          overflow: visible;
+        }
+      }
+
+      .home-page__news-card {
+        width: 92%;
+        min-height: 160px;
+        padding: clamp(18px, 4vw, 24px);
+        margin-bottom: 0;
+        align-self: flex-start;
+        border-color: $color-border;
+        border-radius: 18px;
+        opacity: 1;
+
+        &:nth-child(even) {
+          align-self: flex-end;
+        }
+
+        &:first-child {
+          box-shadow: 0 10px 24px rgba($main-color, 0.16);
+        }
+
+        article {
+          display: flex;
+          min-height: 100%;
+          flex-direction: column;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 550px) {
+  :global(#homePage) {
+    &.home-page {
+      .home-page__feature-list {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
       }
     }
   }

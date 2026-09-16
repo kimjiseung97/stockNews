@@ -122,8 +122,8 @@ npm install -D sass-embedded
 실제 스타일을 만드는 전역 SCSS는 `main.tsx`에서 한 번만 불러옵니다.
 
 ```tsx
-import "@/assets/styles/common/reset.scss";
-import "@/assets/styles/common/common.scss";
+import '@/assets/styles/common/reset.scss'
+import '@/assets/styles/common/common.scss'
 ```
 
 변수와 믹스인처럼 SCSS 작성을 도와주는 파일은 Vite의 `additionalData`에 등록
@@ -145,7 +145,7 @@ npm install axios
 서버 API에 데이터를 요청하거나 전달할 때 사용
 
 ```ts
-axios.get("/api/news");
+axios.get('/api/news')
 ```
 
 ### Lucide React
@@ -157,7 +157,7 @@ npm install lucide-react
 React 컴포넌트 방식으로 아이콘을 사용하기 위한 라이브러리
 
 ```tsx
-import { Search } from "lucide-react";
+import { Search } from 'lucide-react'
 
 function SearchButton() {
   return (
@@ -165,7 +165,7 @@ function SearchButton() {
       <Search />
       검색
     </button>
-  );
+  )
 }
 ```
 
@@ -178,17 +178,17 @@ npm install zustand
 여러 컴포넌트/페이지가 함께 쓰는 전역 상태를 관리하기 위한 라이브러리
 
 ```ts
-import { create } from "zustand";
+import { create } from 'zustand'
 
 interface CounterState {
-  value: number;
-  increment: () => void;
+  value: number
+  increment: () => void
 }
 
 export const useCounterStore = create<CounterState>((set) => ({
   value: 0,
   increment: () => set((state) => ({ value: state.value + 1 })),
-}));
+}))
 ```
 
 ### React Router
@@ -204,6 +204,37 @@ npm install react-router-dom
 - 상세 페이지 이동
 - URL 파라미터 관리
 - 잘못된 주소 페이지 처리
+
+### GSAP
+
+```bash
+npm install gsap
+```
+
+스크롤에 반응하는 인터랙션(예: 홈 화면 뉴스 카드 스택)을 만들기 위한 애니메이션 라이브러리. `ScrollTrigger` 플러그인으로 스크롤 진행률을 구해 요소에 클래스를 토글하는 방식으로 사용
+
+```tsx
+import { useLayoutEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
+
+useLayoutEffect(() => {
+  const ctx = gsap.context(() => {
+    ScrollTrigger.create({
+      trigger: trackRef.current,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        /* self.progress(0~1)로 active 클래스 토글 */
+      },
+    })
+  })
+
+  return () => ctx.revert() // StrictMode 이중 실행에도 중복 생성 방지
+}, [])
+```
 
 ### Prettier
 
@@ -236,7 +267,7 @@ npm install -D @rolldown/plugin-babel @babel/core babel-plugin-react-compiler
 React 컴포넌트의 렌더링을 최적화하기 위해 사용
 
 ```ts
-plugins: [react(), babel({ presets: [reactCompilerPreset()] })];
+plugins: [react(), babel({ presets: [reactCompilerPreset()] })]
 ```
 
 ---
@@ -249,7 +280,7 @@ plugins: [react(), babel({ presets: [reactCompilerPreset()] })];
 
 ```ts
 function getUserName(name: string): string {
-  return name;
+  return name
 }
 ```
 
@@ -259,16 +290,16 @@ function getUserName(name: string): string {
 
 ```tsx
 type ButtonProps = {
-  text: string;
-  disabled?: boolean;
-};
+  text: string
+  disabled?: boolean
+}
 
 function Button({ text, disabled = false }: ButtonProps) {
   return (
     <button type="button" disabled={disabled}>
       {text}
     </button>
-  );
+  )
 }
 ```
 
@@ -278,16 +309,16 @@ function Button({ text, disabled = false }: ButtonProps) {
 
 ```ts
 type Stock = {
-  id: number;
-  symbol: string;
-  name: string;
-};
+  id: number
+  symbol: string
+  name: string
+}
 ```
 
 ### 배열 타입 작성
 
 ```ts
-const stockList: Stock[] = [];
+const stockList: Stock[] = []
 ```
 
 ### API 응답 타입 작성
@@ -296,11 +327,11 @@ API 응답 데이터도 타입을 지정한 후 사용
 
 ```ts
 type NewsResponse = {
-  id: number;
-  title: string;
-  content: string;
-  publishedAt: string;
-};
+  id: number
+  title: string
+  content: string
+  publishedAt: string
+}
 ```
 
 ## SCSS 관리 규칙
@@ -320,7 +351,7 @@ type NewsResponse = {
 `@`는 `src` 폴더를 의미
 
 ```ts
-import Button from "@/components/common/Button";
+import Button from '@/components/common/Button'
 ```
 
 Vite 설정:
