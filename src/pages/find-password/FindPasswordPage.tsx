@@ -161,7 +161,7 @@ function FindPasswordPage() {
 
   return (
     <main id="forgotPasswordPage" className={styles['forgot-password-page']}>
-      <article className={styles['forgot-password-page__card']}>
+      <div className={styles['forgot-password-page__card']}>
         <Link className={styles['forgot-password-page__back']} to="/login">
           <ArrowLeft aria-hidden="true"></ArrowLeft>
           로그인으로 돌아가기
@@ -247,7 +247,7 @@ function FindPasswordPage() {
                   }}
                   required
                 />
-                <Mail aria-hidden="true"></Mail>
+                <Mail className={styles['forgot-password-page__input-icon']} aria-hidden="true"></Mail>
               </span>
             </p>
 
@@ -412,7 +412,7 @@ function FindPasswordPage() {
             </form>
           </>
         )}
-      </article>
+      </div>
     </main>
   )
 }

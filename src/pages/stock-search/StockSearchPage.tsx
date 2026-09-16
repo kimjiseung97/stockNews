@@ -80,7 +80,7 @@ function StockSearchPage() {
             onChange={(event) => setKeyword(event.target.value)}
           ></input>
         </label>
-        <button type="submit" disabled={isLoading}>
+        <button className={styles['stock-search-page__search-button']} type="submit" disabled={isLoading}>
           {isSearching ? <LoadingSpinner label="조회 중"></LoadingSpinner> : '조회'}
         </button>
       </form>

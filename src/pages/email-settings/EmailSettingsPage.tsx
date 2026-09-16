@@ -32,8 +32,8 @@ function EmailSettingsSkeleton() {
           className={`${styles['email-settings-page__item']} ${mediaStyles['email-settings-page__item']}`}
         >
           <span className={styles['email-settings-page__skeleton-text']}>
-            <span></span>
-            <span></span>
+            <span className={styles['email-settings-page__skeleton-title']}></span>
+            <span className={styles['email-settings-page__skeleton-description']}></span>
           </span>
           <span className={styles['email-settings-page__skeleton-toggle']}></span>
         </li>
@@ -41,8 +41,8 @@ function EmailSettingsSkeleton() {
           className={`${styles['email-settings-page__item']} ${mediaStyles['email-settings-page__item']}`}
         >
           <span className={styles['email-settings-page__skeleton-text']}>
-            <span></span>
-            <span></span>
+            <span className={styles['email-settings-page__skeleton-title']}></span>
+            <span className={styles['email-settings-page__skeleton-description']}></span>
           </span>
           <span className={styles['email-settings-page__skeleton-select']}></span>
         </li>
@@ -128,7 +128,9 @@ function EmailSettingsPage() {
     <main id="emailSettingsPage" className={styles['email-settings-page']}>
       <hgroup className={styles['email-settings-page__heading']}>
         <h1>이메일 설정</h1>
-        <p>뉴스 메일 수신 여부와 받을 시간을 설정하세요.</p>
+        <p className={styles['email-settings-page__heading-description']}>
+          뉴스 메일 수신 여부와 받을 시간을 설정하세요.
+        </p>
       </hgroup>
 
       {errorMessage && (
@@ -151,13 +153,14 @@ function EmailSettingsPage() {
               </p>
               <label className={styles['email-settings-page__toggle']}>
                 <input
+                  className={styles['email-settings-page__toggle-input']}
                   type="checkbox"
                   role="switch"
                   checked={mailEnabled}
                   disabled={!isSettingsLoaded || isSaving}
                   onChange={handleToggleMailEnabled}
                 ></input>
-                <span aria-hidden="true"></span>
+                <span className={styles['email-settings-page__toggle-track']} aria-hidden="true"></span>
                 <em className={styles['email-settings-page__sr-only']}>
                   뉴스 메일 받기 {mailEnabled ? '켜짐' : '꺼짐'}
                 </em>

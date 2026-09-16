@@ -1,17 +1,23 @@
 @use '../common/variable.scss' as *;
 @use './flexMixIn.scss' as *;
 
-@mixin checkbox($size: 17px, $radius: 4px, $checked-color: $main-color) {
+@mixin checkbox(
+  $size: 17px,
+  $radius: 4px,
+  $checked-color: $main-color,
+  $input-class: '.checkbox-input',
+  $indicator-class: '.checkbox-indicator'
+) {
   position: relative;
 
-  > input {
+  #{$input-class} {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     opacity: 0;
 
-    &:checked + span {
+    &:checked + #{$indicator-class} {
       color: $color-on-primary;
       border-color: $checked-color;
       background-color: $checked-color;
@@ -21,13 +27,13 @@
       }
     }
 
-    &:disabled + span {
+    &:disabled + #{$indicator-class} {
       cursor: default;
       opacity: 0.45;
     }
   }
 
-  > input + span {
+  #{$indicator-class} {
     @include flex(center, center);
     flex: 0 0 auto;
     width: $size;

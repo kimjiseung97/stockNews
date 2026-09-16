@@ -13,7 +13,7 @@
         letter-spacing: -0.04em;
       }
 
-      > p:last-child {
+      .watchlist-page__heading-description {
         color: $color-text-secondary;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.6;
@@ -24,7 +24,7 @@
       @include flex(null, center, 8px);
       margin-bottom: 32px;
 
-      > button {
+      .watchlist-page__search-button {
         @include btn(m);
         flex: 0 0 76px;
         width: 76px;

@@ -156,7 +156,9 @@ export default function NewsPreviewStack() {
         ref={trackRef}
       >
         <hgroup className={styles['home-page__news-preview-heading']}>
-          <h2 id="newsPreviewTitle">필요한 뉴스가 보기 좋게 도착합니다.</h2>
+          <h2 id="newsPreviewTitle" className={styles['home-page__news-preview-title']}>
+            필요한 뉴스가 보기 좋게 도착합니다.
+          </h2>
           <p className={styles['home-page__eyebrow']}>이메일 뉴스 알림</p>
         </hgroup>
         <p
@@ -179,8 +181,10 @@ export default function NewsPreviewStack() {
           <div
             className={`${styles['home-page__news-stack']} ${mediaStyles['home-page__news-stack']}`}
           >
-            <h3>오늘 확인하면 좋은 관심 종목 뉴스</h3>
-            <ul>
+            <h3 className={styles['home-page__news-stack-title']}>
+              오늘 확인하면 좋은 관심 종목 뉴스
+            </h3>
+            <ul className={styles['home-page__news-list']}>
               {newsPreviewItems.map((item, index) => (
                 <li
                   key={item.headline}
@@ -189,13 +193,15 @@ export default function NewsPreviewStack() {
                   }}
                   className={`${styles['home-page__news-card']} ${mediaStyles['home-page__news-card']}`}
                 >
-                  <article>
-                    <div>
-                      <strong>{item.ticker}</strong>
-                      <p>{item.headline}</p>
+                  <article className={styles['home-page__news-article']}>
+                    <div className={styles['home-page__news-title-group']}>
+                      <h4 className={styles['home-page__news-title']}>{item.headline}</h4>
+                      <strong className={styles['home-page__news-ticker']}>{item.ticker}</strong>
                     </div>
-                    <time dateTime={item.dateTime}>{item.displayDate}</time>
-                    <span>기사 보기 →</span>
+                    <time className={styles['home-page__news-date']} dateTime={item.dateTime}>
+                      {item.displayDate}
+                    </time>
+                    <span className={styles['home-page__news-link']}>기사 보기 →</span>
                   </article>
                 </li>
               ))}

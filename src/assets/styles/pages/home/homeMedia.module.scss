@@ -22,11 +22,11 @@
         position: static;
         text-align: left;
 
-        h3 {
+        .home-page__news-stack-title {
           display: none;
         }
 
-        ul {
+        .home-page__news-list {
           display: flex;
           flex-direction: column;
           gap: 18px;
@@ -55,7 +55,7 @@
           box-shadow: 0 10px 24px rgba($main-color, 0.16);
         }
 
-        article {
+        .home-page__news-article {
           display: flex;
           min-height: 100%;
           flex-direction: column;

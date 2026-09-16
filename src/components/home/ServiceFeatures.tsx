@@ -32,20 +32,31 @@ const serviceFeatures = [
 export default function ServiceFeatures() {
   return (
     <section className={styles['home-page__features']} aria-labelledby="featureTitle">
-      <h2 id="featureTitle" className={styles['home-page__section-guide']}>
-        StockNews로 할 수 있는 일
-      </h2>
-      <p className={styles['home-page__feature-description']}>
-        반복해서 뉴스를 찾는 과정을 더 간단하게 만들었습니다.
-      </p>
+      <div className={styles['home-page__feature-heading']}>
+        <h2 id="featureTitle" className={styles['home-page__section-guide']}>
+          StockNews로 할 수 있는 일
+        </h2>
+        <p className={styles['home-page__feature-description']}>
+          반복해서 뉴스를 찾는 과정을 더 간단하게 만들었습니다.
+        </p>
+      </div>
       <ul
         className={`${styles['home-page__feature-list']} ${mediaStyles['home-page__feature-list']}`}
       >
         {serviceFeatures.map((feature) => (
           <li key={feature.title} className={styles['home-page__feature-card']}>
-            <img src={feature.icon} alt="" aria-hidden="true"></img>
-            <h3>{feature.title}</h3>
-            <p>{feature.description}</p>
+            <article className={styles['home-page__feature-article']}>
+              <div className={styles['home-page__feature-title-group']}>
+                <h3 className={styles['home-page__feature-title']}>{feature.title}</h3>
+                <img
+                  className={styles['home-page__feature-icon']}
+                  src={feature.icon}
+                  alt=""
+                  aria-hidden="true"
+                ></img>
+              </div>
+              <p className={styles['home-page__feature-text']}>{feature.description}</p>
+            </article>
           </li>
         ))}
       </ul>

@@ -6,7 +6,7 @@ export default function HomeIntro() {
   const { email } = useAuth()
 
   return (
-    <section className={styles['home-page__intro']}>
+    <div className={styles['home-page__intro']}>
       <hgroup className={styles['home-page__intro-heading']}>
         <h1>
           뉴스를 찾는 시간은 줄이고
@@ -27,6 +27,6 @@ export default function HomeIntro() {
           관심 종목 등록
         </Link>
       </nav>
-    </section>
+    </div>
   )
 }

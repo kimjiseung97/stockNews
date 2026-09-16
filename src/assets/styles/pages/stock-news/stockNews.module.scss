@@ -12,7 +12,7 @@
         font-weight: 700;
       }
 
-      > p:last-child {
+      .stock-news-page__heading-description {
         color: $color-text-secondary;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.6;
@@ -23,7 +23,7 @@
       @include flex(null, center, 8px);
       margin-bottom: 18px;
 
-      > button {
+      .stock-news-page__search-button {
         @include btn(m);
         max-width: 70px;
         height: 44px;
@@ -97,7 +97,7 @@
         }
       }
 
-      > p {
+      .stock-news-page__stock-result-empty {
         padding: 16px 0;
         color: $color-text-muted;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
@@ -137,7 +137,7 @@
         }
       }
 
-      > span {
+      .stock-news-page__news-count {
         color: $color-text-muted;
         font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
         white-space: nowrap;
@@ -154,24 +154,24 @@
         border-bottom: 1px solid $color-border;
       }
 
-      article {
+      .stock-news-page__article {
         padding: 22px 4px;
       }
 
-      time {
+      .stock-news-page__article-date {
         display: block;
         margin-top: 9px;
         color: $color-text-muted;
         font-size: 1.3rem;
       }
 
-      h3 {
+      .stock-news-page__article-title {
         font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
         font-weight: 700;
         line-height: 1.45;
       }
 
-      p {
+      .stock-news-page__article-description {
         display: -webkit-box;
         margin-top: 8px;
         color: $color-text-label;
@@ -236,14 +236,15 @@
         }
       }
 
-      h2,
-      h3 {
+      .stock-news-page__empty-guide-title,
+      .stock-news-page__empty-title {
         margin-bottom: 9px;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         font-weight: 700;
       }
 
-      p {
+      .stock-news-page__empty-guide-description,
+      .stock-news-page__empty-description {
         color: $color-text-muted;
         font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
         line-height: 1.6;

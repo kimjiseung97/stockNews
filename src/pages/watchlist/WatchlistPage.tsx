@@ -111,7 +111,9 @@ function WatchlistPage() {
     >
       <hgroup className={styles['watchlist-page__heading']}>
         <h1>내 관심종목</h1>
-        <p>관심종목을 선택해 기업 소개와 기본정보를 확인하세요.</p>
+        <p className={styles['watchlist-page__heading-description']}>
+          관심종목을 선택해 기업 소개와 기본정보를 확인하세요.
+        </p>
       </hgroup>
 
       <form className={styles['watchlist-page__search-form']} onSubmit={handleSearchSubmit}>
@@ -126,7 +128,7 @@ function WatchlistPage() {
             onChange={(event) => setKeyword(event.target.value)}
           ></input>
         </label>
-        <button type="submit" disabled={isLoading}>
+        <button className={styles['watchlist-page__search-button']} type="submit" disabled={isLoading}>
           {isLoading ? <LoadingSpinner label="조회 중"></LoadingSpinner> : '검색'}
         </button>
       </form>
@@ -140,17 +142,17 @@ function WatchlistPage() {
       {isLoading ? (
         <ListSkeleton count={6} label="내 관심종목을 불러오는 중입니다."></ListSkeleton>
       ) : watchList.length === 0 && !searchedKeyword ? (
-        <section className={styles['watchlist-page__empty']}>
+        <div className={styles['watchlist-page__empty']}>
           <h2>아직 관심종목이 없습니다.</h2>
           <p>관심종목 추가·관리 메뉴에서 종목을 먼저 등록해 주세요.</p>
           <Link to="/watchlist/register">관심종목 추가하기</Link>
-        </section>
+        </div>
       ) : filteredWatchList.length === 0 ? (
         <p className={styles['watchlist-page__status']} role="status">
           “{searchedKeyword}”에 해당하는 관심종목이 없습니다.
         </p>
       ) : (
-        <section aria-labelledby="watchlistResultTitle">
+        <div aria-labelledby="watchlistResultTitle">
           <h2
             id="watchlistResultTitle"
             className={styles['watchlist-page__summary']}
@@ -206,7 +208,7 @@ function WatchlistPage() {
               </button>
             </nav>
           )}
-        </section>
+        </div>
       )}
     </main>
   )

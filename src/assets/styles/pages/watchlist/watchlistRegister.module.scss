@@ -13,7 +13,7 @@
         letter-spacing: -0.04em;
       }
 
-      > p:last-child {
+      .watchlist-register-page__heading-description {
         color: $color-text-secondary;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.6;
@@ -88,7 +88,7 @@
       font-weight: 700;
       letter-spacing: -0.03em;
 
-      > strong {
+      .watchlist-register-page__panel-count {
         color: $main-color;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         font-weight: 600;
@@ -100,7 +100,7 @@
       margin-top: 16px;
       margin-bottom: 26px;
 
-      > button {
+      .watchlist-register-page__search-button {
         @include btn(m);
         flex: 0 0 76px;
         width: 76px;
@@ -155,7 +155,13 @@
     .watchlist-register-page__select-all,
     .watchlist-register-page__checkbox {
       @include flex(null, center, 7px);
-      @include checkbox(15px, 3px, $main-color);
+      @include checkbox(
+        15px,
+        3px,
+        $main-color,
+        '.watchlist-register-page__checkbox-input',
+        '.watchlist-register-page__checkbox-indicator'
+      );
       min-height: 24px;
       min-width: 24px;
       color: $color-text-secondary;

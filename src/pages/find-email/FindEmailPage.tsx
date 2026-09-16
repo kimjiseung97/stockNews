@@ -111,7 +111,7 @@ function FindEmailPage() {
 
   return (
     <main id="findEmailPage" className={styles['find-email-page']}>
-      <article className={styles['find-email-page__card']}>
+      <div className={styles['find-email-page__card']}>
         <Link className={styles['find-email-page__back']} to="/login">
           <ArrowLeft aria-hidden="true"></ArrowLeft>
           로그인으로 돌아가기
@@ -280,7 +280,7 @@ function FindEmailPage() {
         <Link className={styles['find-email-page__forgot-password']} to="/find-password">
           비밀번호 찾기
         </Link>
-      </article>
+      </div>
     </main>
   )
 }

@@ -102,21 +102,26 @@
       border-radius: 17px;
       box-shadow: 0 12px 26px $color-shadow;
 
-      img {
+      .home-page__feature-title-group {
+        @include flex-col;
+        flex-direction: column-reverse;
+      }
+
+      .home-page__feature-icon {
         width: 54px;
         height: 54px;
         object-fit: cover;
         border-radius: 13px;
       }
 
-      h3 {
+      .home-page__feature-title {
         margin-top: 17px;
         font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
         font-weight: 700;
         letter-spacing: -0.035em;
       }
 
-      p {
+      .home-page__feature-text {
         margin-top: 11px;
         color: $color-text-secondary;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
@@ -127,7 +132,7 @@
     .home-page__guide {
       padding: 76px 0 72px;
 
-      > h2 {
+      .home-page__guide-title {
         font-size: 2.8rem;
         font-weight: 700;
         letter-spacing: -0.055em;
@@ -162,7 +167,12 @@
       position: relative;
       text-align: center;
 
-      > strong {
+      .home-page__step-title-group {
+        @include flex-col(null, center);
+        flex-direction: column-reverse;
+      }
+
+      .home-page__step-number {
         position: relative;
         z-index: 1;
         display: inline-flex;
@@ -179,13 +189,13 @@
         font-weight: 700;
       }
 
-      &:last-child > strong {
+      &:last-child .home-page__step-number {
         color: $color-on-primary;
         background-color: $main-color;
         border-color: $main-color;
       }
 
-      h3 {
+      .home-page__step-title {
         margin-top: 20px;
         font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
         font-weight: 700;
@@ -193,7 +203,7 @@
         letter-spacing: -0.035em;
       }
 
-      p {
+      .home-page__step-text {
         margin-top: 11px;
         color: $color-text-label;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
@@ -216,7 +226,7 @@
       @include flex(null, null, 10px);
       flex-direction: column-reverse;
 
-      h2 {
+      .home-page__news-preview-title {
         font-size: clamp(2.2rem, 2.8646vw, 2.6rem);
         font-weight: 700;
         line-height: 1.4;
@@ -252,13 +262,13 @@
       left: 5%;
       text-align: center;
 
-      h3 {
+      .home-page__news-stack-title {
         font-weight: 700;
         width: 90%;
         margin: 0 auto 15px;
       }
 
-      ul {
+      .home-page__news-list {
         text-align: left;
         width: 90%;
         margin: 0 auto;
@@ -281,13 +291,18 @@
         margin-bottom: 0;
       }
 
-      strong {
+      .home-page__news-title-group {
+        @include flex-col;
+        flex-direction: column-reverse;
+      }
+
+      .home-page__news-ticker {
         color: $main-color;
         font-size: 0.85rem;
         font-weight: 700;
       }
 
-      p {
+      .home-page__news-title {
         margin-top: 6px;
         color: $color-text-primary;
         font-size: 0.95rem;
@@ -295,8 +310,8 @@
         line-height: 1.4;
       }
 
-      time,
-      span {
+      .home-page__news-date,
+      .home-page__news-link {
         display: block;
         margin-top: 6px;
         color: $color-text-muted;
@@ -346,24 +361,26 @@
         background-color: rgba($color-on-primary, 0.06);
       }
 
-      > * {
+      .home-page__cta-title,
+      .home-page__cta-description,
+      .home-page__cta-link {
         position: relative;
         z-index: 1;
       }
 
-      h2 {
+      .home-page__cta-title {
         font-size: clamp(2rem, 3.6364vw, 2.5rem);
         font-weight: 700;
         letter-spacing: -0.05em;
       }
 
-      p {
+      .home-page__cta-description {
         margin-top: 17px;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.75;
       }
 
-      a {
+      .home-page__cta-link {
         display: inline-flex;
         align-items: center;
         justify-content: center;

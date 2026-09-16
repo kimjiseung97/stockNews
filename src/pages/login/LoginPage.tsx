@@ -38,7 +38,7 @@ function LoginPage() {
 
   return (
     <main id="loginPage" className={styles['login-page']}>
-      <article className={styles['login-page__card']}>
+      <div className={styles['login-page__card']}>
         <hgroup className={styles['login-page__heading']}>
           <h1>로그인</h1>
         </hgroup>
@@ -133,7 +133,7 @@ function LoginPage() {
           아이디(이메일) 찾기
           <span>여기</span>
         </button>
-      </article>
+      </div>
     </main>
   )
 }

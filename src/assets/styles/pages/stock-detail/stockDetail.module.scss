@@ -61,7 +61,7 @@
         }
       }
 
-      > p {
+      .stock-detail-page__company-name {
         margin-top: 7px;
         color: $color-text-muted;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);

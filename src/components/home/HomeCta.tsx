@@ -8,7 +8,7 @@ import styles from '@/assets/styles/pages/home/home.module.scss'
 gsap.registerPlugin(ScrollTrigger)
 
 export default function HomeCta() {
-  const ctaRef = useRef<HTMLElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useScrollContainer()
 
   useLayoutEffect(() => {
@@ -37,13 +37,15 @@ export default function HomeCta() {
   }, [scrollContainerRef])
 
   return (
-    <section className={styles['home-page__cta']} ref={ctaRef}>
-      <h2>관심 종목의 중요한 변화를 놓치지 마세요.</h2>
-      <p>
+    <div className={styles['home-page__cta']} ref={ctaRef}>
+      <h2 className={styles['home-page__cta-title']}>관심 종목의 중요한 변화를 놓치지 마세요.</h2>
+      <p className={styles['home-page__cta-description']}>
         지금 종목을 등록하고 필요한 뉴스만 편리하게 받아보세요. 언제든지 관심 종목과 이메일 설정을
         변경할 수 있습니다.
       </p>
-      <Link to="/stock-search">무료로 시작하기</Link>
-    </section>
+      <Link className={styles['home-page__cta-link']} to="/stock-search">
+        무료로 시작하기
+      </Link>
+    </div>
   )
 }

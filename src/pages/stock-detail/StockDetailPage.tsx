@@ -83,13 +83,15 @@ function StockDetailPage() {
               <h1>{stockInformation?.displayName || '기업 상세정보'}</h1>
               <p>{stockInformation?.ticker || `STOCK #${detail.stockId}`}</p>
             </span>
-            {stockInformation?.name && <p>{stockInformation.name}</p>}
+            {stockInformation?.name && (
+              <p className={styles['stock-detail-page__company-name']}>{stockInformation.name}</p>
+            )}
           </hgroup>
 
-          <section className={styles['stock-detail-page__overview']}>
+          <div className={styles['stock-detail-page__overview']}>
             <h2>기업 소개</h2>
             <p>{detail.summary || '등록된 기업 소개가 없습니다.'}</p>
-          </section>
+          </div>
 
           <dl className={styles['stock-detail-page__information']}>
             <div>

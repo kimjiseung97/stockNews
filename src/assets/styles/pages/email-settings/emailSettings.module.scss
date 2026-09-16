@@ -12,7 +12,7 @@
         font-weight: 700;
       }
 
-      > p:last-child {
+      .email-settings-page__heading-description {
         color: $color-text-secondary;
         font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.6;
@@ -55,18 +55,19 @@
       @include flex-col(null, null, 7px);
       flex: 1;
 
-      > span:first-child {
+      .email-settings-page__skeleton-title {
         width: 96px;
         height: 16px;
       }
 
-      > span:last-child {
+      .email-settings-page__skeleton-description {
         width: min(240px, 70%);
         height: 13px;
       }
     }
 
-    .email-settings-page__skeleton-text > span,
+    .email-settings-page__skeleton-title,
+    .email-settings-page__skeleton-description,
     .email-settings-page__skeleton-toggle,
     .email-settings-page__skeleton-select {
       display: block;
@@ -143,14 +144,14 @@
       display: inline-flex;
       align-items: center;
 
-      > input {
+      .email-settings-page__toggle-input {
         position: absolute;
         width: 1px;
         height: 1px;
         overflow: hidden;
         opacity: 0;
 
-        &:checked + span {
+        &:checked + .email-settings-page__toggle-track {
           background-color: $main-color;
 
           &::after {
@@ -158,13 +159,13 @@
           }
         }
 
-        &:disabled + span {
+        &:disabled + .email-settings-page__toggle-track {
           cursor: default;
           opacity: 0.5;
         }
       }
 
-      > input + span {
+      .email-settings-page__toggle-track {
         position: relative;
         display: inline-block;
         width: 44px;

@@ -64,17 +64,21 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
     void getPopularStock()
   }, [])
   return (
-    <section
+    <aside
       id="leftContentsContainer"
       className={styles['left-contents-container']}
       aria-labelledby="leftContentsTitle"
     >
-      <h2 id="leftContentsTitle">{headline}</h2>
+      <h2 id="leftContentsTitle" className={styles['left-contents-container__title']}>
+        {headline}
+      </h2>
       <p className={styles['left-contents-container__eyebrow']}>{eyebrow}</p>
       <p className={styles['left-contents-container__description']}>{description}</p>
 
       <search className={styles['input-box']}>
-        <label htmlFor="sidebar-stock-search-query">어떤 종목의 뉴스를 찾고 있나요?</label>
+        <label className={styles['left-contents-container__search-label']} htmlFor="sidebar-stock-search-query">
+          어떤 종목의 뉴스를 찾고 있나요?
+        </label>
         <p className={styles['left-contents-container__search-controls']}>
           <Search aria-hidden="true" color="#fff"></Search>
           <input
@@ -111,6 +115,6 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
           <Link to="/login">로그인</Link>
         </p>
       )}
-    </section>
+    </aside>
   )
 }

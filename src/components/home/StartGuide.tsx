@@ -21,16 +21,24 @@ const startSteps = [
 export default function StartGuide() {
   return (
     <section className={styles['home-page__guide']} aria-labelledby="guideTitle">
-      <h2 id="guideTitle">3단계로 간단하게 시작해요.</h2>
-      <p className={styles['home-page__guide-description']}>
-        복잡한 설정 없이 관심 종목을 고르고 이메일로 받아보세요.
-      </p>
+      <div className={styles['home-page__guide-heading']}>
+        <h2 id="guideTitle" className={styles['home-page__guide-title']}>
+          3단계로 간단하게 시작해요.
+        </h2>
+        <p className={styles['home-page__guide-description']}>
+          복잡한 설정 없이 관심 종목을 고르고 이메일로 받아보세요.
+        </p>
+      </div>
       <ol className={styles['home-page__step-list']}>
         {startSteps.map((step) => (
           <li key={step.number} className={styles['home-page__step']}>
-            <strong>{step.number}</strong>
-            <h3>{step.title}</h3>
-            <p>{step.description}</p>
+            <article className={styles['home-page__step-article']}>
+              <div className={styles['home-page__step-title-group']}>
+                <h3 className={styles['home-page__step-title']}>{step.title}</h3>
+                <strong className={styles['home-page__step-number']}>{step.number}</strong>
+              </div>
+              <p className={styles['home-page__step-text']}>{step.description}</p>
+            </article>
           </li>
         ))}
       </ol>

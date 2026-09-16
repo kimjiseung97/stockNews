@@ -199,7 +199,9 @@ function StockNewsPage() {
     <main id="stockNewsPage" className={styles['stock-news-page']}>
       <hgroup className={styles['stock-news-page__heading']}>
         <h1>종목별 뉴스</h1>
-        <p>궁금한 종목을 검색하고 최근 수집된 뉴스를 확인하세요.</p>
+        <p className={styles['stock-news-page__heading-description']}>
+          궁금한 종목을 검색하고 최근 수집된 뉴스를 확인하세요.
+        </p>
       </hgroup>
 
       <form className={styles['stock-news-page__search-form']} onSubmit={handleStockSearch}>
@@ -214,7 +216,7 @@ function StockNewsPage() {
             onChange={(event) => setKeyword(event.target.value)}
           ></input>
         </label>
-        <button type="submit" disabled={isStockSearching}>
+        <button className={styles['stock-news-page__search-button']} type="submit" disabled={isStockSearching}>
           {isStockSearching ? <LoadingSpinner label="검색 중"></LoadingSpinner> : '검색'}
         </button>
       </form>
@@ -222,7 +224,7 @@ function StockNewsPage() {
       {isStockSearching ? (
         <ListSkeleton count={5} label="종목을 검색하는 중입니다."></ListSkeleton>
       ) : hasStockSearched ? (
-        <section className={styles['stock-news-page__stock-result']}>
+        <div className={styles['stock-news-page__stock-result']}>
           <h2>
             검색 결과 <strong>{searchedStocks.length}</strong>개
           </h2>
@@ -246,9 +248,11 @@ function StockNewsPage() {
               ))}
             </ul>
           ) : (
-            <p>검색된 종목이 없습니다.</p>
+            <p className={styles['stock-news-page__stock-result-empty']}>
+              검색된 종목이 없습니다.
+            </p>
           )}
-        </section>
+        </div>
       ) : null}
 
       {errorMessage && (
@@ -257,7 +261,7 @@ function StockNewsPage() {
         </p>
       )}
 
-      <section
+      <div
         className={`${styles['stock-news-page__empty']} ${
           isStockSearching || hasStockSearched || selectedStockName
             ? styles['stock-news-page__empty-guide--hidden']
@@ -265,11 +269,15 @@ function StockNewsPage() {
         }`}
       >
         <hgroup className={styles['stock-news-page__empty-heading']}>
-          <h2>찾고 싶은 종목을 입력해 보세요.</h2>
+          <h2 className={styles['stock-news-page__empty-guide-title']}>
+            찾고 싶은 종목을 입력해 보세요.
+          </h2>
           <Search aria-hidden="true"></Search>
         </hgroup>
-        <p>종목명을 입력하면 관련 뉴스를 확인할 수 있습니다.</p>
-      </section>
+        <p className={styles['stock-news-page__empty-guide-description']}>
+          종목명을 입력하면 관련 뉴스를 확인할 수 있습니다.
+        </p>
+      </div>
 
       {selectedStockName &&
       (selectedStockName !== resolvedStockName || (isNewsLoading && !newsPage)) ? (
@@ -282,7 +290,7 @@ function StockNewsPage() {
               <small>{selectedTicker || 'SELECTED STOCK'}</small>
             </h2>
             {!isNewsLoading && newsPage && (
-              <span>
+              <span className={styles['stock-news-page__news-count']}>
                 뉴스 <strong>{newsPage.totalElements.toLocaleString()}</strong>건
               </span>
             )}
@@ -295,18 +303,25 @@ function StockNewsPage() {
               <ul className={styles['stock-news-page__list']}>
                 {newsPage.content.map((news) => (
                   <li key={news.id}>
-                    <article>
+                    <article className={styles['stock-news-page__article']}>
                       <a
                         className={styles['stock-news-page__article-link']}
                         href={news.url}
                         target="_blank"
                         rel="noreferrer"
                       >
-                        <h3>{news.title}</h3>
-                        <time dateTime={news.collectedAt}>
+                        <h3 className={styles['stock-news-page__article-title']}>{news.title}</h3>
+                        <time
+                          className={styles['stock-news-page__article-date']}
+                          dateTime={news.collectedAt}
+                        >
                           {getCollectedDate(news.collectedAt)}
                         </time>
-                        {news.content && <p>{news.content}</p>}
+                        {news.content && (
+                          <p className={styles['stock-news-page__article-description']}>
+                            {news.content}
+                          </p>
+                        )}
                         <span className={styles['stock-news-page__article-more']}>
                           기사 보기
                           <ArrowRight aria-hidden="true"></ArrowRight>
@@ -344,10 +359,14 @@ function StockNewsPage() {
             </>
           ) : (
             !errorMessage && (
-              <section className={styles['stock-news-page__empty']}>
-                <h3>수집된 뉴스가 없습니다.</h3>
-                <p>새로운 뉴스가 수집되면 이곳에 표시됩니다.</p>
-              </section>
+              <article className={styles['stock-news-page__empty']}>
+                <h3 className={styles['stock-news-page__empty-title']}>
+                  수집된 뉴스가 없습니다.
+                </h3>
+                <p className={styles['stock-news-page__empty-description']}>
+                  새로운 뉴스가 수집되면 이곳에 표시됩니다.
+                </p>
+              </article>
             )
           )}
         </section>

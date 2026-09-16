@@ -364,7 +364,9 @@ function WatchlistRegisterPage() {
     >
       <hgroup className={styles['watchlist-register-page__heading']}>
         <h1>관심 종목 관리</h1>
-        <p>관심 있는 종목을 검색해 등록하고, 더 이상 필요하지 않은 종목은 삭제하세요.</p>
+        <p className={styles['watchlist-register-page__heading-description']}>
+          관심 있는 종목을 검색해 등록하고, 더 이상 필요하지 않은 종목은 삭제하세요.
+        </p>
       </hgroup>
 
       <p
@@ -419,7 +421,10 @@ function WatchlistRegisterPage() {
           hidden={activeTab !== 'search'}
         >
           <h2 className={styles['watchlist-register-page__panel-heading']}>
-            관심 종목 검색 <strong>{searchResult?.totalElements.toLocaleString() ?? 0}개</strong>
+            관심 종목 검색{' '}
+            <strong className={styles['watchlist-register-page__panel-count']}>
+              {searchResult?.totalElements.toLocaleString() ?? 0}개
+            </strong>
           </h2>
           <form
             className={styles['watchlist-register-page__search-form']}
@@ -438,7 +443,7 @@ function WatchlistRegisterPage() {
                 }}
               ></input>
             </label>
-            <button type="submit" disabled={isSearching}>
+            <button className={styles['watchlist-register-page__search-button']} type="submit" disabled={isSearching}>
               {isSearching ? <LoadingSpinner label="검색 중"></LoadingSpinner> : '검색'}
             </button>
           </form>
@@ -453,12 +458,13 @@ function WatchlistRegisterPage() {
                 <p className={styles['watchlist-register-page__list-actions']}>
                   <label className={styles['watchlist-register-page__select-all']}>
                     <input
+                      className={styles['watchlist-register-page__checkbox-input']}
                       type="checkbox"
                       checked={isAllSearchStocksSelected}
                       disabled={selectableSearchStockIds.length === 0 || isBulkProcessing}
                       onChange={handleAllSearchStocksSelect}
                     ></input>
-                    <span aria-hidden="true">
+                    <span className={styles['watchlist-register-page__checkbox-indicator']} aria-hidden="true">
                       <Check></Check>
                     </span>
                     현재 목록 모두 선택
@@ -485,12 +491,13 @@ function WatchlistRegisterPage() {
                       <li key={stock.stockId} className={styles['watchlist-register-page__item']}>
                         <label className={styles['watchlist-register-page__checkbox']}>
                           <input
+                            className={styles['watchlist-register-page__checkbox-input']}
                             type="checkbox"
                             checked={selectedSearchStockIds.includes(stock.stockId)}
                             disabled={isRegistered || isProcessing || isBulkProcessing}
                             onChange={() => handleSearchStockSelect(stock.stockId)}
                           ></input>
-                          <span aria-hidden="true">
+                          <span className={styles['watchlist-register-page__checkbox-indicator']} aria-hidden="true">
                             <Check></Check>
                           </span>
                           <span className={styles['watchlist-register-page__sr-only']}>
@@ -577,7 +584,10 @@ function WatchlistRegisterPage() {
           hidden={activeTab !== 'registered'}
         >
           <h2 className={styles['watchlist-register-page__panel-heading']}>
-            등록된 관심 종목 <strong>{watchList.length}개</strong>
+            등록된 관심 종목{' '}
+            <strong className={styles['watchlist-register-page__panel-count']}>
+              {watchList.length}개
+            </strong>
           </h2>
 
           <form
@@ -599,7 +609,7 @@ function WatchlistRegisterPage() {
                 }}
               ></input>
             </label>
-            <button type="submit" disabled={isWatchListLoading}>
+            <button className={styles['watchlist-register-page__search-button']} type="submit" disabled={isWatchListLoading}>
               검색
             </button>
           </form>
@@ -617,12 +627,13 @@ function WatchlistRegisterPage() {
               <p className={styles['watchlist-register-page__list-actions']}>
                 <label className={styles['watchlist-register-page__select-all']}>
                   <input
+                    className={styles['watchlist-register-page__checkbox-input']}
                     type="checkbox"
                     checked={isAllPagedWatchListSelected}
                     disabled={isBulkProcessing}
                     onChange={handleAllPagedWatchListSelect}
                   ></input>
-                  <span aria-hidden="true">
+                  <span className={styles['watchlist-register-page__checkbox-indicator']} aria-hidden="true">
                     <Check></Check>
                   </span>
                   현재 목록 모두 선택
@@ -651,12 +662,13 @@ function WatchlistRegisterPage() {
                   <li key={stock.id} className={styles['watchlist-register-page__item']}>
                     <label className={styles['watchlist-register-page__checkbox']}>
                       <input
+                        className={styles['watchlist-register-page__checkbox-input']}
                         type="checkbox"
                         checked={selectedWatchListStockIds.includes(stock.stockId)}
                         disabled={isBulkProcessing}
                         onChange={() => handleWatchListStockSelect(stock.stockId)}
                       ></input>
-                      <span aria-hidden="true">
+                      <span className={styles['watchlist-register-page__checkbox-indicator']} aria-hidden="true">
                         <Check></Check>
                       </span>
                       <span className={styles['watchlist-register-page__sr-only']}>

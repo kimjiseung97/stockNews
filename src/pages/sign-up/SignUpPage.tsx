@@ -178,7 +178,7 @@ function SignUpPage() {
 
   return (
     <main id="signUpPage" className={styles['sign-up-page']}>
-      <article className={styles['sign-up-page__card']}>
+      <div className={styles['sign-up-page__card']}>
         <hgroup className={styles['sign-up-page__heading']}>
           <h1>회원가입</h1>
           <p>계정을 만들고 관심 종목의 뉴스를 받아보세요.</p>
@@ -370,7 +370,7 @@ function SignUpPage() {
           이미 계정이 있으신가요?
           <Link to="/login">로그인하기</Link>
         </p>
-      </article>
+      </div>
     </main>
   )
 }
