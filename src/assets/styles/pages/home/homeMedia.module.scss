@@ -1,0 +1,25 @@
+:global(#homePage) {
+  &.home-page {
+    @media (max-width: 1024px) {
+      .home-page__mail {
+        width: 80%;
+        margin: 72px 0;
+      }
+
+      .home-page__stock-note {
+        z-index: 99;
+      }
+
+      .home-page__stock-note--nvidia {
+        top: -30px;
+        left: unset;
+        right: -55px;
+      }
+
+      .home-page__stock-note--tesla {
+        right: -55px;
+        bottom: -28px;
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@
     position: fixed;
     left: 24px;
     right: 24px;
-    bottom: 24px;
+    bottom: 15px;
     z-index: 30;
     @include flex-col(null, flex-end);
     pointer-events: none;
@@ -33,16 +33,16 @@
     }
 
     .stock-chat__title {
-      font-size: 14px;
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
       font-weight: 700;
       letter-spacing: -0.02em;
     }
 
     .stock-chat__status {
       @include flex(null, center, 5px);
-      margin-top: 5px;
+      margin-top: 8px;
       color: $color-text-secondary;
-      font-size: 11px;
+      font-size: 1.3rem;
 
       span {
         width: 6px;
@@ -88,7 +88,7 @@
 
       strong {
         color: $color-text-label;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         font-weight: 600;
       }
     }
@@ -111,7 +111,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 3px 13px 13px;
       box-shadow: 0 2px 7px rgba(#243550, 0.05);
-      font-size: 13px;
+      font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
       line-height: 1.55;
       white-space: pre-wrap;
     }
@@ -120,7 +120,7 @@
       width: fit-content;
       max-width: 80%;
       padding: 10px 12px;
-      font-size: 13px;
+      font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
       line-height: 1.55;
 
       p {
@@ -286,7 +286,7 @@
         border: 1px solid #d8e2ef;
         border-radius: 11px 11px 2px 11px;
         box-shadow: 0 5px 16px rgba(#14233d, 0.12);
-        font-size: 12px;
+        font-size: 1.3rem;
         font-weight: 600;
         transition:
           color 0.25s ease,

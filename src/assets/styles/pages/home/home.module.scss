@@ -17,8 +17,8 @@
       flex-direction: column-reverse;
 
       h1 {
-        font-size: 3rem;
-        font-weight: 800;
+        font-size: clamp(2.5rem, 3.2552vw, 3rem);
+        font-weight: 700;
         line-height: 1.45;
         letter-spacing: -0.055em;
       }
@@ -26,15 +26,15 @@
 
     .home-page__eyebrow {
       color: $main-color;
-      font-size: 1.3rem;
-      font-weight: 800;
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-weight: 700;
     }
 
     .home-page__intro-description {
       max-width: 390px;
       margin-top: 22px;
       color: $color-text-secondary;
-      font-size: 1.45rem;
+      font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
       line-height: 1.8;
     }
 
@@ -48,7 +48,7 @@
         height: 48px;
         padding: 0 22px;
         border-radius: 10px;
-        font-size: 1.35rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         font-weight: 700;
         transition:
           background-color 0.2s,
@@ -75,16 +75,16 @@
     }
 
     .home-page__section-guide {
-      font-size: 3.2rem;
-      font-weight: 800;
-      line-height: 1.35;
+      font-size: clamp(2.5rem, 3.2552vw, 3rem);
+
+      font-weight: 700;
       letter-spacing: -0.055em;
     }
 
     .home-page__feature-description {
       margin-top: 14px;
       color: $color-text-secondary;
-      font-size: 1.45rem;
+      font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
       line-height: 1.7;
     }
 
@@ -96,7 +96,6 @@
     }
 
     .home-page__feature-card {
-      min-height: 215px;
       padding: 24px 22px;
       background-color: $color-surface;
       border: 1px solid $color-border;
@@ -112,15 +111,15 @@
 
       h3 {
         margin-top: 17px;
-        font-size: 1.65rem;
-        font-weight: 800;
+        font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
+        font-weight: 700;
         letter-spacing: -0.035em;
       }
 
       p {
         margin-top: 11px;
         color: $color-text-secondary;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.75;
       }
     }
@@ -130,7 +129,7 @@
 
       > h2 {
         font-size: 2.8rem;
-        font-weight: 800;
+        font-weight: 700;
         letter-spacing: -0.055em;
       }
     }
@@ -138,8 +137,7 @@
     .home-page__guide-description {
       margin-top: 14px;
       color: $color-text-secondary;
-      font-size: 1.35rem;
-      line-height: 1.6;
+      font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
     }
 
     .home-page__step-list {
@@ -177,8 +175,8 @@
         border: 1px solid $color-secondary-border;
         border-radius: 50%;
         box-shadow: 0 5px 14px $color-shadow;
-        font-size: 1.3rem;
-        font-weight: 800;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-weight: 700;
       }
 
       &:last-child > strong {
@@ -189,8 +187,8 @@
 
       h3 {
         margin-top: 20px;
-        font-size: 1.55rem;
-        font-weight: 800;
+        font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
+        font-weight: 700;
         line-height: 1.35;
         letter-spacing: -0.035em;
       }
@@ -198,7 +196,7 @@
       p {
         margin-top: 11px;
         color: $color-text-label;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.7;
       }
     }
@@ -219,8 +217,8 @@
       flex-direction: column-reverse;
 
       h2 {
-        font-size: 3rem;
-        font-weight: 800;
+        font-size: clamp(2.5rem, 3.2552vw, 3rem);
+        font-weight: 700;
         line-height: 1.35;
         letter-spacing: -0.055em;
       }
@@ -230,14 +228,13 @@
       max-width: 390px;
       margin-top: 20px;
       color: $color-text-secondary;
-      font-size: 1.35rem;
+      font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
       line-height: 1.75;
     }
 
     .home-page__mail {
       position: relative;
       width: 285px;
-      min-height: 355px;
       margin: 72px auto 0;
       padding: 27px 23px;
       background-color: $color-surface;
@@ -248,7 +245,7 @@
       > h3 {
         margin-top: 30px;
         font-size: 1.75rem;
-        font-weight: 800;
+        font-weight: 700;
         line-height: 1.45;
         letter-spacing: -0.04em;
       }
@@ -257,8 +254,8 @@
     .home-page__mail-header {
       @include flex(space-between, center);
       strong {
-        font-size: 1.3rem;
-        font-weight: 800;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-weight: 700;
       }
 
       time {
@@ -308,7 +305,6 @@
 
     .home-page__stock-note {
       position: absolute;
-      width: 132px;
       padding: 17px 15px;
       background-color: rgba($color-surface, 0.96);
       border: 1px solid $color-border;
@@ -318,7 +314,7 @@
       > strong {
         color: $main-color;
         font-size: 0.9rem;
-        font-weight: 800;
+        font-weight: 700;
       }
 
       p {
@@ -334,6 +330,10 @@
         color: $color-text-muted;
         font-size: 0.75rem;
       }
+    }
+
+    .home-page__stock-note-icon {
+      display: none;
     }
 
     .home-page__stock-note--nvidia {
@@ -388,17 +388,14 @@
       }
 
       h2 {
-        max-width: 410px;
-        font-size: 2.55rem;
-        font-weight: 800;
-        line-height: 1.4;
+        font-size: clamp(2rem, 3.6364vw, 2.5rem);
+        font-weight: 700;
         letter-spacing: -0.05em;
       }
 
       p {
-        max-width: 420px;
         margin-top: 17px;
-        font-size: 1.25rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.75;
       }
 
@@ -414,7 +411,7 @@
         border-radius: 10px;
         box-shadow: 0 8px 20px rgba($color-text-primary, 0.13);
         font-size: 1.3rem;
-        font-weight: 800;
+        font-weight: 700;
       }
     }
   }

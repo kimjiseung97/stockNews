@@ -1,5 +1,5 @@
-import { truncateText } from '@/utils/text'
 import styles from '@/assets/styles/common/stockNameBadge.module.scss'
+import mediaStyles from '@/assets/styles/common/stockNameBadgeMedia.module.scss'
 
 interface StockNameBadgeProps {
   ticker: string
@@ -19,16 +19,18 @@ export default function StockNameBadge({
   return (
     <>
       <span className={styles['stock-name-badge__ticker']}>{ticker}</span>
-      <span className={styles['stock-name-badge__names']}>
+      <span
+        className={`${styles['stock-name-badge__names']} ${mediaStyles['stock-name-badge__names']}`}
+      >
         <strong>{displayName}</strong>
-        {secondaryName && <small title={secondaryName}>{truncateText(secondaryName, 9)}</small>}
+        {secondaryName && <small title={secondaryName}>{secondaryName}</small>}
       </span>
       {theme && (
         <span
-          className={`${styles['stock-name-badge__theme']} ${themeClassName ?? ''}`}
+          className={`${styles['stock-name-badge__theme']} ${mediaStyles['stock-name-badge__theme']} ${themeClassName ?? ''}`}
           title={theme}
         >
-          {truncateText(theme, 3)}
+          {theme}
         </span>
       )}
     </>

@@ -1,4 +1,5 @@
 import styles from '@/assets/styles/pages/home/home.module.scss'
+import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 
 export default function EmailPreview() {
   return (
@@ -16,7 +17,10 @@ export default function EmailPreview() {
           관심 종목에서 새로 나온 주요 소식을 한 번에 확인하고, 원문이 궁금한 뉴스만 골라서
           확인하세요.
         </p>
-        <article className={styles['home-page__mail']} aria-label="StockNews 이메일 예시">
+        <article
+          className={`${styles['home-page__mail']} ${mediaStyles['home-page__mail']}`}
+          aria-label="StockNews 이메일 예시"
+        >
           <p className={styles['home-page__mail-header']}>
             <strong>StockNews</strong>
             <time dateTime="2026-09-15">2026.09.15</time>
@@ -36,16 +40,28 @@ export default function EmailPreview() {
           </ul>
           <aside
             aria-label="엔비디아 뉴스 예시"
-            className={`${styles['home-page__stock-note']} ${styles['home-page__stock-note--nvidia']}`}
+            className={`${styles['home-page__stock-note']} ${styles['home-page__stock-note--nvidia']} ${mediaStyles['home-page__stock-note']} ${mediaStyles['home-page__stock-note--nvidia']}`}
           >
+            <div
+              className={`${styles['home-page__stock-note-icon']} ${mediaStyles['home-page__stock-note-icon']}`}
+              aria-hidden="true"
+            >
+              N
+            </div>
             <strong>NVDA</strong>
             <p>AI 반도체 공급 확대 계획 발표</p>
             <span>Reuters · 18분 전</span>
           </aside>
           <aside
-            className={`${styles['home-page__stock-note']} ${styles['home-page__stock-note--tesla']}`}
+            className={`${styles['home-page__stock-note']} ${styles['home-page__stock-note--tesla']} ${mediaStyles['home-page__stock-note']} ${mediaStyles['home-page__stock-note--tesla']}`}
             aria-label="테슬라 뉴스 예시"
           >
+            <div
+              className={`${styles['home-page__stock-note-icon']} ${mediaStyles['home-page__stock-note-icon']}`}
+              aria-hidden="true"
+            >
+              T
+            </div>
             <strong>TSLA</strong>
             <p>신규 생산 라인과 인도량 전망</p>
             <span>Bloomberg · 1시간 전</span>

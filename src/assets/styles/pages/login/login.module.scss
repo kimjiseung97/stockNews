@@ -6,7 +6,7 @@
     color: $color-text-primary;
 
     .login-page__card {
-      width: 90%;
+      width: 100%;
       padding: 34px 28px 30px;
       background-color: $color-surface;
       border: 1px solid $color-border;
@@ -18,16 +18,9 @@
       margin-bottom: 28px;
 
       h1 {
-        margin-bottom: 10px;
-        font-size: 2rem;
+        font-size: clamp(1.8rem, 3.2727vw, 2rem);
         font-weight: 700;
         letter-spacing: -0.04em;
-      }
-
-      p {
-        color: $color-text-secondary;
-        font-size: 1.3rem;
-        line-height: 1.5;
       }
     }
 
@@ -49,7 +42,7 @@
       @include flex-col(null, null, 8px);
       margin-bottom: 18px;
       color: $color-text-label;
-      font-size: 1.3rem;
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
       font-weight: 600;
     }
 
@@ -77,7 +70,7 @@
       align-self: flex-end;
       margin-top: -6px;
       color: $main-color;
-      font-size: 1.3rem;
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
     }
 
     .login-page__submit {
@@ -94,7 +87,7 @@
       height: 46px;
       color: $main-color;
       border: 1px solid $color-secondary-border;
-      font-size: 1.3rem;
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
 
       &:hover {
         background-color: $color-secondary-hover;
@@ -108,7 +101,7 @@
       margin-right: auto;
       margin-left: auto;
       color: $color-text-muted;
-      font-size: 1.3rem;
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
 
       span {
         color: $main-color;

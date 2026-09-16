@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from 'react'
 import { Check, Plus, Search, Trash2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { stockSearch, type Stock, type StockSearchResponse } from '@/api/stockSearch/stockSearch'
@@ -570,7 +577,7 @@ function WatchlistRegisterPage() {
           hidden={activeTab !== 'registered'}
         >
           <h2 className={styles['watchlist-register-page__panel-heading']}>
-            등록된 관심 종목 <strong>{watchList.length}</strong>
+            등록된 관심 종목 <strong>{watchList.length}개</strong>
           </h2>
 
           <form

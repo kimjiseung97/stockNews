@@ -3,6 +3,7 @@ import listIcon from '@/assets/images/icons/list.png'
 import newsIcon from '@/assets/images/icons/news.png'
 import searchIcon from '@/assets/images/icons/search.png'
 import styles from '@/assets/styles/pages/home/home.module.scss'
+import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 
 const serviceFeatures = [
   {
@@ -37,7 +38,9 @@ export default function ServiceFeatures() {
       <p className={styles['home-page__feature-description']}>
         반복해서 뉴스를 찾는 과정을 더 간단하게 만들었습니다.
       </p>
-      <ul className={styles['home-page__feature-list']}>
+      <ul
+        className={`${styles['home-page__feature-list']} ${mediaStyles['home-page__feature-list']}`}
+      >
         {serviceFeatures.map((feature) => (
           <li key={feature.title} className={styles['home-page__feature-card']}>
             <img src={feature.icon} alt="" aria-hidden="true"></img>

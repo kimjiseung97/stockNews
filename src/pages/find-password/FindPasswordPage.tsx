@@ -6,6 +6,7 @@ import { requestResetPassword } from '@/api/infoFind/findPw'
 import { requsetNumAuth } from '@/api/infoFind/findPw'
 import { resetPassword } from '@/api/infoFind/findPw'
 import styles from '@/assets/styles/pages/forgot-password/forgotPassword.module.scss'
+import mediaStyles from '@/assets/styles/pages/forgot-password/forgotPasswordMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
 import warningIcon from '@/assets/images/icons/x.png'
 import { useStableLoading } from '@/hooks/useStableLoading'
@@ -195,7 +196,7 @@ function FindPasswordPage() {
 
         {warningMessage ? (
           <p
-            className={`${styles['forgot-password-page__notice']} ${styles['forgot-password-page__notice-warning']}`}
+            className={`${styles['forgot-password-page__notice']} ${styles['forgot-password-page__notice-warning']} ${mediaStyles['forgot-password-page__notice-warning']}`}
             id="findPasswordError"
             role="alert"
           >
@@ -204,7 +205,10 @@ function FindPasswordPage() {
           </p>
         ) : (
           step > 1 && (
-            <p className={styles['forgot-password-page__notice']} role="status">
+            <p
+              className={`${styles['forgot-password-page__notice']} ${mediaStyles['forgot-password-page__notice']}`}
+              role="status"
+            >
               <img src={completeIcon} alt=""></img>
               {step === 2 ? (
                 <>

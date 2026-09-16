@@ -8,13 +8,13 @@
 
       h1 {
         margin-bottom: 12px;
-        font-size: 2.6rem;
+        font-size: clamp(2rem, 3.6364vw, 2.5rem);
         font-weight: 700;
       }
 
       > p:last-child {
         color: $color-text-secondary;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.6;
       }
     }
@@ -47,7 +47,7 @@
 
       span {
         color: $color-text-muted;
-        font-size: 1.25rem;
+        font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
       }
     }
 
@@ -222,7 +222,7 @@
         border: 1px solid $color-input-border;
         border-radius: 10px;
         box-shadow: 0 1px 3px $color-input-shadow;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         font-weight: 600;
         font-variant-numeric: tabular-nums;
         appearance: none;
@@ -248,7 +248,7 @@
         option {
           color: $color-input-text;
           background-color: $color-surface;
-          font-size: 1.3rem;
+          font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
           font-weight: 500;
         }
 

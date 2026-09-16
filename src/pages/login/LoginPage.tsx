@@ -41,7 +41,6 @@ function LoginPage() {
       <article className={styles['login-page__card']}>
         <hgroup className={styles['login-page__heading']}>
           <h1>로그인</h1>
-          <p>관심 종목의 뉴스를 지금 바로 확인하세요.</p>
         </hgroup>
 
         {warningMessage && (

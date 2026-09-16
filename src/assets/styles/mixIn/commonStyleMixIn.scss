@@ -65,7 +65,7 @@
   background-color: rgba($color, 0.1);
   border: 1px solid rgba($color, 0.3);
   border-radius: 9px;
-  font-size: 1.3rem;
+  font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
 }
 
 @mixin primary-submit($height: 46px) {
@@ -74,7 +74,6 @@
   color: $color-on-primary;
   background-color: $main-color;
   box-shadow: 0 5px 12px $color-primary-shadow;
-  font-size: 1.3rem;
 
   &:hover {
     background-color: $color-primary-hover;
@@ -96,7 +95,7 @@
 
   em {
     color: $color-divider-text;
-    font-size: 1.3rem;
+    font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
   }
 }
 
@@ -115,6 +114,6 @@
 
   span {
     color: $color-text-secondary;
-    font-size: 1.3rem;
+    font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
   }
 }

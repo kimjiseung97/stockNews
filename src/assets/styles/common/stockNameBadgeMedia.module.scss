@@ -1,0 +1,16 @@
+@media (max-width: 400px) {
+  .stock-name-badge__names {
+    small {
+      max-width: 78px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .stock-name-badge__theme {
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

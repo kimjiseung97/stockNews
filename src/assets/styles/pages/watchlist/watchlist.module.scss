@@ -8,14 +8,14 @@
 
       h1 {
         margin-bottom: 12px;
-        font-size: 2.6rem;
+        font-size: clamp(2rem, 3.6364vw, 2.5rem);
         font-weight: 700;
         letter-spacing: -0.04em;
       }
 
       > p:last-child {
         color: $color-text-secondary;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         line-height: 1.6;
       }
     }
@@ -61,7 +61,7 @@
     .watchlist-page__status {
       padding: 56px 0;
       color: $color-text-muted;
-      font-size: 1.3rem;
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
       text-align: center;
     }
 
@@ -73,14 +73,14 @@
 
       h2 {
         margin-bottom: 10px;
-        font-size: 1.6rem;
+        font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
         font-weight: 700;
       }
 
       p {
         margin-bottom: 22px;
         color: $color-text-muted;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
       }
 
       a {
@@ -91,7 +91,7 @@
         color: $color-on-primary;
         background-color: $main-color;
         border-radius: 8px;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
         font-weight: 600;
 
         &:hover {
@@ -103,7 +103,7 @@
     .watchlist-page__summary {
       margin-bottom: 10px;
       color: $color-text-secondary;
-      font-size: 1.3rem;
+      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
 
       strong {
         color: $main-color;

@@ -5,6 +5,7 @@ import { ApiError } from '@/api/common/commonApi'
 import { requestResetPassword } from '@/api/infoFind/findId'
 import { requsetNumAuth } from '@/api/infoFind/findId'
 import styles from '@/assets/styles/pages/find-email/findEmail.module.scss'
+import mediaStyles from '@/assets/styles/pages/find-email/findEmailMedia.module.scss'
 import completeIcon from '@/assets/images/icons/complete.png'
 import warningIcon from '@/assets/images/icons/x.png'
 import { useStableLoading } from '@/hooks/useStableLoading'
@@ -127,7 +128,7 @@ function FindEmailPage() {
 
         {warningMessage ? (
           <p
-            className={`${styles['find-email-page__notice']} ${styles['find-email-page__notice-warning']}`}
+            className={`${styles['find-email-page__notice']} ${styles['find-email-page__notice-warning']} ${mediaStyles['find-email-page__notice-warning']}`}
             id="findEmailError"
             role="alert"
           >
@@ -136,7 +137,10 @@ function FindEmailPage() {
           </p>
         ) : (
           step > 1 && (
-            <p className={styles['find-email-page__notice']} role="status">
+            <p
+              className={`${styles['find-email-page__notice']} ${mediaStyles['find-email-page__notice']}`}
+              role="status"
+            >
               <img src={completeIcon} alt=""></img>
               {step === 2 ? (
                 <>
@@ -237,7 +241,12 @@ function FindEmailPage() {
               <button
                 type="button"
                 className={styles['find-email-page__text-button']}
-                onClick={() => setStep(1)}
+                onClick={() => {
+                  setRecoveryEmail('')
+                  setVerificationCode('')
+                  setWarningMessage('')
+                  setStep(1)
+                }}
               >
                 이메일 다시 입력하기
               </button>

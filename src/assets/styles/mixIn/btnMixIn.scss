@@ -7,6 +7,7 @@
   line-height: 1;
   width: 100%;
   height: 40px;
+  font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
   transition:
     color 0.2s,
     border-color 0.2s,
@@ -17,19 +18,15 @@
   @if $size == ss {
     max-width: 52px;
     padding: 0 10px;
-    font-size: 12px;
   } @else if $size == s {
     max-width: 64px;
     padding: 0 12px;
-    font-size: 13px;
   } @else if $size == m {
     max-width: 80px;
     padding: 0 16px;
-    font-size: 14px;
   } @else if $size == l {
     max-width: 96px;
     padding: 0 20px;
-    font-size: 15px;
   } @else if $size == full {
     max-width: none;
   } @else if $size == icon {
