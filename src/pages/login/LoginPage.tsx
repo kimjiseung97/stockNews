@@ -52,10 +52,10 @@ function LoginPage() {
 
         <form className={styles['login-page__form']} onSubmit={handleSubmit}>
           <p className={styles['login-page__field']}>
-            <label htmlFor="login-email">이메일</label>
+            <label htmlFor="loginEmail">이메일</label>
             <span className={styles['login-page__input-box']}>
               <input
-                id="login-email"
+                id="loginEmail"
                 aria-describedby={warningMessage ? 'loginError' : undefined}
                 type="email"
                 name="email"
@@ -71,10 +71,10 @@ function LoginPage() {
           </p>
 
           <p className={styles['login-page__field']}>
-            <label htmlFor="login-password">비밀번호</label>
+            <label htmlFor="loginPassword">비밀번호</label>
             <span className={styles['login-page__input-box']}>
               <input
-                id="login-password"
+                id="loginPassword"
                 aria-describedby={warningMessage ? 'loginError' : undefined}
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
@@ -91,7 +91,7 @@ function LoginPage() {
                 className={styles['login-page__password-toggle']}
                 onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                 aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
-                aria-controls="login-password"
+                aria-controls="loginPassword"
               >
                 {isPasswordVisible ? (
                   <EyeOff aria-hidden="true"></EyeOff>

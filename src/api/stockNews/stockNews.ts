@@ -1,4 +1,5 @@
 // 종목별 뉴스 조회
+import { requestWithSessionCache } from '@/utils/requestCache'
 
 export interface StockNewsItem {
   id: number
@@ -37,50 +38,60 @@ export async function stockNews({
   page = 0,
   size = 10,
 }: StockNewsParams): Promise<StockNewsResponse> {
-  try {
-    const searchParams = new URLSearchParams({ page: String(page), size: String(size) })
-    const response = await fetch(`/stocks/news/${stockId}?${searchParams.toString()}`, {
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    const body = (await response.json()) as StockNewsResponse | StockNewsApiResponse
+  const requestPath = `/stocks/news/${stockId}?${new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  }).toString()}`
 
-    console.log('종목별 뉴스 조회 응답', {
-      stockId,
-      page,
-      size,
-      response: body,
-    })
+  return requestWithSessionCache(
+    `stock-news:${requestPath}`,
+    async () => {
+      try {
+        const response = await fetch(requestPath, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        const body = (await response.json()) as StockNewsResponse | StockNewsApiResponse
 
-    // 원본 페이지 응답과 공통 응답 형식 모두 처리
-    if ('content' in body) {
-      return body
-    }
+        console.log('종목별 뉴스 조회 응답', {
+          stockId,
+          page,
+          size,
+          response: body,
+        })
 
-    // HTTP status보다 본문의 code를 먼저 본다 - 요청 제한(429)처럼 상태 코드가 200이 아닌 실패도
-    // 서버가 내려준 안내 메시지를 그대로 보여주기 위함이다.
-    if (body.code !== 'OK') {
-      throw new Error(body.message)
-    }
+        // 원본 페이지 응답과 공통 응답 형식 모두 처리
+        if ('content' in body) {
+          return body
+        }
 
-    if (!response.ok) {
-      throw new Error('종목 뉴스를 불러오지 못했습니다.')
-    }
+        // HTTP status보다 본문의 code를 먼저 본다 - 요청 제한(429)처럼 상태 코드가 200이 아닌 실패도
+        // 서버가 내려준 안내 메시지를 그대로 보여주기 위함이다.
+        if (body.code !== 'OK') {
+          throw new Error(body.message)
+        }
 
-    if (!body.data) {
-      throw new Error('종목 뉴스 응답이 없습니다.')
-    }
+        if (!response.ok) {
+          throw new Error('종목 뉴스를 불러오지 못했습니다.')
+        }
 
-    return body.data
-  } catch (error) {
-    console.error('종목별 뉴스 조회 오류', {
-      stockId,
-      page,
-      size,
-      error,
-    })
-    throw error
-  }
+        if (!body.data) {
+          throw new Error('종목 뉴스 응답이 없습니다.')
+        }
+
+        return body.data
+      } catch (error) {
+        console.error('종목별 뉴스 조회 오류', {
+          stockId,
+          page,
+          size,
+          error,
+        })
+        throw error
+      }
+    },
+    60_000,
+  )
 }

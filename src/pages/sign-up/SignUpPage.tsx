@@ -186,13 +186,13 @@ function SignUpPage() {
 
         <form className={styles['sign-up-page__form']} onSubmit={handleSubmit} noValidate>
           <p className={styles['sign-up-page__field']}>
-            <label htmlFor="sign-up-email">이메일</label>
+            <label htmlFor="signUpEmail">이메일</label>
             <span
               className={`${styles['sign-up-page__email-row']} ${mediaStyles['sign-up-page__email-row']}`}
             >
               <span className={styles['sign-up-page__input-box']}>
                 <input
-                  id="sign-up-email"
+                  id="signUpEmail"
                   type="email"
                   name="email"
                   placeholder="example@email.com"
@@ -216,13 +216,13 @@ function SignUpPage() {
 
           {isVerificationCodeVisible && (
             <p className={styles['sign-up-page__field']}>
-              <label htmlFor="sign-up-verification-code">인증코드</label>
+              <label htmlFor="signUpVerificationCode">인증코드</label>
               <span
                 className={`${styles['sign-up-page__email-row']} ${mediaStyles['sign-up-page__email-row']}`}
               >
                 <span className={styles['sign-up-page__input-box']}>
                   <input
-                    id="sign-up-verification-code"
+                    id="signUpVerificationCode"
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]{6}"
@@ -249,10 +249,10 @@ function SignUpPage() {
           )}
 
           <p className={styles['sign-up-page__field']}>
-            <label htmlFor="sign-up-password">비밀번호</label>
+            <label htmlFor="signUpPassword">비밀번호</label>
             <span className={styles['sign-up-page__input-box']}>
               <input
-                id="sign-up-password"
+                id="signUpPassword"
                 aria-describedby="signUpPasswordHint"
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
@@ -281,10 +281,10 @@ function SignUpPage() {
           </p>
 
           <p className={styles['sign-up-page__field']}>
-            <label htmlFor="sign-up-password-confirm">비밀번호 확인</label>
+            <label htmlFor="signUpPasswordConfirm">비밀번호 확인</label>
             <span className={styles['sign-up-page__input-box']}>
               <input
-                id="sign-up-password-confirm"
+                id="signUpPasswordConfirm"
                 aria-invalid={isPasswordMismatch}
                 aria-describedby={isPasswordMismatch ? 'signUpPasswordError' : undefined}
                 type={isPasswordConfirmVisible ? 'text' : 'password'}
@@ -324,10 +324,10 @@ function SignUpPage() {
           </p>
 
           <p className={styles['sign-up-page__field']}>
-            <label htmlFor="sign-up-recovery-email">복구 이메일</label>
+            <label htmlFor="signUpRecoveryEmail">복구 이메일</label>
             <span className={styles['sign-up-page__input-box']}>
               <input
-                id="sign-up-recovery-email"
+                id="signUpRecoveryEmail"
                 aria-describedby="signUpRecoveryHint"
                 required
                 type="email"

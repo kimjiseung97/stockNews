@@ -153,6 +153,7 @@ function EmailSettingsPage() {
               </p>
               <label className={styles['email-settings-page__toggle']}>
                 <input
+                  id="emailSettingsMailEnabled"
                   className={styles['email-settings-page__toggle-input']}
                   type="checkbox"
                   role="switch"
@@ -160,7 +161,10 @@ function EmailSettingsPage() {
                   disabled={!isSettingsLoaded || isSaving}
                   onChange={handleToggleMailEnabled}
                 ></input>
-                <span className={styles['email-settings-page__toggle-track']} aria-hidden="true"></span>
+                <span
+                  className={styles['email-settings-page__toggle-track']}
+                  aria-hidden="true"
+                ></span>
                 <em className={styles['email-settings-page__sr-only']}>
                   뉴스 메일 받기 {mailEnabled ? '켜짐' : '꺼짐'}
                 </em>

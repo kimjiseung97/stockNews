@@ -172,9 +172,7 @@ export default function StockChat() {
                       ></img>
                       <strong>모아</strong>
                     </p>
-                    <span className={styles['stock-chat__answer-content']}>
-                      {message.content}
-                    </span>
+                    <span className={styles['stock-chat__answer-content']}>{message.content}</span>
                   </>
                 ) : (
                   <p>{message.content}</p>
@@ -207,6 +205,7 @@ export default function StockChat() {
             <label className={styles['stock-chat__input-wrap']}>
               <span className={styles['stock-chat__label']}>질문 입력</span>
               <textarea
+                id="stockChatQuestion"
                 className={styles['stock-chat__input']}
                 value={question}
                 rows={1}

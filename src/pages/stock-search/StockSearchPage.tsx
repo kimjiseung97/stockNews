@@ -21,6 +21,7 @@ function StockSearchPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSearching, setIsSearching] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const isSameSearch = keyword.trim() === searchedKeyword && result !== null
 
   const fetchStocks = async (searchKeyword: string, page: number) => {
     setIsLoading(true)
@@ -47,6 +48,11 @@ function StockSearchPage() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const trimmedKeyword = keyword.trim()
+
+    if (isLoading || (trimmedKeyword === searchedKeyword && result !== null)) {
+      return
+    }
+
     setKeyword(trimmedKeyword)
     setSearchedKeyword(trimmedKeyword)
     setIsSearching(true)
@@ -71,7 +77,7 @@ function StockSearchPage() {
           <Search aria-hidden="true"></Search>
           <span className={styles['stock-search-page__sr-only']}>티커 또는 기업명</span>
           <input
-            id="stock-search-query"
+            id="stockSearchQuery"
 
             value={keyword}
             placeholder="예: 엔비디아, 애플"
@@ -80,7 +86,11 @@ function StockSearchPage() {
             onChange={(event) => setKeyword(event.target.value)}
           ></input>
         </label>
-        <button className={styles['stock-search-page__search-button']} type="submit" disabled={isLoading}>
+        <button
+          className={styles['stock-search-page__search-button']}
+          type="submit"
+          disabled={isLoading || isSameSearch}
+        >
           {isSearching ? <LoadingSpinner label="조회 중"></LoadingSpinner> : '조회'}
         </button>
       </form>

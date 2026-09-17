@@ -2,6 +2,8 @@
   :global(#homePage) {
     &.home-page {
       .home-page__news-preview {
+        overflow-x: clip;
+
         .home-page__news-preview__inner {
           width: 90%;
           padding: 40px 0 48px;

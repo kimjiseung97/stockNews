@@ -18,6 +18,10 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
   const [searchParams] = useSearchParams()
   const [tiker, setTiker] = useState('')
   const [popularStock, setPopularStock] = useState<PopularList[]>([])
+  const targetPath = email ? '/watchlist/register' : '/stock-search'
+  const isSameSearch =
+    location.pathname === targetPath &&
+    tiker.trim() === (searchParams.get('koreaName')?.trim() ?? '')
   function tikerOnKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       tikerSearchBtn(e)
@@ -28,8 +32,12 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
     e.preventDefault()
     const koreaName = tiker.trim()
 
+    if (isSameSearch) {
+      return
+    }
+
     navigate({
-      pathname: email ? '/watchlist/register' : '/stock-search',
+      pathname: targetPath,
       search: koreaName ? `?${new URLSearchParams({ koreaName })}` : '',
     })
   }
@@ -51,8 +59,15 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
   }, [location.pathname, searchParams])
 
   useEffect(() => {
-    // 인기종목 목록 조회
+    const desktopQuery = window.matchMedia('(min-width: 1025px)')
+
+    // 데스크톱에서 인기종목 목록 조회
     const getPopularStock = async () => {
+      if (!desktopQuery.matches) {
+        setPopularStock([])
+        return
+      }
+
       try {
         const response = await popularList(10)
         setPopularStock(response)
@@ -62,6 +77,14 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
     }
 
     void getPopularStock()
+
+    const handleScreenChange = () => {
+      void getPopularStock()
+    }
+
+    desktopQuery.addEventListener('change', handleScreenChange)
+
+    return () => desktopQuery.removeEventListener('change', handleScreenChange)
   }, [])
   return (
     <aside
@@ -76,20 +99,28 @@ export default function LeftContents({ eyebrow, headline, description }: LeftCon
       <p className={styles['left-contents-container__description']}>{description}</p>
 
       <search className={styles['input-box']}>
-        <label className={styles['left-contents-container__search-label']} htmlFor="sidebar-stock-search-query">
+        <label
+          className={styles['left-contents-container__search-label']}
+          htmlFor="sidebarStockSearchQuery"
+        >
           어떤 종목의 뉴스를 찾고 있나요?
         </label>
         <p className={styles['left-contents-container__search-controls']}>
           <Search aria-hidden="true" color="#fff"></Search>
           <input
-            id="sidebar-stock-search-query"
+            id="sidebarStockSearchQuery"
             type="search"
             placeholder={email ? '관심종목을 검색해 주세요.' : '기업명 또는 티커를 입력해 주세요.'}
             value={tiker}
             onChange={(e) => setTiker(e.target.value)}
             onKeyDown={tikerOnKeyDown}
           ></input>
-          <button type="button" aria-label="종목 검색" onClick={tikerSearchBtn}>
+          <button
+            type="button"
+            aria-label="종목 검색"
+            disabled={isSameSearch}
+            onClick={tikerSearchBtn}
+          >
             검색
           </button>
         </p>

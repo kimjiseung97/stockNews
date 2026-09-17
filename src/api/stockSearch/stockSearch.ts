@@ -1,5 +1,6 @@
 // 종목 검색
 import { apiFetch } from '@/api/common/commonApi'
+import { requestWithSessionCache } from '@/utils/requestCache'
 
 export interface Stock {
   id: number
@@ -55,7 +56,12 @@ export async function stockSearch({
 
     if (keyword.trim()) searchParams.set('keyword', keyword.trim())
 
-    const response = await apiFetch<StockSearchResponse>(`/stocks?${searchParams.toString()}`)
+    const requestPath = `/stocks?${searchParams.toString()}`
+    const response = await requestWithSessionCache(
+      `stock-search:${requestPath}`,
+      () => apiFetch<StockSearchResponse>(requestPath),
+      30_000,
+    )
 
     if (!response) {
       throw new Error('종목 검색 응답이 없습니다.')

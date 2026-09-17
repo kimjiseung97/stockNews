@@ -43,6 +43,8 @@ function WatchlistRegisterPage() {
   const [isBulkProcessing, setIsBulkProcessing] = useState(false)
   const [message, setMessage] = useState('')
   const [activeTab, setActiveTab] = useState<'search' | 'registered'>('search')
+  const isSameStockSearch = keyword.trim() === searchedKeyword && searchResult !== null
+  const isSameWatchListSearch = watchListKeyword.trim() === searchedWatchListKeyword
 
   const loadWatchList = useCallback(
     async (forceRefresh = false) => {
@@ -91,6 +93,10 @@ function WatchlistRegisterPage() {
     event.preventDefault()
     const trimmedKeyword = keyword.trim()
 
+    if (isSearching || (trimmedKeyword === searchedKeyword && searchResult !== null)) {
+      return
+    }
+
     setKeyword(trimmedKeyword)
     setSearchedKeyword(trimmedKeyword)
     setSelectedSearchStockIds([])
@@ -107,6 +113,10 @@ function WatchlistRegisterPage() {
   const handleWatchListSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const trimmedKeyword = watchListKeyword.trim()
+
+    if (isWatchListLoading || trimmedKeyword === searchedWatchListKeyword) {
+      return
+    }
 
     setWatchListKeyword(trimmedKeyword)
     setSearchedWatchListKeyword(trimmedKeyword)
@@ -340,6 +350,23 @@ function WatchlistRegisterPage() {
     }
   }, [watchListCurrentPage, watchListTotalPages])
 
+  // 탭 이동 시 검색 입력값 초기화
+  const handleTabChange = (nextTab: 'search' | 'registered') => {
+    setActiveTab(nextTab)
+    setKeyword('')
+    setSearchedKeyword('')
+    setSelectedSearchStockIds([])
+    setWatchListKeyword('')
+    setSearchedWatchListKeyword('')
+    setSelectedWatchListStockIds([])
+    setWatchListCurrentPage(0)
+    setMessage('')
+
+    if (nextTab === 'search') {
+      void loadStocks('', 0)
+    }
+  }
+
   // 방향키로 관심종목 관리 탭 이동
   const handleTabKeyDown = (event: KeyboardEvent<HTMLParagraphElement>) => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
@@ -385,7 +412,7 @@ function WatchlistRegisterPage() {
           aria-selected={activeTab === 'search'}
           tabIndex={activeTab === 'search' ? 0 : -1}
           aria-controls="watchlistSearchPanel"
-          onClick={() => setActiveTab('search')}
+          onClick={() => handleTabChange('search')}
         >
           관심 종목 검색
         </button>
@@ -399,7 +426,7 @@ function WatchlistRegisterPage() {
           aria-selected={activeTab === 'registered'}
           tabIndex={activeTab === 'registered' ? 0 : -1}
           aria-controls="registeredWatchlistPanel"
-          onClick={() => setActiveTab('registered')}
+          onClick={() => handleTabChange('registered')}
         >
           등록된 관심 종목
         </button>
@@ -434,6 +461,7 @@ function WatchlistRegisterPage() {
               <Search aria-hidden="true"></Search>
               <span className={styles['watchlist-register-page__sr-only']}>기업명 또는 티커</span>
               <input
+                id="watchlistRegisterStockSearch"
                 value={keyword}
                 placeholder="예: 엔비디아, NVDA"
                 maxLength={100}
@@ -443,7 +471,11 @@ function WatchlistRegisterPage() {
                 }}
               ></input>
             </label>
-            <button className={styles['watchlist-register-page__search-button']} type="submit" disabled={isSearching}>
+            <button
+              className={styles['watchlist-register-page__search-button']}
+              type="submit"
+              disabled={isSearching || isSameStockSearch}
+            >
               {isSearching ? <LoadingSpinner label="검색 중"></LoadingSpinner> : '검색'}
             </button>
           </form>
@@ -458,13 +490,17 @@ function WatchlistRegisterPage() {
                 <p className={styles['watchlist-register-page__list-actions']}>
                   <label className={styles['watchlist-register-page__select-all']}>
                     <input
+                      id="watchlistRegisterSearchSelectAll"
                       className={styles['watchlist-register-page__checkbox-input']}
                       type="checkbox"
                       checked={isAllSearchStocksSelected}
                       disabled={selectableSearchStockIds.length === 0 || isBulkProcessing}
                       onChange={handleAllSearchStocksSelect}
                     ></input>
-                    <span className={styles['watchlist-register-page__checkbox-indicator']} aria-hidden="true">
+                    <span
+                      className={styles['watchlist-register-page__checkbox-indicator']}
+                      aria-hidden="true"
+                    >
                       <Check></Check>
                     </span>
                     현재 목록 모두 선택
@@ -491,13 +527,17 @@ function WatchlistRegisterPage() {
                       <li key={stock.stockId} className={styles['watchlist-register-page__item']}>
                         <label className={styles['watchlist-register-page__checkbox']}>
                           <input
+                            id={`watchlistRegisterSearchStock${stock.stockId}`}
                             className={styles['watchlist-register-page__checkbox-input']}
                             type="checkbox"
                             checked={selectedSearchStockIds.includes(stock.stockId)}
                             disabled={isRegistered || isProcessing || isBulkProcessing}
                             onChange={() => handleSearchStockSelect(stock.stockId)}
                           ></input>
-                          <span className={styles['watchlist-register-page__checkbox-indicator']} aria-hidden="true">
+                          <span
+                            className={styles['watchlist-register-page__checkbox-indicator']}
+                            aria-hidden="true"
+                          >
                             <Check></Check>
                           </span>
                           <span className={styles['watchlist-register-page__sr-only']}>
@@ -600,6 +640,7 @@ function WatchlistRegisterPage() {
                 등록된 관심종목 기업명 또는 티커
               </span>
               <input
+                id="watchlistRegisterListSearch"
                 value={watchListKeyword}
                 placeholder="등록된 관심종목 검색"
                 maxLength={100}
@@ -609,7 +650,11 @@ function WatchlistRegisterPage() {
                 }}
               ></input>
             </label>
-            <button className={styles['watchlist-register-page__search-button']} type="submit" disabled={isWatchListLoading}>
+            <button
+              className={styles['watchlist-register-page__search-button']}
+              type="submit"
+              disabled={isWatchListLoading || isSameWatchListSearch}
+            >
               검색
             </button>
           </form>
@@ -627,13 +672,17 @@ function WatchlistRegisterPage() {
               <p className={styles['watchlist-register-page__list-actions']}>
                 <label className={styles['watchlist-register-page__select-all']}>
                   <input
+                    id="watchlistRegisterListSelectAll"
                     className={styles['watchlist-register-page__checkbox-input']}
                     type="checkbox"
                     checked={isAllPagedWatchListSelected}
                     disabled={isBulkProcessing}
                     onChange={handleAllPagedWatchListSelect}
                   ></input>
-                  <span className={styles['watchlist-register-page__checkbox-indicator']} aria-hidden="true">
+                  <span
+                    className={styles['watchlist-register-page__checkbox-indicator']}
+                    aria-hidden="true"
+                  >
                     <Check></Check>
                   </span>
                   현재 목록 모두 선택
@@ -662,13 +711,17 @@ function WatchlistRegisterPage() {
                   <li key={stock.id} className={styles['watchlist-register-page__item']}>
                     <label className={styles['watchlist-register-page__checkbox']}>
                       <input
+                        id={`watchlistRegisterListStock${stock.stockId}`}
                         className={styles['watchlist-register-page__checkbox-input']}
                         type="checkbox"
                         checked={selectedWatchListStockIds.includes(stock.stockId)}
                         disabled={isBulkProcessing}
                         onChange={() => handleWatchListStockSelect(stock.stockId)}
                       ></input>
-                      <span className={styles['watchlist-register-page__checkbox-indicator']} aria-hidden="true">
+                      <span
+                        className={styles['watchlist-register-page__checkbox-indicator']}
+                        aria-hidden="true"
+                      >
                         <Check></Check>
                       </span>
                       <span className={styles['watchlist-register-page__sr-only']}>
