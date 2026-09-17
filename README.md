@@ -7,12 +7,33 @@
 ```mermaid
 flowchart LR
     User(["사용자"]) --> React["React 19 + Vite<br/>(TypeScript / SCSS Modules)"]
-    React -- "Axios (세션 쿠키)" --> Controller["Spring Boot Controller<br/>(세션 기반 인증)"]
+    React -- "Axios (세션 쿠키)" --> RateLimit["RateLimitInterceptor<br/>(IP 단위 요청 제한)"]
+    RateLimit --> Auth["AuthInterceptor<br/>(세션 기반 인증)"]
+    Auth --> Controller["Spring Boot Controller"]
     Controller --> Service["Service Layer<br/>(비즈니스 로직)"]
     Service --> Repo["JPA / QueryDSL Repository"]
     Repo --> MySQL[("MySQL<br/>(Aiven 원격 호스팅)")]
     Controller -. "ApiResponseAdvice" .-> React
 ```
+
+### API 요청 제한 (IP 단위)
+
+같은 IP에서 짧은 시간에 몰려오는 요청을 컨트롤러 진입 전에 잘라낸다. 특히 호출 1건마다 실제 비용이
+나가는 경로(`POST /stocks/chat` → NVIDIA LLM 토큰, `/auth/**`의 메일 발송)를 보호하는 것이 목적이다.
+
+- 대상: `/auth/**`, `/stocks/**`, `/users/me/**` (SPA 정적 리소스는 제외)
+- 방식: IP별 토큰 버킷(Bucket4j) + Caffeine 보관(유휴 만료·개수 상한). 앱 인스턴스가 1대라 인메모리로
+  두었고, 인스턴스를 늘릴 때는 `RateLimiter` 구현만 Redis로 교체하면 된다.
+- 한도 초과 시 `HTTP 429` + `{"code":"TOO_MANY_REQUESTS"}` + `Retry-After` 헤더
+- 설정: `rate-limit.*` (env `RATE_LIMIT_ENABLED`, `RATE_LIMIT_CAPACITY`, `RATE_LIMIT_REFILL_PERIOD`).
+  오탐이 나면 `RATE_LIMIT_ENABLED=false`로 재배포 없이 끌 수 있다.
+- 클라이언트 IP: `X-Forwarded-For`를 **뒤에서부터** 읽는다(`rate-limit.trusted-proxy-count`, prod=1).
+  Spring의 `forward-headers-strategy`는 헤더의 첫 값을 쓰는데, 프록시는 들어온 헤더를 지우지 않고
+  뒤에 이어붙이므로 클라이언트가 앞쪽 값을 위조해 제한을 통째로 우회할 수 있다. 프록시가 마지막에
+  덧붙인 값만 위조 불가능하다. 프록시가 없는 환경은 0으로 두어 헤더를 아예 믿지 않는다.
+  전제로 앱 포트는 리버스 프록시 외에 노출하지 않아야 한다(프록시를 우회하면 이 판별이 무의미해진다).
+- `POST /stocks/chat`은 세션 인증 필수. 프론트가 비로그인 시 입력창을 비활성화하지만 화면 가드일 뿐이라
+  서버에서도 막는다.
 
 ### 배치 흐름 (종목 시딩 · 뉴스 발송)
 

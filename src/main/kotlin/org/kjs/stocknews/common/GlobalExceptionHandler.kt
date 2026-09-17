@@ -1,9 +1,13 @@
 package org.kjs.stocknews.common
 
+import org.kjs.stocknews.config.ratelimit.RateLimitExceededException
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataAccessException
 import org.springframework.dao.DataAccessResourceFailureException
 import org.springframework.dao.QueryTimeoutException
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.transaction.CannotCreateTransactionException
 import org.springframework.transaction.TransactionSystemException
@@ -52,6 +56,23 @@ class GlobalExceptionHandler {
         e.cause?.let { log.warn("business exception: {}", e.resultCode, it) }
         return ApiResponse.fail(e.resultCode)
     }
+
+    /**
+     * IP 단위 요청 한도 초과.
+     *
+     * 이 프로젝트의 실패 응답은 HTTP 200 + body의 code로 통일돼 있지만(위 NOTE 참고),
+     * 여기만 429를 내보낸다. 요청 제한은 프론트뿐 아니라 리버스 프록시·모니터링·크롤러가
+     * 상태 코드로 판단하는 계층이고, Retry-After는 429와 짝이어야 의미가 있기 때문이다.
+     * 프론트의 apiFetch는 HTTP status를 보지 않고 body의 code만 보므로 화면 동작은 그대로다.
+     *
+     * 거절 자체는 [org.kjs.stocknews.config.ratelimit.RateLimitInterceptor]에서 이미
+     * IP당 한 번 로깅하므로 여기서는 로그를 남기지 않는다(로그 폭주 방지).
+     */
+    @ExceptionHandler(RateLimitExceededException::class)
+    fun handleRateLimitExceeded(e: RateLimitExceededException): ResponseEntity<ApiResponse<Nothing>> =
+        ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+            .header(HttpHeaders.RETRY_AFTER, e.retryAfterSeconds.toString())
+            .body(ApiResponse.fail(e.resultCode))
 
     // ---------------------------------------------------------------------
     // 클라이언트 요청 오류 - 서버 장애가 아니므로 error가 아닌 warn으로 남긴다.
