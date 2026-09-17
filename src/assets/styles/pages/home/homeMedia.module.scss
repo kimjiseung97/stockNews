@@ -133,10 +133,13 @@
         &:not(:last-child)::after {
           position: absolute;
           top: 19px;
-          left: 31px;
+          left: 28px;
+          z-index: -1;
           width: 1px;
           height: calc(100% + 32px);
-          background-color: $color-border;
+          background-color: $color-divider;
+          transform: scaleY(var(--mobile-step-line-progress));
+          transform-origin: center top;
           content: '';
         }
 

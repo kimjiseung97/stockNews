@@ -27,7 +27,7 @@ export default function HomeCta() {
           scrollTrigger: {
             trigger: ctaRef.current,
             scroller: scrollContainerRef?.current ?? undefined,
-            start: 'top 92%',
+            start: 'top 78%',
             toggleActions: 'play none none reverse',
           },
         },

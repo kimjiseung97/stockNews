@@ -146,6 +146,9 @@
     }
 
     .home-page__step-list {
+      --step-line-progress: 1;
+      --mobile-step-line-progress: 1;
+
       position: relative;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -158,7 +161,9 @@
         right: 16%;
         left: 16%;
         height: 1px;
-        background-color: $color-input-border;
+        background-color: $color-divider;
+        transform: scaleX(var(--step-line-progress));
+        transform-origin: left center;
         content: '';
       }
     }
