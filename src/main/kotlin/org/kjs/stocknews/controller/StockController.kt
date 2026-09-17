@@ -52,7 +52,7 @@ class StockController(
     fun getNews(@PathVariable stockId: Long, pageable: Pageable): Page<StockNewsResponse> =
         stockService.getNews(stockId, pageable)
 
-    @Operation(summary = "AI 챗봇 질의", description = "평문 질문을 보내면 AI가 답변한다. 로그인 불필요.")
+    @Operation(summary = "AI 챗봇 질의", description = "평문 질문을 보내면 AI가 답변한다. 로그인 필요(호출 1건마다 LLM 토큰 비용이 발생해 비로그인 호출을 막는다).")
     @PostMapping("/chat")
     fun chat(@RequestBody request: StockChatRequest): StockChatResponse =
         stockChatService.ask(request)

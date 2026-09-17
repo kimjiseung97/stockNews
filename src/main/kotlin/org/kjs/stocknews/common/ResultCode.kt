@@ -10,6 +10,9 @@ enum class ResultCode(val code: String, val message: String) {
     MALFORMED_REQUEST_BODY("MALFORMED_REQUEST_BODY", "요청 본문을 읽을 수 없습니다. 형식을 확인해주세요."),
     METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED", "지원하지 않는 요청 방식입니다."),
 
+    // 같은 IP에서 짧은 시간에 과도하게 요청한 경우 - RateLimitInterceptor가 컨트롤러 진입 전에 던진다.
+    TOO_MANY_REQUESTS("TOO_MANY_REQUESTS", "요청이 너무 잦습니다. 잠시 후 다시 시도해주세요."),
+
     // 인프라 장애 - 프론트/운영자가 응답 코드만으로 원인 계층을 구분할 수 있도록 분리한다.
     DATABASE_UNAVAILABLE("DATABASE_UNAVAILABLE", "데이터베이스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."),
     DATABASE_TIMEOUT("DATABASE_TIMEOUT", "데이터 조회가 지연되고 있습니다. 잠시 후 다시 시도해주세요."),

@@ -12,6 +12,7 @@ version = "0.0.1-SNAPSHOT"
 description = "stockNews"
 
 val querydslVersion = "5.1.0"
+val bucket4jVersion = "8.14.0"
 
 java {
     toolchain {
@@ -34,6 +35,9 @@ dependencies {
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
     implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
+    // IP 단위 요청 제한(토큰 버킷) - 버킷 보관은 Caffeine(TTL/최대 개수 제한)이 담당한다.
+    implementation("com.bucket4j:bucket4j_jdk17-core:$bucket4jVersion")
+    implementation("com.github.ben-manes.caffeine:caffeine")
     kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
     kapt("jakarta.persistence:jakarta.persistence-api")
     kapt("jakarta.annotation:jakarta.annotation-api")
