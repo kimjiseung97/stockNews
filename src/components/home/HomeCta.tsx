@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useScrollContainer } from '@/contexts/ScrollContainerContext'
 import styles from '@/assets/styles/pages/home/home.module.scss'
+import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -37,13 +38,20 @@ export default function HomeCta() {
   }, [scrollContainerRef])
 
   return (
-    <div className={styles['home-page__cta']} ref={ctaRef}>
-      <h2 className={styles['home-page__cta-title']}>관심 종목의 중요한 변화를 놓치지 마세요.</h2>
+    <div
+      className={`${styles['home-page__cta']} ${mediaStyles['home-page__cta']}`}
+      ref={ctaRef}
+    >
+      <h2
+        className={`${styles['home-page__cta-title']} ${mediaStyles['home-page__cta-title']}`}
+      >
+        관심 종목의 중요한 변화를 놓치지 마세요.
+      </h2>
       <p className={styles['home-page__cta-description']}>
         지금 종목을 등록하고 필요한 뉴스만 편리하게 받아보세요. 언제든지 관심 종목과 이메일 설정을
         변경할 수 있습니다.
       </p>
-      <Link className={styles['home-page__cta-link']} to="/stock-search">
+      <Link className={styles['home-page__cta-link']} to="/sign-up">
         무료로 시작하기
       </Link>
     </div>

@@ -17,7 +17,7 @@
       flex-direction: column-reverse;
 
       h1 {
-        font-size: clamp(2.5rem, 3.2552vw, 3rem);
+        font-size: $font-size-section-title;
         font-weight: 700;
         line-height: 1.45;
         letter-spacing: -0.055em;
@@ -26,7 +26,7 @@
 
     .home-page__eyebrow {
       color: $main-color;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       font-weight: 700;
     }
 
@@ -34,7 +34,7 @@
       max-width: 390px;
       margin-top: 22px;
       color: $color-text-secondary;
-      font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
+      font-size: $font-size-description;
       line-height: 1.8;
     }
 
@@ -48,7 +48,7 @@
         height: 48px;
         padding: 0 22px;
         border-radius: 10px;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         font-weight: 700;
         transition:
           background-color 0.2s,
@@ -75,7 +75,7 @@
     }
 
     .home-page__section-guide {
-      font-size: clamp(2.5rem, 3.2552vw, 3rem);
+      font-size: $font-size-section-title;
 
       font-weight: 700;
       letter-spacing: -0.055em;
@@ -84,7 +84,7 @@
     .home-page__feature-description {
       margin-top: 14px;
       color: $color-text-secondary;
-      font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
+      font-size: $font-size-description;
       line-height: 1.7;
     }
 
@@ -116,7 +116,7 @@
 
       .home-page__feature-title {
         margin-top: 17px;
-        font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
+        font-size: $font-size-card-title;
         font-weight: 700;
         letter-spacing: -0.035em;
       }
@@ -124,7 +124,7 @@
       .home-page__feature-text {
         margin-top: 11px;
         color: $color-text-secondary;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.75;
       }
     }
@@ -133,7 +133,7 @@
       padding: 76px 0 72px;
 
       .home-page__guide-title {
-        font-size: 2.8rem;
+        font-size: $font-size-section-title;
         font-weight: 700;
         letter-spacing: -0.055em;
       }
@@ -142,7 +142,7 @@
     .home-page__guide-description {
       margin-top: 14px;
       color: $color-text-secondary;
-      font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
+      font-size: $font-size-description;
     }
 
     .home-page__step-list {
@@ -185,7 +185,7 @@
         border: 1px solid $color-secondary-border;
         border-radius: 50%;
         box-shadow: 0 5px 14px $color-shadow;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         font-weight: 700;
       }
 
@@ -197,7 +197,7 @@
 
       .home-page__step-title {
         margin-top: 20px;
-        font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
+        font-size: $font-size-card-title;
         font-weight: 700;
         line-height: 1.35;
         letter-spacing: -0.035em;
@@ -206,7 +206,7 @@
       .home-page__step-text {
         margin-top: 11px;
         color: $color-text-label;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.7;
       }
     }
@@ -227,7 +227,7 @@
       flex-direction: column-reverse;
 
       .home-page__news-preview-title {
-        font-size: clamp(2.2rem, 2.8646vw, 2.6rem);
+        font-size: $font-size-section-title;
         font-weight: 700;
         line-height: 1.4;
         letter-spacing: -0.05em;
@@ -238,7 +238,7 @@
       max-width: 420px;
       margin-top: 14px;
       color: $color-text-secondary;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       line-height: 1.75;
     }
 
@@ -301,7 +301,7 @@
 
       .home-page__news-ticker {
         color: $main-color;
-        font-size: 0.8rem;
+        font-size: $font-size-caption-xs;
         font-weight: 700;
         transition: font-size 0.45s cubic-bezier(0.16, 1, 0.3, 1);
       }
@@ -309,7 +309,7 @@
       .home-page__news-title {
         margin-top: 6px;
         color: $color-text-primary;
-        font-size: 1.1rem;
+        font-size: $font-size-caption-md;
         font-weight: 700;
         line-height: 1.4;
         transition: font-size 0.45s cubic-bezier(0.16, 1, 0.3, 1);
@@ -320,7 +320,7 @@
         display: block;
         margin-top: 6px;
         color: $color-text-muted;
-        font-size: 0.8rem;
+        font-size: $font-size-caption-xs;
         transition: font-size 0.45s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .home-page__news-link {
@@ -329,23 +329,22 @@
       }
     }
 
-    // active인 카드만 그림자/테두리를 진하게 — transform은 gsap이 별도로 트윈한다
     .home-page__news-card--active {
       min-width: 270px;
       border-color: rgba($main-color, 0.15);
       box-shadow: 0 10px 26px rgba($main-color, 0.18);
 
       .home-page__news-ticker {
-        font-size: 1rem;
+        font-size: $font-size-caption-sm;
       }
 
       .home-page__news-title {
-        font-size: clamp(1.4rem, 2.7273vw, 1.5rem);
+        font-size: $font-size-content-mobile;
       }
 
       .home-page__news-date,
       .home-page__news-link {
-        font-size: 1rem;
+        font-size: $font-size-caption-sm;
       }
     }
 
@@ -393,14 +392,15 @@
       }
 
       .home-page__cta-title {
-        font-size: clamp(2rem, 3.6364vw, 2.5rem);
+        font-size: $font-size-page-title;
         font-weight: 700;
         letter-spacing: -0.05em;
+        line-height: 1.5;
       }
 
       .home-page__cta-description {
         margin-top: 17px;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.75;
       }
 
@@ -415,7 +415,7 @@
         background-color: $color-surface;
         border-radius: 10px;
         box-shadow: 0 8px 20px rgba($color-text-primary, 0.13);
-        font-size: 1.3rem;
+        font-size: $font-size-small;
         font-weight: 700;
       }
     }

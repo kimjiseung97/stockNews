@@ -21,9 +21,15 @@ const startSteps = [
 
 export default function StartGuide() {
   return (
-    <section className={styles['home-page__guide']} aria-labelledby="guideTitle">
+    <section
+      className={`${styles['home-page__guide']} ${mediaStyles['home-page__guide']}`}
+      aria-labelledby="guideTitle"
+    >
       <div className={styles['home-page__guide-heading']}>
-        <h2 id="guideTitle" className={styles['home-page__guide-title']}>
+        <h2
+          id="guideTitle"
+          className={`${styles['home-page__guide-title']} ${mediaStyles['home-page__guide-title']}`}
+        >
           3단계로 간단하게 시작해요.
         </h2>
         <p className={styles['home-page__guide-description']}>

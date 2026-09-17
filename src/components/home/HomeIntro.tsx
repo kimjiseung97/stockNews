@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import styles from '@/assets/styles/pages/home/home.module.scss'
+import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function HomeIntro() {
@@ -7,7 +8,9 @@ export default function HomeIntro() {
 
   return (
     <div className={styles['home-page__intro']}>
-      <hgroup className={styles['home-page__intro-heading']}>
+      <hgroup
+        className={`${styles['home-page__intro-heading']} ${mediaStyles['home-page__intro-heading']}`}
+      >
         <h1>
           뉴스를 찾는 시간은 줄이고
           <br></br>

@@ -33,7 +33,7 @@
     }
 
     .stock-chat__title {
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
@@ -42,7 +42,7 @@
       @include flex(null, center, 5px);
       margin-top: 8px;
       color: $color-text-secondary;
-      font-size: 1.3rem;
+      font-size: $font-size-small;
 
       span {
         width: 6px;
@@ -88,7 +88,7 @@
 
       strong {
         color: $color-text-label;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         font-weight: 600;
       }
     }
@@ -111,7 +111,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 3px 13px 13px;
       box-shadow: 0 2px 7px rgba(#243550, 0.05);
-      font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+      font-size: $font-size-button;
       line-height: 1.55;
       white-space: pre-wrap;
     }
@@ -120,7 +120,7 @@
       width: fit-content;
       max-width: 80%;
       padding: 10px 12px;
-      font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+      font-size: $font-size-button;
       line-height: 1.55;
 
       p {
@@ -198,7 +198,7 @@
       overflow-y: auto;
       color: $color-input-text;
       border-radius: 18px;
-      font-size: 14px;
+      font-size: $font-size-button;
       line-height: 21px;
 
       &:focus {
@@ -211,7 +211,7 @@
 
       &::placeholder {
         color: $color-placeholder;
-        font-size: 14px;
+        font-size: $font-size-button;
       }
     }
 
@@ -220,7 +220,7 @@
       left: 16px;
       bottom: 12px;
       color: #d92d20;
-      font-size: 12px;
+      font-size: $font-size-caption;
       line-height: 18px;
     }
 
@@ -286,7 +286,7 @@
         border: 1px solid #d8e2ef;
         border-radius: 11px 11px 2px 11px;
         box-shadow: 0 5px 16px rgba(#14233d, 0.12);
-        font-size: 1.3rem;
+        font-size: $font-size-small;
         font-weight: 600;
         transition:
           color 0.25s ease,

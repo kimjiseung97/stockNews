@@ -33,7 +33,10 @@ export default function ServiceFeatures() {
   return (
     <section className={styles['home-page__features']} aria-labelledby="featureTitle">
       <div className={styles['home-page__feature-heading']}>
-        <h2 id="featureTitle" className={styles['home-page__section-guide']}>
+        <h2
+          id="featureTitle"
+          className={`${styles['home-page__section-guide']} ${mediaStyles['home-page__section-guide']}`}
+        >
           StockNews로 할 수 있는 일
         </h2>
         <p className={styles['home-page__feature-description']}>

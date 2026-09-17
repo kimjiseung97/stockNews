@@ -19,14 +19,14 @@
 
       h1 {
         margin-bottom: 8px;
-        font-size: clamp(1.8rem, 3.2727vw, 2rem);
+        font-size: $font-size-form-title;
         font-weight: 700;
         letter-spacing: -0.04em;
       }
 
       p {
         color: $color-text-secondary;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.5;
       }
     }
@@ -39,11 +39,11 @@
       @include flex-col(null, null, 7px);
       margin-bottom: 16px;
       color: $color-text-label;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       font-weight: 600;
 
       small {
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         font-weight: 400;
         line-height: 1.4;
       }
@@ -88,7 +88,6 @@
       height: 42px;
       color: $color-on-primary;
       background-color: $main-color;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
 
       &:hover {
         background-color: $color-primary-hover;
@@ -114,7 +113,7 @@
       height: 44px;
       color: $main-color;
       border: 1px solid $color-secondary-border;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
 
       &:hover {
         background-color: $color-secondary-hover;
@@ -125,7 +124,7 @@
       @include flex(center, center, 4px);
       margin-top: 22px;
       color: $color-text-muted;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
 
       a {
         color: $main-color;

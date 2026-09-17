@@ -27,7 +27,7 @@
         height: 44px;
         padding: 0 16px;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: $font-size-button;
         font-weight: 600;
         transition:
           background-color 0.2s,
@@ -55,7 +55,7 @@
 
     .header-container__email {
       color: $color-account-text;
-      font-size: 14px;
+      font-size: $font-size-button;
       font-weight: 600;
     }
 

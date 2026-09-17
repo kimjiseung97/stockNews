@@ -8,13 +8,13 @@
 
       h1 {
         margin-bottom: 12px;
-        font-size: clamp(2rem, 3.6364vw, 2.5rem);
+        font-size: $font-size-page-title;
         font-weight: 700;
       }
 
       .stock-news-page__heading-description {
         color: $color-text-secondary;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.6;
       }
     }
@@ -61,7 +61,7 @@
       h2 {
         margin-bottom: 10px;
         color: $color-text-muted;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
 
         strong {
           color: $main-color;
@@ -100,7 +100,7 @@
       .stock-news-page__stock-result-empty {
         padding: 16px 0;
         color: $color-text-muted;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         text-align: center;
       }
     }
@@ -128,18 +128,18 @@
       h2 {
         @include flex(null, null, 7px);
         flex-direction: column-reverse;
-        font-size: 1.8rem;
+        font-size: $font-size-form-title;
         font-weight: 700;
 
         small {
           color: $main-color;
-          font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+          font-size: $font-size-button;
         }
       }
 
       .stock-news-page__news-count {
         color: $color-text-muted;
-        font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+        font-size: $font-size-button;
         white-space: nowrap;
 
         strong {
@@ -162,11 +162,11 @@
         display: block;
         margin-top: 9px;
         color: $color-text-muted;
-        font-size: 1.3rem;
+        font-size: $font-size-small;
       }
 
       .stock-news-page__article-title {
-        font-size: clamp(1.5rem, 1.9531vw, 1.7rem);
+        font-size: $font-size-description;
         font-weight: 700;
         line-height: 1.45;
       }
@@ -176,7 +176,7 @@
         margin-top: 8px;
         color: $color-text-label;
         overflow: hidden;
-        font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+        font-size: $font-size-button;
         line-height: 1.65;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
@@ -202,7 +202,7 @@
         width: fit-content;
         margin-top: 13px;
         color: $main-color;
-        font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+        font-size: $font-size-button;
         font-weight: 600;
         transition: color 0.2s;
 
@@ -239,14 +239,14 @@
       .stock-news-page__empty-guide-title,
       .stock-news-page__empty-title {
         margin-bottom: 9px;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         font-weight: 700;
       }
 
       .stock-news-page__empty-guide-description,
       .stock-news-page__empty-description {
         color: $color-text-muted;
-        font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+        font-size: $font-size-button;
         line-height: 1.6;
       }
     }

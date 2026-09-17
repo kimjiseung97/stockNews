@@ -8,7 +8,7 @@
       width: fit-content;
       margin-bottom: 36px;
       color: $color-text-secondary;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
 
       &:hover {
         color: $color-text-primary;
@@ -27,7 +27,7 @@
       background-color: rgba($color-read-only-background, 0.55);
       border-radius: 6px;
       color: $color-text-muted;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       text-align: center;
     }
 
@@ -48,14 +48,14 @@
         flex-direction: column-reverse;
 
         h1 {
-          font-size: clamp(2rem, 3.6364vw, 2.5rem);
+          font-size: $font-size-page-title;
           font-weight: 700;
           letter-spacing: -0.04em;
         }
 
         p {
           color: $main-color;
-          font-size: 1.2rem;
+          font-size: $font-size-caption;
           font-weight: 700;
           letter-spacing: 0.12em;
         }
@@ -64,7 +64,7 @@
       .stock-detail-page__company-name {
         margin-top: 7px;
         color: $color-text-muted;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
       }
     }
 
@@ -73,13 +73,13 @@
 
       h2 {
         margin-bottom: 12px;
-        font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
+        font-size: $font-size-card-title;
         font-weight: 700;
       }
 
       p {
         color: $color-text-label;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.8;
       }
     }
@@ -97,12 +97,12 @@
       dt {
         margin-bottom: 7px;
         color: $color-text-muted;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
       }
 
       dd {
         color: $color-text-primary;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         font-weight: 600;
         line-height: 1.5;
       }
@@ -116,7 +116,7 @@
       color: $color-on-primary;
       background-color: $color-text-primary;
       border-radius: 8px;
-      font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+      font-size: $font-size-button;
       font-weight: 600;
 
       &:hover {

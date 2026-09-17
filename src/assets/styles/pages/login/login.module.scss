@@ -18,7 +18,7 @@
       margin-bottom: 28px;
 
       h1 {
-        font-size: clamp(1.8rem, 3.2727vw, 2rem);
+        font-size: $font-size-form-title;
         font-weight: 700;
         letter-spacing: -0.04em;
       }
@@ -42,7 +42,7 @@
       @include flex-col(null, null, 8px);
       margin-bottom: 18px;
       color: $color-text-label;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       font-weight: 600;
     }
 
@@ -70,7 +70,7 @@
       align-self: flex-end;
       margin-top: -6px;
       color: $main-color;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
     }
 
     .login-page__submit {
@@ -87,7 +87,7 @@
       height: 46px;
       color: $main-color;
       border: 1px solid $color-secondary-border;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
 
       &:hover {
         background-color: $color-secondary-hover;
@@ -101,7 +101,7 @@
       margin-right: auto;
       margin-left: auto;
       color: $color-text-muted;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
 
       span {
         color: $main-color;

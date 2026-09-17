@@ -8,14 +8,14 @@
 
       h1 {
         margin-bottom: 12px;
-        font-size: clamp(2rem, 3.6364vw, 2.5rem);
+        font-size: $font-size-page-title;
         font-weight: 700;
         letter-spacing: -0.04em;
       }
 
       .watchlist-register-page__heading-description {
         color: $color-text-secondary;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.6;
       }
     }
@@ -24,7 +24,7 @@
       @include flex(null, center, 8px);
       margin-bottom: 28px;
       padding: 10px 0;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       color: $color-success-text;
       border-bottom: 1px solid $color-border;
 
@@ -46,7 +46,7 @@
       padding: 0 16px;
       color: $color-text-secondary;
       border-bottom: 2px solid transparent;
-      font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+      font-size: $font-size-button;
       font-weight: 600;
       transition:
         color 0.2s,
@@ -84,13 +84,13 @@
 
     .watchlist-register-page__panel-heading {
       @include flex(space-between, center, 10px);
-      font-size: clamp(1.6rem, 2.0833vw, 1.8rem);
+      font-size: $font-size-card-title;
       font-weight: 700;
       letter-spacing: -0.03em;
 
       .watchlist-register-page__panel-count {
         color: $main-color;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         font-weight: 600;
       }
     }
@@ -135,7 +135,7 @@
       color: $color-text-muted;
       background-color: rgba($color-read-only-background, 0.55);
       border-radius: 6px;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       line-height: 1.5;
       text-align: center;
     }
@@ -165,7 +165,7 @@
       min-height: 24px;
       min-width: 24px;
       color: $color-text-secondary;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       cursor: pointer;
     }
 
@@ -183,7 +183,7 @@
       height: 34px;
       padding: 0 10px;
       border-radius: 6px;
-      font-size: 1.2rem;
+      font-size: $font-size-caption;
       font-weight: 600;
     }
 
@@ -237,7 +237,7 @@
       height: 32px;
       padding: 0 10px;
       border-radius: 6px;
-      font-size: 1.2rem;
+      font-size: $font-size-caption;
       font-weight: 600;
 
       svg {

@@ -2,8 +2,6 @@
   :global(#homePage) {
     &.home-page {
       .home-page__news-preview {
-        overflow-x: clip;
-
         .home-page__news-preview__inner {
           width: 90%;
           padding: 40px 0 48px;
@@ -66,16 +64,17 @@
         }
 
         .home-page__news-ticker {
-          font-size: 1rem;
+          font-size: $font-size-caption;
         }
 
         .home-page__news-title {
-          font-size: clamp(1.4rem, 2.7273vw, 1.5rem);
+          font-size: $font-size-content-mobile;
         }
 
         .home-page__news-date,
         .home-page__news-link {
-          font-size: 1rem;
+          font-size: $font-size-caption;
+          margin-top: 10px;
         }
       }
     }
@@ -85,6 +84,34 @@
 @media (max-width: 550px) {
   :global(#homePage) {
     &.home-page {
+      .home-page__intro-heading {
+        h1 {
+          font-size: $font-size-page-title;
+        }
+      }
+
+      .home-page__section-guide {
+        font-size: $font-size-page-title;
+      }
+
+      .home-page__guide {
+        .home-page__guide-title {
+          font-size: $font-size-page-title;
+        }
+      }
+
+      .home-page__news-preview-heading {
+        .home-page__news-preview-title {
+          font-size: $font-size-page-title;
+        }
+      }
+
+      .home-page__cta {
+        .home-page__cta-title {
+          font-size: $font-size-page-title;
+        }
+      }
+
       .home-page__feature-list {
         grid-template-columns: repeat(1, minmax(0, 1fr));
       }

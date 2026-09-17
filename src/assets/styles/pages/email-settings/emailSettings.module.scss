@@ -8,13 +8,13 @@
 
       h1 {
         margin-bottom: 12px;
-        font-size: clamp(2rem, 3.6364vw, 2.5rem);
+        font-size: $font-size-page-title;
         font-weight: 700;
       }
 
       .email-settings-page__heading-description {
         color: $color-text-secondary;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.6;
       }
     }
@@ -41,13 +41,13 @@
       line-height: 1.5;
 
       strong {
-        font-size: 1.4rem;
+        font-size: $font-size-button;
         font-weight: 600;
       }
 
       span {
         color: $color-text-muted;
-        font-size: clamp(1.3rem, 3.6364vw, 1.4rem);
+        font-size: $font-size-button;
       }
     }
 
@@ -223,7 +223,7 @@
         border: 1px solid $color-input-border;
         border-radius: 10px;
         box-shadow: 0 1px 3px $color-input-shadow;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         font-weight: 600;
         font-variant-numeric: tabular-nums;
         appearance: none;
@@ -249,7 +249,7 @@
         option {
           color: $color-input-text;
           background-color: $color-surface;
-          font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+          font-size: $font-size-content;
           font-weight: 500;
         }
 

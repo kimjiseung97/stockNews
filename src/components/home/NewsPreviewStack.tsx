@@ -155,8 +155,13 @@ export default function NewsPreviewStack() {
         className={`${styles['home-page__news-preview__inner']} ${mediaStyles['home-page__news-preview__inner']}`}
         ref={trackRef}
       >
-        <hgroup className={styles['home-page__news-preview-heading']}>
-          <h2 id="newsPreviewTitle" className={styles['home-page__news-preview-title']}>
+        <hgroup
+          className={`${styles['home-page__news-preview-heading']} ${mediaStyles['home-page__news-preview-heading']}`}
+        >
+          <h2
+            id="newsPreviewTitle"
+            className={`${styles['home-page__news-preview-title']} ${mediaStyles['home-page__news-preview-title']}`}
+          >
             필요한 뉴스가 보기 좋게 도착합니다.
           </h2>
           <p className={styles['home-page__eyebrow']}>이메일 뉴스 알림</p>

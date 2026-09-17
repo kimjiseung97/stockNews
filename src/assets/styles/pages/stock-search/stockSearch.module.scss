@@ -8,14 +8,14 @@
 
       h1 {
         margin-bottom: 12px;
-        font-size: clamp(2rem, 3.6364vw, 2.5rem);
+        font-size: $font-size-page-title;
         font-weight: 700;
         letter-spacing: -0.04em;
       }
 
       p {
         color: $color-text-secondary;
-        font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+        font-size: $font-size-content;
         line-height: 1.5;
       }
     }
@@ -72,14 +72,14 @@
     .stock-search-page__status {
       padding: 40px 0;
       color: $color-text-muted;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
       text-align: center;
     }
 
     .stock-search-page__summary {
       margin-bottom: 10px;
       color: $color-text-secondary;
-      font-size: clamp(1.4rem, 1.8229vw, 1.5rem);
+      font-size: $font-size-content;
 
       strong {
         color: $main-color;
