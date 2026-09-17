@@ -2,6 +2,7 @@ import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
 import { AuthProvider } from './contexts/AuthContext'
+import RouteSeo from './components/common/RouteSeo'
 
 // 필요한 화면 코드만 불러오기
 const HomePage = lazy(() => import('./pages/home/HomePage'))
@@ -19,6 +20,7 @@ const EmailSettingsPage = lazy(() => import('./pages/email-settings/EmailSetting
 function App() {
   return (
     <AuthProvider>
+      <RouteSeo></RouteSeo>
       <Routes>
         <Route element={<MainLayout></MainLayout>}>
           <Route path="/" element={<HomePage></HomePage>}></Route>

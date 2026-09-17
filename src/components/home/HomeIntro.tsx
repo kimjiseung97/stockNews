@@ -16,7 +16,7 @@ export default function HomeIntro() {
           <br></br>
           중요한 변화에 집중하세요.
         </h1>
-        <p className={styles['home-page__eyebrow']}>StockNews 소개</p>
+        <p className={styles['home-page__eyebrow']}>스톡뉴스 StockNews 소개</p>
       </hgroup>
       <p className={styles['home-page__intro-description']}>
         관심 종목을 등록하면 종목별 최신 뉴스를 한곳에서 확인하고 원하는 시간에 이메일로 받아볼 수

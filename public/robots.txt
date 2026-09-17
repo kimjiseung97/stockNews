@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+Disallow: /watchlist
+Disallow: /email-settings
+Disallow: /login
+Disallow: /sign-up
+Disallow: /find-password
+Disallow: /find-email
+
+Sitemap: https://stocknews-home.duckdns.org/sitemap.xml

@@ -18,7 +18,9 @@ export default function usePageAccessibility(containerRef: RefObject<HTMLElement
       const heading = main?.querySelector('h1')
       if (!main || !heading || main.getClientRects().length === 0) return
 
-      document.title = `${heading.textContent?.replace(/\s+/g, ' ').trim()} | StockNews`
+      if (!document.documentElement.dataset.seoManaged) {
+        document.title = `${heading.textContent?.replace(/\s+/g, ' ').trim()} | StockNews`
+      }
       main.tabIndex = -1
 
       if (shouldFocus) {
