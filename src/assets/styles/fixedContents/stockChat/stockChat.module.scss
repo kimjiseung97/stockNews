@@ -3,10 +3,11 @@
     position: fixed;
     left: 24px;
     right: 24px;
-    bottom: 15px;
+    bottom: calc(15px + var(--stock-chat-footer-offset, 0px));
     z-index: 30;
     @include flex-col(null, flex-end);
     pointer-events: none;
+    transition: bottom 0.15s ease-out;
 
     .stock-chat__panel {
       position: static;

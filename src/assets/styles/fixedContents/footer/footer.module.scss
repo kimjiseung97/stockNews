@@ -1,0 +1,26 @@
+:global(#mainFooter) {
+  &.main-footer {
+    @include flex-col(center, center, 14px);
+    padding: 32px 24px;
+    border-top: 1px solid $color-divider;
+  }
+
+  .main-footer__link-list {
+    @include flex(center, center, 20px);
+  }
+
+  .main-footer__link-button {
+    color: $color-input-text;
+    font-size: $font-size-small;
+    transition: color 0.2s;
+
+    &:hover {
+      color: $color-text-primary;
+    }
+  }
+
+  .main-footer__copyright {
+    color: $color-placeholder;
+    font-size: $font-size-caption-sm;
+  }
+}

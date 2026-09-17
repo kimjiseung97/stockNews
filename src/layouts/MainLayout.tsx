@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from '@/components/fixedContents/header/Header'
+import Footer from '@/components/fixedContents/footer/Footer'
 import LeftContents from '@/components/fixedContents/leftContents/LeftContents'
 import useScrollToTop from '@/hooks/useScrollToTop'
 import usePageAccessibility from '@/hooks/usePageAccessibility'
@@ -76,6 +77,8 @@ export default function MainLayout() {
               <Outlet></Outlet>
             </Suspense>
           </div>
+
+          <Footer></Footer>
 
           <StockChat></StockChat>
         </div>

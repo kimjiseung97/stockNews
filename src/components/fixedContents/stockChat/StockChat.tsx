@@ -23,6 +23,48 @@ export default function StockChat() {
   const [inputError, setInputError] = useState(false)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const toggleButtonRef = useRef<HTMLButtonElement>(null)
+  const stockChatRef = useRef<HTMLElement>(null)
+
+  // 푸터가 보이면 챗봇을 푸터 위로 이동
+  useEffect(() => {
+    const stockChat = stockChatRef.current
+    const footer = document.querySelector<HTMLElement>('#mainFooter')
+    const scrollContainer = footer?.parentElement
+    const mobileMediaQuery = window.matchMedia('(max-width: 1024px)')
+
+    if (!stockChat || !footer || !scrollContainer) return
+
+    let animationFrameId = 0
+
+    const updateFooterOffset = () => {
+      cancelAnimationFrame(animationFrameId)
+
+      animationFrameId = requestAnimationFrame(() => {
+        if (!mobileMediaQuery.matches) {
+          stockChat.style.setProperty('--stock-chat-footer-offset', '0px')
+          return
+        }
+
+        const footerRect = footer.getBoundingClientRect()
+        const scrollContainerRect = scrollContainer.getBoundingClientRect()
+        const footerOverlap = Math.max(0, scrollContainerRect.bottom - footerRect.top)
+
+        stockChat.style.setProperty('--stock-chat-footer-offset', `${footerOverlap}px`)
+      })
+    }
+
+    updateFooterOffset()
+    scrollContainer.addEventListener('scroll', updateFooterOffset, { passive: true })
+    window.addEventListener('resize', updateFooterOffset)
+    mobileMediaQuery.addEventListener('change', updateFooterOffset)
+
+    return () => {
+      cancelAnimationFrame(animationFrameId)
+      scrollContainer.removeEventListener('scroll', updateFooterOffset)
+      window.removeEventListener('resize', updateFooterOffset)
+      mobileMediaQuery.removeEventListener('change', updateFooterOffset)
+    }
+  }, [])
 
   // 채팅창을 열고 닫을 때 키보드 초점 이동
   useEffect(() => {
@@ -87,6 +129,7 @@ export default function StockChat() {
 
   return (
     <aside
+      ref={stockChatRef}
       id="stockChat"
       className={`${styles['stock-chat']} ${mediaStyles['stock-chat']}`}
       aria-label="주식 챗봇"

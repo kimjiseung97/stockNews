@@ -1,0 +1,14 @@
+@media (max-width: 400px) {
+  :global(#mainFooter) {
+    &.main-footer {
+      padding: 24px 15px;
+    }
+  }
+}
+@media (max-width: 335px) {
+  :global(#mainFooter) {
+    .main-footer__link-list {
+      gap: 8px;
+    }
+  }
+}
