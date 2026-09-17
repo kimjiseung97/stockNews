@@ -1,5 +1,6 @@
 // 관심종목 상세정보 조회
 import { apiFetch } from '@/api/common/commonApi'
+import { requestWithSessionCache } from '@/utils/requestCache'
 
 export interface WatchListDetail {
   stockId: number
@@ -14,7 +15,12 @@ export interface WatchListDetail {
 
 export async function watchListDetail(stockId: number): Promise<WatchListDetail> {
   try {
-    const response = await apiFetch<WatchListDetail>(`/stocks/detail?stockId=${stockId}`)
+    const requestPath = `/stocks/detail?stockId=${stockId}`
+    const response = await requestWithSessionCache(
+      `stock-detail:${requestPath}`,
+      () => apiFetch<WatchListDetail>(requestPath),
+      300_000,
+    )
 
     if (!response) {
       throw new Error('관심종목 상세정보 응답이 없습니다.')

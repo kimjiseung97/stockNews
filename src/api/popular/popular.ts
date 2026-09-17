@@ -1,5 +1,6 @@
 // 인기종목 조회
 import { apiFetch } from '@/api/common/commonApi'
+import { requestWithSessionCache } from '@/utils/requestCache'
 
 export interface PopularList {
   id: number
@@ -12,7 +13,12 @@ export interface PopularList {
 
 export async function popularList(limit: number): Promise<PopularList[]> {
   try {
-    const response = await apiFetch<PopularList[]>(`/stocks/popular?limit=${limit}`)
+    const requestPath = `/stocks/popular?limit=${limit}`
+    const response = await requestWithSessionCache(
+      `popular-stock:${requestPath}`,
+      () => apiFetch<PopularList[]>(requestPath),
+      300_000,
+    )
 
     if (!response) {
       throw new Error('인기종목 조회 응답이 없습니다.')

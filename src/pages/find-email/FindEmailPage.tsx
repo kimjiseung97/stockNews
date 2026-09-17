@@ -156,10 +156,10 @@ function FindEmailPage() {
         {step === 1 && (
           <form className={styles['find-email-page__form']} onSubmit={handleEmailSubmit} noValidate>
             <p className={styles['find-email-page__field']}>
-              <label htmlFor="find-email-recovery-email">복구용 이메일</label>
+              <label htmlFor="findEmailRecoveryEmail">복구용 이메일</label>
               <span className={styles['find-email-page__input-box']}>
                 <input
-                  id="find-email-recovery-email"
+                  id="findEmailRecoveryEmail"
                   aria-describedby={
                     `findEmailRecoveryHint ${warningMessage ? 'findEmailError' : ''}`.trim() ||
                     undefined
@@ -205,10 +205,10 @@ function FindEmailPage() {
               noValidate
             >
               <p className={styles['find-email-page__field']}>
-                <label htmlFor="find-email-verification-code">인증 코드</label>
+                <label htmlFor="findEmailVerificationCode">인증 코드</label>
                 <span className={styles['find-email-page__input-box']}>
                   <input
-                    id="find-email-verification-code"
+                    id="findEmailVerificationCode"
                     aria-describedby={
                       `findEmailCodeHint ${warningMessage ? 'findEmailError' : ''}`.trim() ||
                       undefined

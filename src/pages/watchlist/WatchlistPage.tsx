@@ -27,6 +27,7 @@ function WatchlistPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const fetchWatchList = useWatchlistStore((state) => state.fetchWatchList)
+  const isSameSearch = keyword.trim() === searchedKeyword && watchListPage !== null
 
   useEffect(() => {
     const loadWatchList = async () => {
@@ -88,6 +89,10 @@ function WatchlistPage() {
     event.preventDefault()
     const trimmedKeyword = keyword.trim()
 
+    if (isLoading || (trimmedKeyword === searchedKeyword && watchListPage !== null)) {
+      return
+    }
+
     setKeyword(trimmedKeyword)
     setSearchedKeyword(trimmedKeyword)
     setCurrentPage(0)
@@ -121,6 +126,7 @@ function WatchlistPage() {
           <Search aria-hidden="true"></Search>
           <span className={styles['watchlist-page__sr-only']}>기업명 또는 티커</span>
           <input
+            id="watchlistSearchQuery"
             value={keyword}
             placeholder="관심종목에서 검색"
             maxLength={100}
@@ -128,7 +134,11 @@ function WatchlistPage() {
             onChange={(event) => setKeyword(event.target.value)}
           ></input>
         </label>
-        <button className={styles['watchlist-page__search-button']} type="submit" disabled={isLoading}>
+        <button
+          className={styles['watchlist-page__search-button']}
+          type="submit"
+          disabled={isLoading || isSameSearch}
+        >
           {isLoading ? <LoadingSpinner label="조회 중"></LoadingSpinner> : '검색'}
         </button>
       </form>

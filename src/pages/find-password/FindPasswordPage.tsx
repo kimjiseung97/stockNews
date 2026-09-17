@@ -228,10 +228,10 @@ function FindPasswordPage() {
             noValidate
           >
             <p className={styles['forgot-password-page__field']}>
-              <label htmlFor="find-password-email">가입한 이메일</label>
+              <label htmlFor="findPasswordEmail">가입한 이메일</label>
               <span className={styles['forgot-password-page__input-box']}>
                 <input
-                  id="find-password-email"
+                  id="findPasswordEmail"
                   aria-describedby={
                     `${warningMessage ? 'findPasswordError' : ''}`.trim() || undefined
                   }
@@ -273,10 +273,10 @@ function FindPasswordPage() {
               noValidate
             >
               <p className={styles['forgot-password-page__field']}>
-                <label htmlFor="find-password-verification-code">인증 코드</label>
+                <label htmlFor="findPasswordVerificationCode">인증 코드</label>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
-                    id="find-password-verification-code"
+                    id="findPasswordVerificationCode"
                     aria-describedby={
                       `findPasswordCodeHint ${warningMessage ? 'findPasswordError' : ''}`.trim() ||
                       undefined
@@ -325,10 +325,10 @@ function FindPasswordPage() {
               noValidate
             >
               <p className={styles['forgot-password-page__field']}>
-                <label htmlFor="find-password-new-password">새 비밀번호</label>
+                <label htmlFor="findPasswordNewPassword">새 비밀번호</label>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
-                    id="find-password-new-password"
+                    id="findPasswordNewPassword"
                     aria-describedby={
                       `${warningMessage ? 'findPasswordError' : ''}`.trim() || undefined
                     }
@@ -368,10 +368,10 @@ function FindPasswordPage() {
               </p>
 
               <p className={styles['forgot-password-page__field']}>
-                <label htmlFor="find-password-new-password-confirm">새 비밀번호 확인</label>
+                <label htmlFor="findPasswordNewPasswordConfirm">새 비밀번호 확인</label>
                 <span className={styles['forgot-password-page__input-box']}>
                   <input
-                    id="find-password-new-password-confirm"
+                    id="findPasswordNewPasswordConfirm"
                     aria-describedby={
                       `${warningMessage ? 'findPasswordError' : ''}`.trim() || undefined
                     }

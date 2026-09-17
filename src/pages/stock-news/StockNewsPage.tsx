@@ -25,6 +25,9 @@ function StockNewsPage() {
   const [hasStockSearched, setHasStockSearched] = useState(false)
   const [isNewsLoading, setIsNewsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [lastSearchKeyword, setLastSearchKeyword] = useState('')
+  const isSameSearch =
+    keyword.trim().length > 0 && keyword.trim() === lastSearchKeyword && hasStockSearched
 
   useEffect(() => {
     setKeyword(selectedStockName)
@@ -139,6 +142,10 @@ function StockNewsPage() {
     event.preventDefault()
     const trimmedKeyword = keyword.trim()
 
+    if (isStockSearching || (trimmedKeyword === lastSearchKeyword && hasStockSearched)) {
+      return
+    }
+
     if (!trimmedKeyword) {
       setSearchedStocks([])
       setHasStockSearched(false)
@@ -146,6 +153,7 @@ function StockNewsPage() {
     }
 
     setKeyword(trimmedKeyword)
+    setLastSearchKeyword(trimmedKeyword)
     setIsStockSearching(true)
     setHasStockSearched(true)
     setErrorMessage('')
@@ -180,6 +188,7 @@ function StockNewsPage() {
     setKeyword('')
     setSearchedStocks([])
     setHasStockSearched(false)
+    setLastSearchKeyword('')
   }
 
   const handlePageChange = (page: number) => {
@@ -209,6 +218,7 @@ function StockNewsPage() {
           <Search aria-hidden="true"></Search>
           <span className={styles['stock-news-page__sr-only']}>종목 검색</span>
           <input
+            id="stockNewsSearchQuery"
             value={keyword}
             placeholder="종목을 검색해 주세요"
             maxLength={100}
@@ -216,7 +226,11 @@ function StockNewsPage() {
             onChange={(event) => setKeyword(event.target.value)}
           ></input>
         </label>
-        <button className={styles['stock-news-page__search-button']} type="submit" disabled={isStockSearching}>
+        <button
+          className={styles['stock-news-page__search-button']}
+          type="submit"
+          disabled={isStockSearching || !keyword.trim() || isSameSearch}
+        >
           {isStockSearching ? <LoadingSpinner label="검색 중"></LoadingSpinner> : '검색'}
         </button>
       </form>
@@ -248,9 +262,7 @@ function StockNewsPage() {
               ))}
             </ul>
           ) : (
-            <p className={styles['stock-news-page__stock-result-empty']}>
-              검색된 종목이 없습니다.
-            </p>
+            <p className={styles['stock-news-page__stock-result-empty']}>검색된 종목이 없습니다.</p>
           )}
         </div>
       ) : null}
@@ -360,9 +372,7 @@ function StockNewsPage() {
           ) : (
             !errorMessage && (
               <article className={styles['stock-news-page__empty']}>
-                <h3 className={styles['stock-news-page__empty-title']}>
-                  수집된 뉴스가 없습니다.
-                </h3>
+                <h3 className={styles['stock-news-page__empty-title']}>수집된 뉴스가 없습니다.</h3>
                 <p className={styles['stock-news-page__empty-description']}>
                   새로운 뉴스가 수집되면 이곳에 표시됩니다.
                 </p>
