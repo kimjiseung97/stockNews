@@ -6,7 +6,7 @@ import { stockSearch, type StockSearchResponse } from '@/api/stockSearch/stockSe
 import styles from '@/assets/styles/pages/stock-search/stockSearch.module.scss'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import ListSkeleton from '@/components/common/ListSkeleton'
-import warningIcon from '@/assets/images/icons/x.png'
+import warningIcon from '@/assets/images/icons/x.webp'
 import StockNameBadge from '@/components/common/StockNameBadge'
 
 const PAGE_SIZE = 10

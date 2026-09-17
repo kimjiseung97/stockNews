@@ -1,7 +1,7 @@
-import emailIcon from '@/assets/images/icons/email.png'
-import listIcon from '@/assets/images/icons/list.png'
-import newsIcon from '@/assets/images/icons/news.png'
-import searchIcon from '@/assets/images/icons/search.png'
+import emailIcon from '@/assets/images/icons/email.webp'
+import listIcon from '@/assets/images/icons/list.webp'
+import newsIcon from '@/assets/images/icons/news.webp'
+import searchIcon from '@/assets/images/icons/search.webp'
 import styles from '@/assets/styles/pages/home/home.module.scss'
 import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'
 

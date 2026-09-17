@@ -2,7 +2,6 @@ import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
 import { AuthProvider } from './contexts/AuthContext'
-import EmailSettingsPage from './pages/email-settings/EmailSettingsPage'
 
 // 필요한 화면 코드만 불러오기
 const HomePage = lazy(() => import('./pages/home/HomePage'))
@@ -15,6 +14,7 @@ const WatchlistPage = lazy(() => import('./pages/watchlist/WatchlistPage'))
 const LoginPage = lazy(() => import('./pages/login/LoginPage'))
 const FindPasswordPage = lazy(() => import('./pages/find-password/FindPasswordPage'))
 const FindEmailPage = lazy(() => import('./pages/find-email/FindEmailPage'))
+const EmailSettingsPage = lazy(() => import('./pages/email-settings/EmailSettingsPage'))
 
 function App() {
   return (

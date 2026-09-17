@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import phoneMockImage from '@/assets/images/phoneMock.png'
+import phoneMockImage from '@/assets/images/phoneMock.webp'
 import { useScrollContainer } from '@/contexts/ScrollContainerContext'
 import styles from '@/assets/styles/pages/home/home.module.scss'
 import mediaStyles from '@/assets/styles/pages/home/homeMedia.module.scss'

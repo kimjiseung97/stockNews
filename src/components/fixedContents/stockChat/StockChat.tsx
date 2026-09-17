@@ -2,8 +2,9 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowUp, X } from 'lucide-react'
 import { askStockChat } from '@/api/chat/chat'
 import { useAuth } from '@/contexts/AuthContext'
-import chatbotImage from '@/assets/images/icons/chatbot1.png'
-import chatbotAnswerImage from '@/assets/images/icons/chatbot2.png'
+import chatbotImage from '@/assets/images/icons/chatbot1.webp'
+import chatbotAnswerImage from '@/assets/images/icons/chatbot2.webp'
+import chatbotLoadingImage from '@/assets/images/icons/chatbot3.webp'
 import styles from '@/assets/styles/fixedContents/stockChat/stockChat.module.scss'
 import mediaStyles from '@/assets/styles/fixedContents/stockChat/stockChatMedia.module.scss'
 
@@ -187,7 +188,7 @@ export default function StockChat() {
               >
                 <img
                   className={styles['stock-chat__message-profile']}
-                  src={chatbotAnswerImage}
+                  src={chatbotLoadingImage}
                   alt=""
                 ></img>
                 <p className={styles['stock-chat__loading-answer']} role="status">

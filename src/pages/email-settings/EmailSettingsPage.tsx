@@ -8,8 +8,8 @@ import {
 } from '@/api/emailSettings/mailDispatchSetting'
 import styles from '@/assets/styles/pages/email-settings/emailSettings.module.scss'
 import mediaStyles from '@/assets/styles/pages/email-settings/emailSettingsMedia.module.scss'
-import completeIcon from '@/assets/images/icons/complete.png'
-import warningIcon from '@/assets/images/icons/x.png'
+import completeIcon from '@/assets/images/icons/complete.webp'
+import warningIcon from '@/assets/images/icons/x.webp'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 
 // 30분 단위 발송시간 선택지 (00:00 ~ 23:30, 총 48개)
