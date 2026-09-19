@@ -112,6 +112,22 @@ stock:
     retention-days: 7
 
 news:
+  # TB_STOCK_NEWS 미임베딩 건을 임베딩 서비스로 넘기는 배치.
+  # 뉴스 수집(형제 Node 프로젝트)이 돌고 난 뒤 쌓인 만큼 따라가면 되므로 10분 주기면 충분하다.
+  embedding:
+    cron: "0 */10 * * * *"
+    # 임베딩 서비스 주소. 배포에서는 stocknews_internal 망의 컨테이너 alias를 쓴다
+    # (무인증 API라 외부로 노출된 주소를 넣지 말 것).
+    base-url: ${EMBEDDING_BASE_URL:http://embedding:8000}
+    # 한 요청에 담는 뉴스 건수. 서비스 상한은 50이지만, 실패 시 묶음 전체를 다시 보내야 해서 작게 잡는다.
+    batch-size: 10
+    # 한 번 트리거될 때 처리할 최대 묶음 수. 밀린 건이 많아도 한 실행이 무한정 길어지지 않게 하는 상한.
+    max-batches-per-run: 20
+    connect-timeout-ms: 5000
+    # CPU 추론이라 10건 묶음이 수십 초 걸릴 수 있다. 짧으면 서비스는 처리했는데 호출 측만 실패로 보고
+    # 같은 묶음을 계속 재전송하게 된다.
+    read-timeout-ms: 180000
+
   dispatch:
     # 유저별 발송시간대(TB_USER_MAIL_DISPATCH_SETTING, 30분 단위)와 정확히 일치하는지 매번 검사하므로
     # 30분마다 돌아야 한다.

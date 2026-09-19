@@ -65,6 +65,7 @@ flowchart TD
 - 발송 결과는 유저·슬롯 단위로 `TB_MAIL_DISPATCH_LOG`에 남긴다(SUCCESS / FAILED / 보낼 뉴스가 없어 건너뛴 SKIPPED). 어드민(stockNewsAdmin) 발송현황·대시보드가 이 테이블을 읽는다. 발송 실패로 청크가 롤백돼도 기록이 남도록 별도 트랜잭션으로 쓰고, 재처리 시 같은 슬롯 기록은 마지막 결과로 덮어쓴다. 테스트 발송(`POST /users/me/news-mail/test`)은 운영 통계를 흐리지 않도록 기록하지 않는다.
 - 각 배치는 `*Scheduler`가 cron으로 트리거하며, 애플리케이션 기동 시 자동 실행되지 않음(`BatchJobLauncherAutoConfiguration` 제외).
 - `POST /users/me/news-mail/test` — 로그인한 본인에게 뉴스 다이제스트 메일을 즉시 테스트 발송(발송시간대/발송여부 설정 무시, 유저당 1분 쿨다운). 발송 배치를 기다리지 않고 메일 형식·SMTP 설정을 확인할 때 사용.
+- `newsEmbeddingJob`(`NewsEmbeddingScheduler`, `news.embedding.cron`) — `TB_STOCK_NEWS`에서 `EMBEDDED_AT IS NULL`인 뉴스를 10건씩 묶어 내부 임베딩 서비스(`POST {news.embedding.base-url}/v1/news`)로 넘기고, 200을 받은 묶음만 `EMBEDDED_AT`을 찍어 큐에서 뺀다. 상태 코드가 계약이라 건별 결과는 보지 않으며(200=묶음 전체 완료, 503=서비스 미준비라 조용히 종료, 그 외 오류=잡 실패 후 다음 주기 재전송), 서비스가 `news_id` 기준 upsert라 재전송해도 중복 적재되지 않는다. 한 실행은 `news.embedding.max-batches-per-run` 묶음까지만 처리한다.
 
 ### 챗봇 프롬프트 (DB 소싱)
 

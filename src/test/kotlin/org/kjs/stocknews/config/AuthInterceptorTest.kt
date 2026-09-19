@@ -19,6 +19,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+// Mockito의 any()는 널을 반환해 Kotlin non-null 파라미터 콜사이트에서 NPE를 유발한다.
+// 로컬 래퍼로 정적 반환 타입을 non-null로 감춰서 우회한다.
+private fun <T> anyArg(): T = org.mockito.ArgumentMatchers.any()
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthInterceptorTest(
@@ -64,7 +68,7 @@ class AuthInterceptorTest(
 
     @Test
     fun `세션이 있으면 챗봇 호출이 정상 처리된다`() {
-        org.mockito.Mockito.`when`(stockChatService.ask(org.mockito.ArgumentMatchers.any()))
+        org.mockito.Mockito.`when`(stockChatService.ask(anyArg()))
             .thenReturn(StockChatResponse("답변"))
 
         val session = MockHttpSession()
