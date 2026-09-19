@@ -138,6 +138,11 @@ jobs:
             docker network inspect edge >/dev/null 2>&1 || docker network create edge
             docker network inspect stocknews_internal >/dev/null 2>&1 || docker network create stocknews_internal
 
+            # ghcr에 저장된 자격증명이 만료되면 docker는 익명으로 폴백하지 않고 그대로 denied를 낸다.
+            # 이 이미지는 public이라 로그인이 필요 없으므로, 서버에 남아있을 수 있는 오래된 자격증명을
+            # 지우고 익명으로 받는다. (이미지를 private으로 돌리면 이 줄 대신 서버측 docker login이 필요하다.)
+            docker logout ghcr.io || true
+
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f

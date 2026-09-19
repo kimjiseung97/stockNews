@@ -123,6 +123,9 @@ jobs:
             docker network inspect edge >/dev/null 2>&1 || docker network create edge
             docker network inspect stocknews_internal >/dev/null 2>&1 || docker network create stocknews_internal
 
+            # deploy.yml과 같은 이유. 서버에 남은 만료 자격증명 때문에 public 이미지 pull이 denied 되는 것을 막는다.
+            docker logout ghcr.io || true
+
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
