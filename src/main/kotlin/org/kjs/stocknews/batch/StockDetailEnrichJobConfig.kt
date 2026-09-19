@@ -51,10 +51,10 @@ class StockDetailEnrichJobConfig(
     @Bean
     @StepScope
     fun stockDetailEnrichReader(): ItemReader<Stock> {
-        val candidates = stockRepository.findWithoutDetail(enrichBatchSize).iterator()
+        val stocksWithoutDetail = stockRepository.findWithoutDetail(enrichBatchSize).iterator()
         return ItemReader {
-            if (candidates.hasNext()) {
-                candidates.next()
+            if (stocksWithoutDetail.hasNext()) {
+                stocksWithoutDetail.next()
             }
             else null
         }
@@ -89,7 +89,7 @@ class StockDetailEnrichJobConfig(
                 city = HtmlTextUtils.stripHtmlOrNull(overview.summaries?.city),
                 homepageUrl = HtmlTextUtils.stripHtmlOrNull(overview.summaries?.url),
                 industryName = HtmlTextUtils.stripHtmlOrNull(overview.industry?.industryGroupKor),
-                listedAt = overview.stockItemListedInfo?.listedAt?.let { parseListedAt(it) },
+                listedAt = parseListedAtOrNull(overview.stockItemListedInfo?.listedAt),
             )
         } catch (e: Exception) {
             log.warn("{} -> failed: {}", stock.ticker, e.message)
@@ -100,12 +100,17 @@ class StockDetailEnrichJobConfig(
         }
     }
 
-    private fun parseListedAt(listedAt: String) =
-        try {
+    // 상장일 문자열을 LocalDateTime으로 바꾼다. 값이 없거나 형식이 다르면 null(상장일 미상)로 둔다.
+    private fun parseListedAtOrNull(listedAt: String?): LocalDateTime? {
+        if (listedAt == null) {
+            return null
+        }
+        return try {
             OffsetDateTime.parse(listedAt).toLocalDateTime()
         } catch (e: Exception) {
             null
         }
+    }
 
     // Writer: 조회에 성공한 상세정보를 그대로 저장한다.
     @Bean

@@ -45,15 +45,16 @@ class StockNewsCollectJobConfig(
     // 이 빈이 걸려 entityManagerFactory 생성 전에 이 설정 클래스를 조기 초기화하면서 순환 참조가 발생한다(NewsDispatchJobConfig와 동일한 이유).
     // TaskExecutor로 선언해 그 자동 감지를 피하고, 실제 사용처(stockNewsCollectStep)에서 AsyncTaskExecutor로 캐스팅한다.
     @Bean
-    fun stockNewsCollectTaskExecutor(): TaskExecutor =
-        ThreadPoolTaskExecutor().apply {
-            corePoolSize = threadPoolSize
-            maxPoolSize = threadPoolSize
-            setQueueCapacity(500)
-            setThreadNamePrefix("stock-news-collect-")
-            setWaitForTasksToCompleteOnShutdown(true)
-            initialize()
-        }
+    fun stockNewsCollectTaskExecutor(): TaskExecutor {
+        val executor = ThreadPoolTaskExecutor()
+        executor.corePoolSize = threadPoolSize
+        executor.maxPoolSize = threadPoolSize
+        executor.setQueueCapacity(500)
+        executor.setThreadNamePrefix("stock-news-collect-")
+        executor.setWaitForTasksToCompleteOnShutdown(true)
+        executor.initialize()
+        return executor
+    }
 
     // Job: stockNewsCollectStep 단일 스텝으로 구성된 종목 뉴스 수집 배치 잡.
     @Bean
@@ -86,13 +87,23 @@ class StockNewsCollectJobConfig(
         val stockId = stock.id ?: return@ItemProcessor null
         try {
             val articles = naverNewsClient.fetchNews(stock.koreanName ?: stock.name)
-            val newArticles = articles.filterNot { stockNewsRepository.existsByStockIdAndUrl(stockId, it.url) }
-            if (newArticles.isEmpty()) {
-                null
-            } else {
-                newArticles.map { article ->
-                    StockNews(stockId = stockId, title = article.title, content = article.description, url = article.url)
+
+            val newStockNewsList = mutableListOf<StockNews>()
+            for (article in articles) {
+                // 같은 종목에 같은 URL이 이미 있으면 중복 적재이므로 건너뛴다.
+                if (stockNewsRepository.existsByStockIdAndUrl(stockId, article.url)) {
+                    continue
                 }
+                newStockNewsList.add(
+                    StockNews(stockId = stockId, title = article.title, content = article.description, url = article.url),
+                )
+            }
+
+            if (newStockNewsList.isEmpty()) {
+                null
+            }
+            else {
+                newStockNewsList
             }
         } catch (e: Exception) {
             log.warn("{} -> news collect failed: {}", stock.ticker, e.message)

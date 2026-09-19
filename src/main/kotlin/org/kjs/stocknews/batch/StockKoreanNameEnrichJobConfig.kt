@@ -43,10 +43,10 @@ class StockKoreanNameEnrichJobConfig(
     @Bean
     @StepScope
     fun stockKoreanNameEnrichReader(): ItemReader<Stock> {
-        val candidates = stockRepository.findByKoreanNameIsNull().iterator()
+        val stocksWithoutKoreanName = stockRepository.findByKoreanNameIsNull().iterator()
         return ItemReader {
-            if (candidates.hasNext()) {
-                candidates.next()
+            if (stocksWithoutKoreanName.hasNext()) {
+                stocksWithoutKoreanName.next()
             }
             else null
         }

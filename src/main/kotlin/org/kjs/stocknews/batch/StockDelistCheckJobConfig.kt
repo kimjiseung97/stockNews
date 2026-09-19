@@ -63,12 +63,12 @@ class StockDelistCheckJobConfig(
                 }
 
                 val activeStocks = stockRepository.findByStatus(StockStatus.ACTIVE)
-                val toDelist = activeStocks.filterNot { it.ticker in secTickers || it.ticker in exchangeTickers }
+                val toDelist = activeStocks.filter { it.ticker !in secTickers && it.ticker !in exchangeTickers }
                 log.info("checked {} active stocks, {} in neither sec nor exchange ticker list", activeStocks.size, toDelist.size)
 
                 if (toDelist.isNotEmpty()) {
                     val now = LocalDateTime.now()
-                    toDelist.forEach { stock ->
+                    for (stock in toDelist) {
                         stock.status = StockStatus.DELISTED
                         stock.delistedAt = now
                     }

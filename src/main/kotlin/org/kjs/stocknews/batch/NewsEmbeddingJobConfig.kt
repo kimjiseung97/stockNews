@@ -79,18 +79,28 @@ class NewsEmbeddingJobConfig(
         val executionContext = chunkContext.stepContext.stepExecution.executionContext
         val processedBatches = executionContext.getInt(PROCESSED_BATCHES_KEY, 0)
 
-        val candidates = stockNewsRepository.findByEmbeddedAtIsNullOrderByIdAsc(PageRequest.of(0, batchSize))
-        if (candidates.isEmpty()) {
+        val pendingNewsList = stockNewsRepository.findByEmbeddedAtIsNullOrderByIdAsc(PageRequest.of(0, batchSize))
+        if (pendingNewsList.isEmpty()) {
             log.info("no news to embed, finishing (processedBatches={})", processedBatches)
             return@Tasklet RepeatStatus.FINISHED
         }
 
-        // 본문이 비어 보낼 게 없는 건은 전송하지 않고 바로 완료 표시한다. 그냥 두면 이 건들이
-        // 매 실행마다 큐 맨 앞(ID 오름차순)을 차지해 뒤의 정상 뉴스가 영영 처리되지 않는다.
-        val (sendable, blank) = candidates.partition { !it.content.isNullOrBlank() }
-        if (blank.isNotEmpty()) {
-            log.info("marking {} news with blank content as embedded without sending", blank.size)
-            markEmbedded(blank)
+        // 본문이 있는 건만 전송하고, 본문이 빈 건은 전송하지 않고 바로 완료 표시한다. 그냥 두면
+        // 빈 건들이 매 실행마다 큐 맨 앞(ID 오름차순)을 차지해 뒤의 정상 뉴스가 영영 처리되지 않는다.
+        val sendableNewsList = mutableListOf<StockNews>()
+        val blankNewsList = mutableListOf<StockNews>()
+        for (news in pendingNewsList) {
+            if (news.content.isNullOrBlank()) {
+                blankNewsList.add(news)
+            }
+            else {
+                sendableNewsList.add(news)
+            }
+        }
+
+        if (blankNewsList.isNotEmpty()) {
+            log.info("marking {} news with blank content as embedded without sending", blankNewsList.size)
+            markEmbedded(blankNewsList)
         }
 
         // 전송 없이 넘어간 묶음도 상한에 포함시킨다. 전송 성공 때만 세면 빈 본문이 대량으로 쌓였을 때
@@ -98,12 +108,17 @@ class NewsEmbeddingJobConfig(
         val nextProcessedBatches = processedBatches + 1
         executionContext.putInt(PROCESSED_BATCHES_KEY, nextProcessedBatches)
 
-        if (sendable.isEmpty()) {
+        if (sendableNewsList.isEmpty()) {
             // 이번 묶음이 전부 빈 본문이었던 경우. 다음 묶음을 이어서 본다.
             return@Tasklet continueUnlessLimitReached(nextProcessedBatches)
         }
 
-        val response = newsEmbeddingClient.ingest(sendable.map(::toItem))
+        val requestItems = mutableListOf<NewsEmbeddingItem>()
+        for (news in sendableNewsList) {
+            requestItems.add(toItem(news))
+        }
+
+        val response = newsEmbeddingClient.ingest(requestItems)
         if (response == null) {
             // 503 - 서비스 미준비(모델 워밍업 중이거나 벡터 DB 미연결). 장애가 아니므로 완료 표시 없이
             // 이번 실행만 정상 종료하고 다음 주기에 같은 건을 다시 보낸다.
@@ -111,11 +126,11 @@ class NewsEmbeddingJobConfig(
             return@Tasklet RepeatStatus.FINISHED
         }
 
-        markEmbedded(sendable)
-        contribution.incrementWriteCount(sendable.size.toLong())
+        markEmbedded(sendableNewsList)
+        contribution.incrementWriteCount(sendableNewsList.size.toLong())
         log.info(
             "sent {} news (embedded={} skipped={} chunks={}), batches {}/{}",
-            sendable.size,
+            sendableNewsList.size,
             response.embedded,
             response.skipped,
             response.chunks,
@@ -136,7 +151,9 @@ class NewsEmbeddingJobConfig(
 
     private fun markEmbedded(newsList: List<StockNews>) {
         val now = LocalDateTime.now()
-        newsList.forEach { it.embeddedAt = now }
+        for (news in newsList) {
+            news.embeddedAt = now
+        }
         stockNewsRepository.saveAll(newsList)
     }
 

@@ -24,10 +24,14 @@ class ZombieBatchCleanupScheduler(
     fun cleanup() {
         val threshold = LocalDateTime.now().minusMinutes(staleMinutes)
 
-        jobRepository.jobNames
-            .flatMap { jobRepository.findRunningJobExecutions(it) }
-            .filter { it.startTime?.isBefore(threshold) == true }
-            .forEach(::markFailed)
+        for (jobName in jobRepository.jobNames) {
+            for (execution in jobRepository.findRunningJobExecutions(jobName)) {
+                val startTime = execution.startTime
+                if (startTime != null && startTime.isBefore(threshold)) {
+                    markFailed(execution)
+                }
+            }
+        }
     }
 
     private fun markFailed(execution: JobExecution) {
@@ -37,7 +41,7 @@ class ZombieBatchCleanupScheduler(
         )
 
         val now = LocalDateTime.now()
-        execution.stepExecutions.forEach { step ->
+        for (step in execution.stepExecutions) {
             step.status = BatchStatus.FAILED
             step.exitStatus = ExitStatus.FAILED
             step.setEndTime(now)

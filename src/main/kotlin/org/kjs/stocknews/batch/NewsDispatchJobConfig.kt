@@ -66,17 +66,18 @@ class NewsDispatchJobConfig(
     // 이 빈이 걸려 entityManagerFactory 생성 전에 이 설정 클래스를 조기 초기화하면서 순환 참조가 발생한다 (jobRepository -> transactionManager -> entityManagerFactory).
     // TaskExecutor로 선언해 그 자동 감지를 피하고, 실제 사용처(newsDispatchStep)에서 AsyncTaskExecutor로 캐스팅한다.
     @Bean
-    fun newsDispatchTaskExecutor(): TaskExecutor =
-        ThreadPoolTaskExecutor().apply {
-            corePoolSize = threadPoolSize
-            maxPoolSize = threadPoolSize
-            // 큐 용량 0(SynchronousQueue)은 스레드가 모두 사용 중일 때 청크 제출을 즉시 거부(TaskRejectedException)한다.
-            // 청크가 몰릴 때 스레드가 빌 때까지 대기하도록 넉넉한 큐를 둔다.
-            setQueueCapacity(500)
-            setThreadNamePrefix("news-dispatch-")
-            setWaitForTasksToCompleteOnShutdown(true)
-            initialize()
-        }
+    fun newsDispatchTaskExecutor(): TaskExecutor {
+        val executor = ThreadPoolTaskExecutor()
+        executor.corePoolSize = threadPoolSize
+        executor.maxPoolSize = threadPoolSize
+        // 큐 용량 0(SynchronousQueue)은 스레드가 모두 사용 중일 때 청크 제출을 즉시 거부(TaskRejectedException)한다.
+        // 청크가 몰릴 때 스레드가 빌 때까지 대기하도록 넉넉한 큐를 둔다.
+        executor.setQueueCapacity(500)
+        executor.setThreadNamePrefix("news-dispatch-")
+        executor.setWaitForTasksToCompleteOnShutdown(true)
+        executor.initialize()
+        return executor
+    }
 
     // Job: newsDispatchStep 단일 스텝으로 구성된 뉴스 발송 배치 잡.
     @Bean

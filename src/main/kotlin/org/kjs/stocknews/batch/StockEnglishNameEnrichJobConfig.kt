@@ -44,10 +44,10 @@ class StockEnglishNameEnrichJobConfig(
     @Bean
     @StepScope
     fun stockEnglishNameEnrichReader(): ItemReader<Stock> {
-        val candidates = stockRepository.findByNameEqualsTicker(enrichBatchSize).iterator()
+        val stocksWithoutEnglishName = stockRepository.findByNameEqualsTicker(enrichBatchSize).iterator()
         return ItemReader {
-            if (candidates.hasNext()) {
-                candidates.next()
+            if (stocksWithoutEnglishName.hasNext()) {
+                stocksWithoutEnglishName.next()
             }
             else null
         }

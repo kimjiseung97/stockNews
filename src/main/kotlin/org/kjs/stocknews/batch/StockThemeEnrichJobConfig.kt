@@ -43,10 +43,10 @@ class StockThemeEnrichJobConfig(
     @Bean
     @StepScope
     fun stockThemeEnrichReader(): ItemReader<Stock> {
-        val candidates = stockRepository.findByThemeIsNull(enrichBatchSize).iterator()
+        val stocksWithoutTheme = stockRepository.findByThemeIsNull(enrichBatchSize).iterator()
         return ItemReader {
-            if (candidates.hasNext()) {
-                candidates.next()
+            if (stocksWithoutTheme.hasNext()) {
+                stocksWithoutTheme.next()
             }
             else null
         }
@@ -58,7 +58,13 @@ class StockThemeEnrichJobConfig(
     fun stockThemeEnrichProcessor(): ItemProcessor<Stock, Stock> = ItemProcessor { stock ->
         try {
             val profile = secCompanyProfileClient.fetchProfile(requireNotNull(stock.cik))
-            val theme = profile?.sic?.toIntOrNull()?.let { SicThemeMapper.themeForSic(it) }
+            val sicCode = profile?.sic?.toIntOrNull()
+            val theme = if (sicCode == null) {
+                null
+            }
+            else {
+                SicThemeMapper.themeForSic(sicCode)
+            }
             log.info("{} ({}) -> {}", stock.ticker, profile?.sicDescription, theme ?: "unresolved")
             if (theme != null) {
                 stock.theme = theme

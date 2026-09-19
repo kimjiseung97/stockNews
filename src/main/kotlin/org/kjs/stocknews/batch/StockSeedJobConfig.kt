@@ -52,34 +52,78 @@ class StockSeedJobConfig(
                 log.info("fetching sec + nasdaq/other exchange + toss ticker lists...")
                 val existingTickers = stockRepository.findAllTickers().toHashSet()
 
-                val secCandidates = runCatching { secTickerClient.fetchAllTickers() }
-                    .onFailure { log.warn("sec ticker fetch failed, skipping this source for this run", it) }
-                    .getOrDefault(emptyList())
-                    .filterNot { it.ticker in existingTickers }
-                    .map { Stock(ticker = it.ticker, name = it.title, cik = it.cikStr) }
+                // 소스 하나가 죽어도 나머지로 이어서 시딩할 수 있게, 조회 실패는 빈 목록으로 흘린다.
+                val secEntries = try {
+                    secTickerClient.fetchAllTickers()
+                } catch (e: Exception) {
+                    log.warn("sec ticker fetch failed, skipping this source for this run", e)
+                    emptyList()
+                }
 
-                val seenAfterSec = existingTickers.plus(secCandidates.map { it.ticker })
-                val exchangeCandidates = runCatching { nasdaqListedClient.fetchAllListed() }
-                    .onFailure { log.warn("nasdaq listed fetch failed, skipping this source for this run", it) }
-                    .getOrDefault(emptyList())
-                    .distinctBy { it.ticker }
-                    .filterNot { it.ticker in seenAfterSec }
-                    .map { Stock(ticker = it.ticker, name = it.name, cik = null) }
+                val newSecStockList = mutableListOf<Stock>()
+                for (entry in secEntries) {
+                    if (entry.ticker in existingTickers) {
+                        continue
+                    }
+                    newSecStockList.add(Stock(ticker = entry.ticker, name = entry.title, cik = entry.cikStr))
+                }
 
-                val seenAfterExchange = seenAfterSec.plus(exchangeCandidates.map { it.ticker })
-                val tossCandidates = runCatching { tossStockClient.fetchAllUsListed() }
-                    .onFailure { log.warn("toss listed fetch failed, skipping this source for this run", it) }
-                    .getOrDefault(emptyList())
-                    .filterNot { it.symbol in seenAfterExchange }
-                    .map { Stock(ticker = it.symbol, name = it.symbol, cik = null).apply { koreanName = it.name } }
+                // 이미 DB에 있거나 SEC에서 담은 티커. 뒤 소스에서 같은 티커를 또 담지 않기 위한 누적 집합이다.
+                val seenTickers = HashSet(existingTickers)
+                for (stock in newSecStockList) {
+                    seenTickers.add(stock.ticker)
+                }
 
-                val stocks = secCandidates.plus(exchangeCandidates).plus(tossCandidates).take(seedBatchSize)
+                val exchangeEntries = try {
+                    nasdaqListedClient.fetchAllListed()
+                } catch (e: Exception) {
+                    log.warn("nasdaq listed fetch failed, skipping this source for this run", e)
+                    emptyList()
+                }
+
+                val newExchangeStockList = mutableListOf<Stock>()
+                for (entry in exchangeEntries) {
+                    // seenTickers에 넣어가며 거르므로 거래소 목록 안의 중복 티커도 같이 걸러진다.
+                    if (entry.ticker in seenTickers) {
+                        continue
+                    }
+                    seenTickers.add(entry.ticker)
+                    newExchangeStockList.add(Stock(ticker = entry.ticker, name = entry.name, cik = null))
+                }
+
+                val tossEntries = try {
+                    tossStockClient.fetchAllUsListed()
+                } catch (e: Exception) {
+                    log.warn("toss listed fetch failed, skipping this source for this run", e)
+                    emptyList()
+                }
+
+                val newTossStockList = mutableListOf<Stock>()
+                for (entry in tossEntries) {
+                    // 거래소 목록과 마찬가지로 seenTickers에 넣어가며 거른다. TB_STOCK.TICKER가 unique라
+                    // 토스 목록 안에 같은 심볼이 두 번 오면 저장 단계에서 제약 위반이 나기 때문이다.
+                    if (entry.symbol in seenTickers) {
+                        continue
+                    }
+                    seenTickers.add(entry.symbol)
+                    // 토스는 한글명만 주므로 name에는 심볼을 넣고 한글명을 따로 채운다.
+                    val stock = Stock(ticker = entry.symbol, name = entry.symbol, cik = null)
+                    stock.koreanName = entry.name
+                    newTossStockList.add(stock)
+                }
+
+                val newStockList = mutableListOf<Stock>()
+                newStockList.addAll(newSecStockList)
+                newStockList.addAll(newExchangeStockList)
+                newStockList.addAll(newTossStockList)
+
+                val stocks = newStockList.take(seedBatchSize)
                 log.info(
-                    "got {} new candidates to seed ({} sec, {} exchange-only, {} toss-only)",
+                    "got {} new stocks to seed ({} sec, {} exchange-only, {} toss-only)",
                     stocks.size,
-                    secCandidates.size,
-                    exchangeCandidates.size,
-                    tossCandidates.size,
+                    newSecStockList.size,
+                    newExchangeStockList.size,
+                    newTossStockList.size,
                 )
 
                 stockRepository.saveAll(stocks)

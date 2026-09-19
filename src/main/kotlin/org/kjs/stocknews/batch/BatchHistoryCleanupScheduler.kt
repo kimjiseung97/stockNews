@@ -25,8 +25,8 @@ class BatchHistoryCleanupScheduler(
         val threshold = LocalDateTime.now().minusDays(retentionDays)
         var deletedCount = 0
 
-        jobRepository.jobNames.forEach { jobName ->
-            jobRepository.findJobInstances(jobName).forEach { instance ->
+        for (jobName in jobRepository.jobNames) {
+            for (instance in jobRepository.findJobInstances(jobName)) {
                 val executions = jobRepository.getJobExecutions(instance)
                 val isRunning = executions.any { it.status == BatchStatus.STARTED || it.status == BatchStatus.STARTING }
                 val isExpired = executions.all { it.createTime.isBefore(threshold) }
