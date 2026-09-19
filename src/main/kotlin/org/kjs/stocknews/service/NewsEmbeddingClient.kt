@@ -34,7 +34,15 @@ class NewsEmbeddingClient(
     private val restClient = RestClient.builder()
         .requestFactory(
             JdkClientHttpRequestFactory(
-                HttpClient.newBuilder().connectTimeout(Duration.ofMillis(connectTimeoutMs)).build(),
+                // HTTP/1.1을 명시한다. JDK HttpClient 기본값은 HTTP/2인데, 평문 http로는 ALPN을 쓸 수 없어
+                // `Connection: Upgrade` + `Upgrade: h2c` 헤더를 붙인 h2c 업그레이드를 시도한다.
+                // 임베딩 서비스의 uvicorn(h11)은 h2c를 모르면서도 그 헤더를 보면 프로토콜 전환 가능성 때문에
+                // 바디를 애플리케이션에 넘기지 않고 보류해버린다. 결과적으로 FastAPI에는 빈 바디가 도착해
+                // 422(loc=["body"], "Field required")가 돌아오고, 보류된 바디는 다음 요청으로 재파싱되며 깨진다.
+                HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .connectTimeout(Duration.ofMillis(connectTimeoutMs))
+                    .build(),
             ).apply { setReadTimeout(Duration.ofMillis(readTimeoutMs)) },
         )
         .build()
