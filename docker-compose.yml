@@ -37,16 +37,28 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       TZ: Asia/Seoul
+      # 챗봇 질의 임베딩 모델(int8 ONNX, 약 535MB)을 첫 질문 때 힙에 올린다. 기본 힙(컨테이너
+      # 메모리의 1/4)으로는 모델을 못 올려 OutOfMemoryError가 난다. mem_limit과 함께 봐야 한다.
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--Xmx1600m}
     env_file:
       - .env
     ports:
       - "127.0.0.1:8080:8080"
+    volumes:
+      # ONNX 모델 캐시. 이게 없으면 배포할 때마다 모델을 다시 받고, 컨테이너가 재시작될 때마다
+      # 첫 질문이 다운로드를 기다리게 된다.
+      - onnx-cache:/models/onnx
+    # 모델을 올린 뒤 힙이 어디까지 늘어나는지 상한을 둔다. 상한이 없으면 홈서버 OOM killer가
+    # 엉뚱한 컨테이너(MariaDB 등)를 죽일 수 있다.
+    mem_limit: 2g
     depends_on:
       db:
         condition: service_healthy
     networks:
       edge:
         aliases: [stocknews-app]
+      # 벡터 DB(rag 프로젝트의 pgvector)도 이 망에 vector-db 별칭으로 있어, 챗봇 검색이
+      # 여기로 붙는다. 임베딩 서비스(embedding)도 같은 망이다.
       stocknews_internal: {}
 
 networks:
@@ -59,3 +71,7 @@ volumes:
   db-data:
     external: true
     name: stocknews_db-data
+  # compose가 만들고 관리한다(up -d 로는 유지된다). docker compose down -v 를 쓰면 지워지고
+  # 다음 첫 질문에서 모델을 다시 받는다 - 동작이 깨지진 않지만 그 요청이 오래 걸린다.
+  onnx-cache:
+    name: stocknews_onnx-cache

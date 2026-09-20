@@ -69,7 +69,7 @@ class NewsEmbeddingJobConfigTest {
         return stockNews
     }
 
-    private fun candidatesReturning(vararg batches: List<StockNews>) {
+    private fun unembeddedNewsReturning(vararg batches: List<StockNews>) {
         var stub = `when`(stockNewsRepository.findByEmbeddedAtIsNullOrderByIdAsc(anyArg<Pageable>()))
         batches.forEach { stub = stub.thenReturn(it) }
     }
@@ -87,8 +87,8 @@ class NewsEmbeddingJobConfigTest {
 
     @Test
     fun `미임베딩 뉴스를 임베딩 서비스로 보내고 전송한 건만 완료 표시한다`() {
-        val candidates = listOf(news(1L, "본문1"), news(2L, "본문2"))
-        candidatesReturning(candidates)
+        val unembeddedNews = listOf(news(1L, "본문1"), news(2L, "본문2"))
+        unembeddedNewsReturning(unembeddedNews)
         ingestReturning(NewsEmbeddingResponse(news = 2, embedded = 2, skipped = 0, chunks = 4))
 
         val status = execute()
@@ -99,15 +99,15 @@ class NewsEmbeddingJobConfigTest {
         assertEquals(listOf(10L, 10L), sent.map { it.stockId })
         assertEquals("본문1", sent[0].content)
 
-        candidates.forEach { assertNotNull(it.embeddedAt) }
-        verify(stockNewsRepository).saveAll(candidates)
+        unembeddedNews.forEach { assertNotNull(it.embeddedAt) }
+        verify(stockNewsRepository).saveAll(unembeddedNews)
         // 아직 max-batches-per-run에 닿지 않았으므로 다음 묶음을 이어서 본다.
         assertEquals(RepeatStatus.CONTINUABLE, status)
     }
 
     @Test
     fun `대상이 없으면 전송 없이 종료한다`() {
-        candidatesReturning(emptyList())
+        unembeddedNewsReturning(emptyList())
 
         val status = execute()
 
@@ -120,7 +120,7 @@ class NewsEmbeddingJobConfigTest {
         val blank = news(1L, null)
         val empty = news(2L, "   ")
         val sendable = news(3L, "본문")
-        candidatesReturning(listOf(blank, empty, sendable))
+        unembeddedNewsReturning(listOf(blank, empty, sendable))
         ingestReturning(NewsEmbeddingResponse(news = 1, embedded = 1, skipped = 0, chunks = 1))
 
         execute()
@@ -133,20 +133,20 @@ class NewsEmbeddingJobConfigTest {
 
     @Test
     fun `서비스가 준비되지 않았으면 완료 표시 없이 이번 실행만 종료한다`() {
-        val candidates = listOf(news(1L, "본문"))
-        candidatesReturning(candidates)
+        val unembeddedNews = listOf(news(1L, "본문"))
+        unembeddedNewsReturning(unembeddedNews)
         ingestReturning(null)
 
         val status = execute()
 
         assertEquals(RepeatStatus.FINISHED, status)
-        assertNull(candidates[0].embeddedAt)
+        assertNull(unembeddedNews[0].embeddedAt)
         verify(stockNewsRepository, never()).saveAll(anyArg<List<StockNews>>())
     }
 
     @Test
     fun `서비스 장애는 삼키지 않고 잡을 실패시킨다`() {
-        candidatesReturning(listOf(news(1L, "본문")))
+        unembeddedNewsReturning(listOf(news(1L, "본문")))
         `when`(newsEmbeddingClient.ingest(anyArg()))
             .thenThrow(HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "boom"))
 
@@ -156,7 +156,7 @@ class NewsEmbeddingJobConfigTest {
 
     @Test
     fun `한 실행에서 max-batches-per-run 묶음까지만 처리한다`() {
-        candidatesReturning(
+        unembeddedNewsReturning(
             listOf(news(1L, "본문")),
             listOf(news(2L, "본문")),
             listOf(news(3L, "본문")),
