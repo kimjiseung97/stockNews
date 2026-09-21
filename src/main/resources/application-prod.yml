@@ -186,6 +186,13 @@ nvidia:
     top-p: 0.95
     connect-timeout-ms: 10000
     read-timeout-ms: 120000
+    # 답을 내기 전에 태우는 추론 토큰 분량(low/medium/high). gpt-oss 계열 전용 파라미터다.
+    # 안 보내면 모델 기본값으로 길게 추론한다 - 실측에서 답변 하나가 41초였고 그 대부분이 추론이었다.
+    # 비우면 파라미터를 보내지 않아 예전 동작으로 돌아간다(재배포 없이 끌 수 있게 env로 뺐다).
+    reasoning-effort: ${NVIDIA_REASONING_EFFORT:low}
+    # reasoning-effort를 실어 보낼 모델. 모르는 파라미터를 400으로 거절하는 모델이 있고 400은
+    # 폴백 대상이 아니라 그대로 실패하므로, 지원이 확인된 모델만 적는다.
+    reasoning-effort-models: openai/gpt-oss-20b
 
 # 어드민(TB_PROMPT)에 등록된 LLM 프롬프트를 다시 읽기까지의 캐시 시간. 어드민 수정은 최대 이 시간 뒤에 반영된다.
 prompt:

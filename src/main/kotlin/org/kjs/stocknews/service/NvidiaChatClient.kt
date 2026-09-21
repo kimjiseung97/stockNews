@@ -20,6 +20,11 @@ private const val ROLE_SYSTEM = "system"
 private const val ROLE_USER = "user"
 private const val ERROR_BODY_LOG_LIMIT = 500
 
+// NVIDIA가 받는 reasoning_effort 값은 이 셋뿐이다. 다른 값을 보내면 4xx로 거절당하는데,
+// 4xx는 폴백 대상이 아니라(모델 문제가 아니라 요청 문제로 본다) 그대로 실패한다.
+// 즉 오타 하나로 챗봇이 통째로 멈추므로 보내기 전에 걸러야 한다.
+private val ALLOWED_REASONING_EFFORTS = setOf("low", "medium", "high")
+
 // 외부 API 응답 본문을 그대로 로그에 남기면 개행 문자로 가짜 로그 줄을 끼워 넣을 수 있으므로(로그 인젝션)
 // 개행/제어문자를 공백으로 바꾸고 길이를 제한한다.
 private fun sanitizeForLog(body: String): String {
@@ -53,6 +58,15 @@ class NvidiaChatClient(
     // 응답이 중간에 끊겨 UnknownContentTypeException으로 위장되어 나타남) 여유를 두고 기본 120초.
     @Value("\${nvidia.api.connect-timeout-ms:10000}") private val connectTimeoutMs: Int,
     @Value("\${nvidia.api.read-timeout-ms:120000}") private val readTimeoutMs: Int,
+    // 답을 내기 전에 태우는 추론 토큰 분량(low/medium/high). gpt-oss 계열은 이 값을 안 보내면
+    // 기본값으로 길게 추론한다 - 실측에서 답변 하나에 41초가 걸렸고 그 대부분이 추론이었다.
+    // 빈 값이면 파라미터를 아예 보내지 않아 모델 기본 동작으로 돌아간다.
+    @Value("\${nvidia.api.reasoning-effort:}") private val reasoningEffort: String,
+    // reasoning_effort를 실어 보낼 모델 목록. 모르는 파라미터를 받으면 400으로 거절하는 모델이
+    // 있는데, 400은 폴백 대상이 아니라(모델 문제가 아니라 요청 문제로 본다) 그대로 실패한다.
+    // 그래서 기본 모델이 죽어 폴백으로 넘어갔을 때 이 파라미터가 따라가 챗봇을 통째로 멈추지
+    // 않도록, 지원이 확인된 모델에만 싣는다.
+    @Value("\${nvidia.api.reasoning-effort-models:}") private val reasoningEffortModelsRaw: String,
 ) {
     private val log = LoggerFactory.getLogger(NvidiaChatClient::class.java)
 
@@ -60,6 +74,16 @@ class NvidiaChatClient(
         .map { it.trim() }
         .filter { it.isNotEmpty() }
         .distinct()
+
+    // 설정값을 정규화하고 검증해 둔다. 허용값이 아니면 파라미터를 보내지 않는다 - 여기서 예외를
+    // 던져 기동을 막으면 챗봇 튜닝용 설정 하나 때문에 검색/메일/배치까지 전부 내려간다.
+    // 값이 잘못돼도 서비스는 살고 응답만 예전 속도로 돌아가는 쪽이 낫다.
+    private val normalizedReasoningEffort: String? = normalizeReasoningEffort(reasoningEffort)
+
+    private val reasoningEffortModels: Set<String> = reasoningEffortModelsRaw.split(",")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .toSet()
 
     // JdkClientHttpRequestFactory(java.net.http.HttpClient)가 POST 요청 바디 전송 시 "Request cancelled" I/O
     // 에러를 일으켜, HttpURLConnection 기반의 SimpleClientHttpRequestFactory로 대체.
@@ -99,6 +123,34 @@ class NvidiaChatClient(
         throw NvidiaChatException("no nvidia model configured")
     }
 
+    private fun normalizeReasoningEffort(raw: String): String? {
+        val normalized = raw.trim().lowercase()
+        if (normalized.isEmpty()) {
+            return null
+        }
+        if (normalized !in ALLOWED_REASONING_EFFORTS) {
+            log.warn(
+                "unknown nvidia.api.reasoning-effort={}, sending none (allowed: {})",
+                sanitizeForLog(raw),
+                ALLOWED_REASONING_EFFORTS,
+            )
+            return null
+        }
+        return normalized
+    }
+
+    // 이 모델에 실어 보낼 reasoning_effort. 설정이 비었거나 허용값이 아니거나 지원 목록에 없는
+    // 모델이면 null이고, null이면 DTO 직렬화에서 키가 통째로 빠진다.
+    private fun reasoningEffortFor(model: String): String? {
+        if (normalizedReasoningEffort == null) {
+            return null
+        }
+        if (model !in reasoningEffortModels) {
+            return null
+        }
+        return normalizedReasoningEffort
+    }
+
     private fun callModel(model: String, systemPrompt: String, userMessage: String): String {
         val request = NvidiaChatCompletionRequest(
             model = model,
@@ -109,6 +161,7 @@ class NvidiaChatClient(
             temperature = 0.5,
             topP = topP,
             maxTokens = maxTokens,
+            reasoningEffort = reasoningEffortFor(model),
         )
 
         val response = try {

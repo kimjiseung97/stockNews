@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,12 +17,14 @@ import java.nio.charset.StandardCharsets
 class NvidiaChatClientTest {
     private lateinit var server: HttpServer
     private val requestedModels = mutableListOf<String>()
+    private val requestBodyByModel = mutableMapOf<String, String>()
     private var statusByModel = mapOf<String, Int>()
     private var nonJsonModels = setOf<String>()
 
     @BeforeEach
     fun startStubServer() {
         requestedModels.clear()
+        requestBodyByModel.clear()
         statusByModel = emptyMap()
         nonJsonModels = emptySet()
         server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
@@ -38,6 +41,7 @@ class NvidiaChatClientTest {
         val body = exchange.requestBody.readBytes().toString(StandardCharsets.UTF_8)
         val model = Regex("\"model\":\"([^\"]+)\"").find(body)?.groupValues?.get(1) ?: ""
         requestedModels.add(model)
+        requestBodyByModel[model] = body
 
         val status = statusByModel[model] ?: 200
         val response = when {
@@ -56,7 +60,12 @@ class NvidiaChatClientTest {
         exchange.responseBody.use { it.write(bytes) }
     }
 
-    private fun client(model: String, fallbackModels: String) = NvidiaChatClient(
+    private fun client(
+        model: String,
+        fallbackModels: String,
+        reasoningEffort: String = "",
+        reasoningEffortModels: String = "",
+    ) = NvidiaChatClient(
         baseUrl = "http://127.0.0.1:${server.address.port}/v1",
         apiKey = "test-key",
         model = model,
@@ -65,6 +74,8 @@ class NvidiaChatClientTest {
         topP = 0.95,
         connectTimeoutMs = 2000,
         readTimeoutMs = 5000,
+        reasoningEffort = reasoningEffort,
+        reasoningEffortModelsRaw = reasoningEffortModels,
     )
 
     @Test
@@ -116,6 +127,74 @@ class NvidiaChatClientTest {
 
         assertEquals("live-model 답변", answer)
         assertEquals(listOf("broken-model", "live-model"), requestedModels)
+    }
+
+    // reasoning_effort는 gpt-oss 계열만 이해하는 파라미터다. 모르는 모델에 보내면 400으로 거절될 수
+    // 있는데 400은 폴백 대상이 아니라 그대로 실패하므로, 지원 목록에 없는 모델에는 실리면 안 된다.
+    @Test
+    fun `지원 목록에 있는 모델에는 reasoning_effort를 실어 보낸다`() {
+        val answer = client("gpt-oss", "", reasoningEffort = "low", reasoningEffortModels = "gpt-oss")
+            .chatToLLm("system", "질문")
+
+        assertEquals("gpt-oss 답변", answer)
+        assertTrue(
+            requestBodyByModel["gpt-oss"]!!.contains("\"reasoning_effort\":\"low\""),
+            "지원 모델인데 reasoning_effort가 빠졌다: ${requestBodyByModel["gpt-oss"]}",
+        )
+    }
+
+    @Test
+    fun `지원 목록에 없는 폴백 모델로 넘어가면 reasoning_effort를 빼고 보낸다`() {
+        statusByModel = mapOf("gpt-oss" to 410)
+
+        val answer = client("gpt-oss", "other-model", reasoningEffort = "low", reasoningEffortModels = "gpt-oss")
+            .chatToLLm("system", "질문")
+
+        assertEquals("other-model 답변", answer)
+        assertTrue(
+            requestBodyByModel["gpt-oss"]!!.contains("reasoning_effort"),
+            "기본 모델에는 실려야 한다",
+        )
+        assertFalse(
+            requestBodyByModel["other-model"]!!.contains("reasoning_effort"),
+            "미지원 폴백 모델에 실려 나갔다: ${requestBodyByModel["other-model"]}",
+        )
+    }
+
+    @Test
+    fun `reasoning-effort 설정이 비어 있으면 지원 모델에도 보내지 않는다`() {
+        client("gpt-oss", "", reasoningEffort = "", reasoningEffortModels = "gpt-oss")
+            .chatToLLm("system", "질문")
+
+        assertFalse(
+            requestBodyByModel["gpt-oss"]!!.contains("reasoning_effort"),
+            "설정을 비웠는데 실려 나갔다: ${requestBodyByModel["gpt-oss"]}",
+        )
+    }
+
+    @Test
+    fun `reasoning-effort 값의 대소문자와 앞뒤 공백은 정규화해서 보낸다`() {
+        client("gpt-oss", "", reasoningEffort = "  LOW  ", reasoningEffortModels = "gpt-oss")
+            .chatToLLm("system", "질문")
+
+        assertTrue(
+            requestBodyByModel["gpt-oss"]!!.contains("\"reasoning_effort\":\"low\""),
+            "정규화되지 않았다: ${requestBodyByModel["gpt-oss"]}",
+        )
+    }
+
+    // 허용값(low/medium/high)이 아닌 값을 보내면 NVIDIA가 4xx로 거절하고, 4xx는 폴백 대상이 아니라
+    // 챗봇이 통째로 실패한다. 설정 오타 하나로 서비스가 죽지 않도록 아예 안 보내고 넘어가야 한다.
+    @Test
+    fun `reasoning-effort가 허용값이 아니면 보내지 않고 답변은 정상 반환한다`() {
+        val answer = client("gpt-oss", "", reasoningEffort = "veryhigh", reasoningEffortModels = "gpt-oss")
+            .chatToLLm("system", "질문")
+
+        assertEquals("gpt-oss 답변", answer)
+        assertFalse(
+            requestBodyByModel["gpt-oss"]!!.contains("reasoning_effort"),
+            "허용값이 아닌데 실려 나갔다: ${requestBodyByModel["gpt-oss"]}",
+        )
     }
 
     @Test
