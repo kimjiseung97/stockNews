@@ -70,7 +70,9 @@ class NvidiaChatClient(
 ) {
     private val log = LoggerFactory.getLogger(NvidiaChatClient::class.java)
 
-    private val candidateModels: List<String> = (listOf(model) + fallbackModelsRaw.split(","))
+    // 실제로 호출을 시도할 모델 목록. 앞에서부터 순서대로 시도하며, 0번이 기본 모델(nvidia.api.model)이고
+    // 그 뒤가 폴백 모델(nvidia.api.fallback-models)이다. 중복/공백 설정은 여기서 걸러진다.
+    private val modelsToTry: List<String> = (listOf(model) + fallbackModelsRaw.split(","))
         .map { it.trim() }
         .filter { it.isNotEmpty() }
         .distinct()
@@ -97,30 +99,38 @@ class NvidiaChatClient(
         .build()
 
     // 실패 시 NvidiaChatException을 던진다(로깅은 여기서 하지 않고, 진단에 필요한 정보를 예외 메시지에
-    // 담아 상위 계층에서 한 번만 로깅하도록 한다). 단, 모델을 못 쓰는 경우(410/404)는 여기서 WARN으로
-    // 남기고 candidateModels의 다음 모델로 자동 재시도한다.
+    // 담아 상위 계층에서 한 번만 로깅하도록 한다). 단, 모델을 못 쓰는 경우(410/404/5xx)는 여기서 WARN으로
+    // 남기고 modelsToTry의 다음 모델로 자동 재시도한다.
+    //
+    // 루프가 도는 경우는 "그 모델만 못 쓰는" 실패(NvidiaModelUnavailableException) 하나뿐이다.
+    // 타임아웃/파싱 실패 같은 나머지 실패는 callModel이 던진 예외가 그대로 빠져나가 루프가 즉시 끝난다.
     fun chatToLLm(systemPrompt: String, userMessage: String): String {
-        var lastError: NvidiaChatException? = null
+        var lastModelFailure: NvidiaChatException? = null
 
-        for ((index, candidateModel) in candidateModels.withIndex()) {
+        for (index in modelsToTry.indices) {
+            val modelToTry = modelsToTry[index]
             try {
-                return callModel(candidateModel, systemPrompt, userMessage)
+                return callModel(modelToTry, systemPrompt, userMessage)
             } catch (e: NvidiaModelUnavailableException) {
-                lastError = e
-                if (index < candidateModels.lastIndex) {
-                    log.warn(
-                        "nvidia model unavailable, falling back: model={} next={}",
-                        candidateModel,
-                        candidateModels[index + 1],
-                    )
-                }
+                lastModelFailure = e
+                logFallback(failedModel = modelToTry, nextModel = modelsToTry.getOrNull(index + 1))
             }
         }
 
-        if (lastError != null) {
-            throw lastError
+        // 여기까지 왔다는 건 모든 모델이 "못 쓰는 모델"로 실패했거나, 시도할 모델이 아예 없었다는 뜻이다.
+        if (lastModelFailure != null) {
+            throw lastModelFailure
         }
         throw NvidiaChatException("no nvidia model configured")
+    }
+
+    // 다음에 시도할 모델이 있을 때만 폴백 로그를 남긴다. 마지막 모델까지 실패한 건 폴백이 아니라
+    // 호출 자체의 실패라, 위에서 던지는 예외로 드러나는 편이 로그가 덜 헷갈린다.
+    private fun logFallback(failedModel: String, nextModel: String?) {
+        if (nextModel == null) {
+            return
+        }
+        log.warn("nvidia model unavailable, falling back: model={} next={}", failedModel, nextModel)
     }
 
     private fun normalizeReasoningEffort(raw: String): String? {

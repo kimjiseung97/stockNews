@@ -5,5 +5,5 @@ package org.kjs.stocknews.service
 open class NvidiaChatException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
 // 그 모델만의 문제로 호출이 실패한 경우 - 단종(410), 계정에 호출 권한 없음(404), 추론 백엔드 장애(5xx).
-// NvidiaChatClient가 이 타입만 잡아 candidateModels의 다음 모델로 자동 전환한다.
+// NvidiaChatClient가 이 타입만 잡아 modelsToTry의 다음 모델로 자동 전환한다.
 class NvidiaModelUnavailableException(message: String, cause: Throwable? = null) : NvidiaChatException(message, cause)
