@@ -33,10 +33,28 @@ class NewsVectorSearchService(
     private val log = LoggerFactory.getLogger(NewsVectorSearchService::class.java)
 
     // 질문과 의미가 가까운 뉴스를 종목으로 좁혀 찾는다. 실패하거나 결과가 없으면 빈 리스트.
+    //
+    // 구간별 소요시간을 남긴다. RAG 전환 이후 챗봇 응답이 수 초에서 수십 초로 늘었는데, 질의 임베딩과
+    // pgvector 조회 중 어느 쪽이 그 시간을 쓰는지 코드만 봐서는 가를 수 없어 숫자로 확인하기 위한 것이다.
+    //
+    // 읽을 때 주의: 임베딩 모델은 @Lazy라 컨테이너 기동 후 **첫 호출**에 535MB 모델 적재가 포함된다.
+    // 첫 줄은 무조건 큰 값이 나오므로 두 번째 질문부터 비교할 것.
     fun search(question: String, stockId: Long?): List<NewsChunkHit> {
         try {
+            val embedStartedAt = System.nanoTime()
             val queryVector = embeddingModel.embed(queryPrefix + question)
-            return newsChunkRepository.findSimilar(queryVector, stockId, articleLimit, minScore)
+            val embedFinishedAt = System.nanoTime()
+
+            val hits = newsChunkRepository.findSimilar(queryVector, stockId, articleLimit, minScore)
+            val searchFinishedAt = System.nanoTime()
+
+            log.info(
+                "news vector search timing: embedMs={} pgvectorMs={} hits={}",
+                elapsedMs(embedStartedAt, embedFinishedAt),
+                elapsedMs(embedFinishedAt, searchFinishedAt),
+                hits.size,
+            )
+            return hits
         } catch (e: Exception) {
             // 여기서 예외를 올리면 벡터 DB나 모델이 잠깐 삐끗한 것만으로 챗봇 전체가 실패한다.
             // 뉴스 컨텍스트는 답변 품질을 올리는 보조 재료라 없으면 없는 대로 답변하는 편이 낫다.
@@ -46,4 +64,8 @@ class NewsVectorSearchService(
             return emptyList()
         }
     }
+
+    // 구간 측정에는 currentTimeMillis가 아니라 nanoTime을 쓴다. nanoTime은 단조 증가라
+    // NTP 시계 조정이 끼어들어도 음수나 엉뚱한 값이 나오지 않는다.
+    private fun elapsedMs(fromNanos: Long, toNanos: Long): Long = (toNanos - fromNanos) / 1_000_000
 }

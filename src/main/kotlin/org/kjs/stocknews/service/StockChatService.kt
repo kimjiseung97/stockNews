@@ -7,6 +7,7 @@ import org.kjs.stocknews.model.dto.StockChatRequest
 import org.kjs.stocknews.model.dto.StockChatResponse
 import org.kjs.stocknews.model.table.Stock
 import org.kjs.stocknews.repository.StockRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.ZoneId
@@ -43,16 +44,36 @@ class StockChatService(
     private val newsVectorSearchService: NewsVectorSearchService,
     private val promptService: PromptService,
 ) {
+    private val log = LoggerFactory.getLogger(StockChatService::class.java)
+
     fun ask(request: StockChatRequest): StockChatResponse {
         val question = request.question
         validateQuestion(question)
 
+        val startedAt = System.nanoTime()
         val systemPrompt = promptService.render(PromptCode.STOCK_CHAT_SYSTEM, promptVariables(question))
+        val promptReadyAt = System.nanoTime()
+
         val answer = try {
             nvidiaChatClient.chatToLLm(systemPrompt, question)
         } catch (e: NvidiaChatException) {
+            // 실패한 호출의 소요시간도 남긴다. 타임아웃(read-timeout 120초)으로 죽은 것인지
+            // 즉시 거절된 것인지가 숫자로 갈린다.
+            log.info(
+                "stock chat timing (failed): promptMs={} llmMs={}",
+                elapsedMs(startedAt, promptReadyAt),
+                elapsedMs(promptReadyAt, System.nanoTime()),
+            )
             throw BusinessException(ResultCode.STOCK_CHAT_FAILED, cause = e)
         }
+        val finishedAt = System.nanoTime()
+
+        log.info(
+            "stock chat timing: promptMs={} llmMs={} totalMs={}",
+            elapsedMs(startedAt, promptReadyAt),
+            elapsedMs(promptReadyAt, finishedAt),
+            elapsedMs(startedAt, finishedAt),
+        )
 
         return StockChatResponse(answer)
     }
@@ -63,8 +84,22 @@ class StockChatService(
     // 검색 결과가 없거나 벡터 DB/모델이 실패하면 관련 변수는 빈 값이 되고,
     // 프롬프트의 해당 구간({{#newsContext}})도 통째로 빠진다.
     private fun promptVariables(question: String): Map<String, String?> {
+        val stockLookupStartedAt = System.nanoTime()
         val stock = stockRepository.findFirstMentionedInText(question)
+        val stockLookupFinishedAt = System.nanoTime()
+
         val relatedArticles = newsVectorSearchService.search(question, stock?.id)
+        val newsSearchFinishedAt = System.nanoTime()
+
+        // stockLookupMs는 TB_STOCK 전량 스캔(질문 문장에 종목명이 들어 있는지 보는 역방향 LIKE),
+        // newsSearchMs는 질의 임베딩 + pgvector 조회를 합친 값이다. 그 둘의 내역은
+        // NewsVectorSearchService가 따로 남긴다.
+        log.info(
+            "stock chat prompt timing: stockLookupMs={} newsSearchMs={} articles={}",
+            elapsedMs(stockLookupStartedAt, stockLookupFinishedAt),
+            elapsedMs(stockLookupFinishedAt, newsSearchFinishedAt),
+            relatedArticles.size,
+        )
 
         val stockLabel = stock?.let { stockLabel(it) }
         val newsContext = if (relatedArticles.isEmpty()) {
@@ -120,6 +155,10 @@ class StockChatService(
         }
         return flattened.take(maxLength) + "…"
     }
+
+    // 구간 측정에는 currentTimeMillis가 아니라 nanoTime을 쓴다. nanoTime은 단조 증가라
+    // NTP 시계 조정이 끼어들어도 음수나 엉뚱한 값이 나오지 않는다.
+    private fun elapsedMs(fromNanos: Long, toNanos: Long): Long = (toNanos - fromNanos) / 1_000_000
 
     private fun validateQuestion(question: String) {
         if (question.isBlank()) {
