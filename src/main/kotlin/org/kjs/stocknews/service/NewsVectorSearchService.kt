@@ -31,17 +31,24 @@ class NewsVectorSearchService(
             // 여기서 또 찍으면 같은 값이 두 줄이 되고, 이 서버는 배치 로그만으로도 이미
             // 필요한 줄이 밀려나는 상황이라 정상 경로에는 로그를 두지 않는다.
             val response = newsSearchClient.search(question, stockId, articleLimit)
-                ?: return emptyList()
+            // null은 임베딩 서비스가 503(모델 워밍업 중이거나 벡터 DB 미연결)을 준 경우다.
+            if (response == null) {
+                return emptyList()
+            }
 
-            return response.articles.map {
-                NewsChunkHit(
-                    newsId = it.newsId,
-                    title = it.title,
-                    content = it.content,
-                    url = it.url,
-                    score = it.score,
+            val hits = mutableListOf<NewsChunkHit>()
+            for (article in response.articles) {
+                hits.add(
+                    NewsChunkHit(
+                        newsId = article.newsId,
+                        title = article.title,
+                        content = article.content,
+                        url = article.url,
+                        score = article.score,
+                    ),
                 )
             }
+            return hits
         } catch (e: Exception) {
             // 여기서 예외를 올리면 임베딩 서비스가 잠깐 삐끗한 것만으로 챗봇 전체가 실패한다.
             // 뉴스 컨텍스트는 답변 품질을 올리는 보조 재료라 없으면 없는 대로 답변하는 편이 낫다.
