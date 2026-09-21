@@ -9,6 +9,12 @@ services:
     image: mariadb:11.8
     restart: unless-stopped
     logging: *default-logging
+    # 기본 innodb_buffer_pool_size는 128MB라, 종목 검색(TB_STOCK 전량 스캔 + TB_STOCK_DETAIL 조인)이
+    # 사실상 OS 페이지 캐시에 기대고 있었다. RAG 스택(embedding-service 약 2.2GB, pgvector)이 올라온 뒤
+    # 그 캐시가 밀려나면서 같은 쿼리가 디스크로 내려갔고, 디스크는 pgvector HNSW 쓰기와 경합해
+    # /proc/pressure/io의 full이 avg300 35%까지 올라갔다(= 5분 중 1/3을 전체 정지).
+    # 핫셋을 버퍼 풀에 상주시켜 페이지 캐시 경합과 무관하게 만든다.
+    command: --innodb-buffer-pool-size=2G
     environment:
       TZ: Asia/Seoul
       MARIADB_DATABASE: ${DB_NAME}
@@ -50,7 +56,13 @@ services:
       - onnx-cache:/models/onnx
     # 모델을 올린 뒤 힙이 어디까지 늘어나는지 상한을 둔다. 상한이 없으면 홈서버 OOM killer가
     # 엉뚱한 컨테이너(MariaDB 등)를 죽일 수 있다.
-    mem_limit: 2g
+    #
+    # 2g는 너무 빡빡했다. -Xmx1600m 힙에 ONNX 런타임 네이티브 할당과 metaspace가 얹히면 상한의
+    # 79%에 상주하게 되고, compose는 mem_limit만 걸고 memswap_limit은 안 걸어서 커널이 cgroup 압박을
+    # 스왑으로 푼다. 호스트에 가용 메모리가 7GB 남았는데도 스왑에 1.5GB가 잡혀 있었고, 그 내려간
+    # 페이지가 JVM 힙이라 GC가 힙을 훑을 때마다 디스크에서 되읽으며 서버 전체를 멈춰 세웠다.
+    # 상한을 올려 cgroup이 압박받지 않게 한다(힙 자체는 -Xmx1600m로 묶여 있어 여기가 여유분이다).
+    mem_limit: 3g
     depends_on:
       db:
         condition: service_healthy
