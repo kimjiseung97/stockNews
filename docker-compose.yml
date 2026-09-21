@@ -43,26 +43,24 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       TZ: Asia/Seoul
-      # 챗봇 질의 임베딩 모델(int8 ONNX, 약 535MB)을 첫 질문 때 힙에 올린다. 기본 힙(컨테이너
-      # 메모리의 1/4)으로는 모델을 못 올려 OutOfMemoryError가 난다. mem_limit과 함께 봐야 한다.
-      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--Xmx1600m}
+      # 힙 상한. 기본값(컨테이너 메모리의 1/4)은 mem_limit이 줄면 같이 줄어 배치가 쪼들리므로
+      # 명시한다. mem_limit과의 차이가 metaspace·스레드 스택·다이렉트 버퍼의 몫이다.
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--Xmx1200m}
     env_file:
       - .env
     ports:
       - "127.0.0.1:8080:8080"
-    volumes:
-      # ONNX 모델 캐시. 이게 없으면 배포할 때마다 모델을 다시 받고, 컨테이너가 재시작될 때마다
-      # 첫 질문이 다운로드를 기다리게 된다.
-      - onnx-cache:/models/onnx
-    # 모델을 올린 뒤 힙이 어디까지 늘어나는지 상한을 둔다. 상한이 없으면 홈서버 OOM killer가
-    # 엉뚱한 컨테이너(MariaDB 등)를 죽일 수 있다.
+    # 상한이 없으면 홈서버 OOM killer가 엉뚱한 컨테이너(MariaDB 등)를 죽일 수 있다.
     #
-    # 2g는 너무 빡빡했다. -Xmx1600m 힙에 ONNX 런타임 네이티브 할당과 metaspace가 얹히면 상한의
-    # 79%에 상주하게 되고, compose는 mem_limit만 걸고 memswap_limit은 안 걸어서 커널이 cgroup 압박을
-    # 스왑으로 푼다. 호스트에 가용 메모리가 7GB 남았는데도 스왑에 1.5GB가 잡혀 있었고, 그 내려간
-    # 페이지가 JVM 힙이라 GC가 힙을 훑을 때마다 디스크에서 되읽으며 서버 전체를 멈춰 세웠다.
-    # 상한을 올려 cgroup이 압박받지 않게 한다(힙 자체는 -Xmx1600m로 묶여 있어 여기가 여유분이다).
-    mem_limit: 3g
+    # 이 값을 줄일 때는 cgroup 압박이 어떻게 나타나는지 알고 줄일 것. compose는 mem_limit만 걸고
+    # memswap_limit은 안 걸어서, 한도에 닿으면 커널이 JVM 힙을 스왑으로 밀어낸다. 그러면 GC가
+    # 힙을 훑을 때마다 디스크에서 되읽으며 서버 전체가 I/O 대기로 멈춘다(실제로 겪었다 -
+    # 호스트에 7GB가 남았는데도 스왑에 1.5GB가 잡혔다).
+    #
+    # 예전에는 챗봇 질의 임베딩 모델(535MB ONNX)을 이 JVM에 올려서 2g도 3g도 모자랐다
+    # (3g에서 99.94% 점유). 지금은 그 일을 파이썬 embedding-service가 하므로 -Xmx1200m에
+    # 넉넉한 여유를 더한 2g로 충분하다.
+    mem_limit: 2g
     depends_on:
       db:
         condition: service_healthy
@@ -83,7 +81,3 @@ volumes:
   db-data:
     external: true
     name: stocknews_db-data
-  # compose가 만들고 관리한다(up -d 로는 유지된다). docker compose down -v 를 쓰면 지워지고
-  # 다음 첫 질문에서 모델을 다시 받는다 - 동작이 깨지진 않지만 그 요청이 오래 걸린다.
-  onnx-cache:
-    name: stocknews_onnx-cache

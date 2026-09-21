@@ -16,11 +16,6 @@ scheduler:
   enabled: ${SCHEDULER_ENABLED:true}
 
 spring:
-  ai:
-    model:
-      # 임베딩 모델은 EmbeddingModelConfig가 @Lazy로 직접 만든다. 자동설정이 만들면
-      # 기동 시점에 수백 MB를 힙에 올려 OutOfMemoryError가 난다.
-      embedding: none
   datasource:
     url: jdbc:mariadb://${DB_HOST:jiseung-jiseungmysql.g.aivencloud.com}:${DB_PORT:14822}/${DB_NAME:stock}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USERNAME:avnadmin}
@@ -130,26 +125,17 @@ news:
     # 같은 묶음을 계속 재전송하게 된다.
     read-timeout-ms: 180000
 
-  # 챗봇이 질문을 그 자리에서 임베딩해 pgvector에서 비슷한 뉴스를 찾는 검색.
-  # 적재(위 embedding 배치 → 파이썬 embedding-service)와 반드시 같은 모델이어야 한다.
-  # 모델이 다르면 차원이 같아도 좌표계가 달라 검색이 조용히 무의미해진다.
+  # 챗봇이 질문과 의미가 가까운 뉴스를 찾는 검색. 임베딩과 pgvector 조회는 파이썬
+  # embedding-service가 하고, 이 앱은 질문 문장을 넘기고 기사 목록을 받는다.
   vector-search:
-    # e5 계열은 프리픽스를 전제로 학습됐다. 적재가 "passage: "이므로 검색은 "query: "다.
-    # 모델을 프리픽스가 필요 없는 것으로 바꾸면 빈 문자열로 둘 것.
-    # 파이썬 적재가 쓰는 intfloat/multilingual-e5-large와 같은 모델이어야 한다.
-    # fp32 원본은 model.onnx(그래프) + model.onnx_data(가중치 2.1GB)로 쪼개져 있어 단일 URI로
-    # 받을 수 없다. 자체 완결된 int8 양자화본을 쓰고, 양자화로 인한 벡터 차이는 파이썬
-    # /v1/embed 결과와 코사인 유사도를 비교해 확인한다.
-    model-uri: ${EMBEDDING_ONNX_MODEL_URI:https://huggingface.co/intfloat/multilingual-e5-large/resolve/main/onnx/model_qint8_avx512_vnni.onnx}
-    tokenizer-uri: ${EMBEDDING_ONNX_TOKENIZER_URI:https://huggingface.co/intfloat/multilingual-e5-large/resolve/main/onnx/tokenizer.json}
-    model-cache-directory: ${EMBEDDING_ONNX_CACHE_DIR:/models/onnx}
-    query-prefix: "query: "
-    # 프롬프트에 넣을 뉴스 기사 건수(청크 건수가 아니다). 늘리면 근거는 늘지만 토큰과
-    # 응답 지연이 함께 늘어난다.
+    # 적재(위 embedding 배치)와 같은 서비스다. 무인증 API라 내부망 주소를 쓸 것.
+    base-url: ${EMBEDDING_BASE_URL:http://embedding:8000}
+    # 프롬프트에 넣을 뉴스 기사 건수. 늘리면 근거는 늘지만 LLM 토큰과 응답 지연이 함께 늘어난다.
     article-limit: 3
-    # 코사인 유사도 하한. e5 계열은 무관한 문장끼리도 0.7대가 나오므로 낮게 잡으면
-    # 엉뚱한 뉴스가 근거로 들어간다. 실제 답변 품질을 보고 조정할 것.
-    min-score: 0.80
+    # 사용자가 화면 앞에서 기다리는 경로라 적재 배치(3분)와 달리 짧게 잡는다.
+    # 늦으면 뉴스 근거를 포기하고 답변을 진행하는 편이 낫다.
+    connect-timeout-ms: 2000
+    read-timeout-ms: 5000
 
   dispatch:
     # 유저별 발송시간대(TB_USER_MAIL_DISPATCH_SETTING, 30분 단위)와 정확히 일치하는지 매번 검사하므로
@@ -226,15 +212,3 @@ rate-limit:
   trusted-proxy-count: ${RATE_LIMIT_TRUSTED_PROXY_COUNT:1}
   # 거절 로그 분당 상한 - 공격 트래픽이 로그 로테이션으로 다른 로그를 밀어내지 못하게 한다.
   log-lines-per-minute: ${RATE_LIMIT_LOG_LINES_PER_MINUTE:20}
-
-# 벡터 DB(Postgres + pgvector). 도메인 DB(MariaDB)와 별개인 두 번째 DataSource다.
-# 이 애플리케이션은 읽기만 하고, 적재는 파이썬 embedding-service가 한다.
-vector:
-  datasource:
-    url: jdbc:postgresql://${VECTOR_DB_HOST:vector-db}:${VECTOR_DB_PORT:5432}/${VECTOR_DB_NAME:ragdb}
-    username: ${VECTOR_DB_USERNAME:rag}
-    password: ${VECTOR_DB_PASSWORD}
-    pool-size: 3
-    # HNSW 후보 폭. 커넥션을 열 때 SET으로 건다(조회 직전에 걸면 풀에서 다른 커넥션을 받을 수 있다).
-    # 기본값 40으로는 종목 필터가 걸린 검색에서 결과가 비어 나올 수 있다. 올리면 정확도↑ 지연↑.
-    hnsw-ef-search: 200

@@ -76,29 +76,30 @@ flowchart LR
     Question(["사용자 질문"]) --> ChatSvc["StockChatService"]
     PromptTable --> PromptSvc["PromptService<br/>(코드별 조회 + 60초 캐시)"]
     ChatSvc --> StockLookup["질문에서 종목 탐지<br/>(TB_STOCK)"]
-    StockLookup --> Embed["Spring AI TransformersEmbeddingModel<br/>질의 임베딩(로컬 ONNX)"]
-    Embed --> PgVector[("pgvector<br/>news_chunks")]
-    PgVector --> PromptSvc
+    StockLookup --> SearchSvc["NewsSearchClient<br/>POST /v1/search"]
+    SearchSvc --> EmbedSvc["embedding-service (파이썬)<br/>질의 임베딩 + pgvector 조회"]
+    EmbedSvc --> PgVector[("pgvector<br/>news_chunks")]
+    EmbedSvc --> PromptSvc
     PromptSvc --> Template["PromptTemplate<br/>{{today}} {{stockLabel}} {{newsContext}} 치환"]
     Template --> LLM["NvidiaChatClient (NVIDIA NIM)"]
 ```
 
 - 챗봇 시스템 프롬프트는 코드가 아니라 어드민이 `TB_PROMPT`에 등록한 본문을 쓴다(`PromptCode.STOCK_CHAT_SYSTEM`). 프롬프트를 고치는 데 배포가 필요 없다.
 - 본문의 `{{today}}`(오늘 날짜) / `{{stockLabel}}`(질문에서 찾은 종목) / `{{newsContext}}`(질문과 의미가 가까운 뉴스)는 요청마다 실제 값으로 치환되고, `{{#newsContext}}...{{/newsContext}}` 구간은 값이 있을 때만 남는다.
-- `{{newsContext}}`는 최신순이 아니라 **의미 유사도순**이다. 질문을 그 자리에서 임베딩해(`NewsVectorSearchService`) pgvector `news_chunks`에서 가까운 뉴스를 꺼내고, 제목과 본문 청크를 함께 넣는다. 종목을 못 찾은 질문은 종목 필터 없이 전체에서 찾는다.
-- 벡터 DB나 모델이 실패하면 예외 대신 빈 컨텍스트로 떨어져, 뉴스 근거 없이 답변한다 — 검색 실패가 챗봇 실패가 되지 않는다.
+- `{{newsContext}}`는 최신순이 아니라 **의미 유사도순**이다. 질문 문장을 임베딩 서비스에 넘겨(`NewsVectorSearchService` → `NewsSearchClient`) 의미가 가까운 뉴스를 받아 제목과 본문 청크를 함께 넣는다. 종목을 못 찾은 질문은 종목 필터 없이 전체에서 찾는다.
+- 검색이 실패하거나 서비스가 아직 안 떴으면(503) 예외 대신 빈 컨텍스트로 떨어져, 뉴스 근거 없이 답변한다 — 검색 실패가 챗봇 실패가 되지 않는다.
 
 ### 챗봇 RAG (벡터 검색)
 
-**적재와 검색의 담당이 다르다.** 뉴스 본문 임베딩과 `news_chunks` 적재는 형제 파이썬 프로젝트(`embedding-service`)가 하고, 이 애플리케이션은 **챗봇 질의를 임베딩해 읽기만** 한다.
+**임베딩도 벡터 DB도 이 애플리케이션의 일이 아니다.** 뉴스 적재(`POST /v1/news`)와 질의 검색(`POST /v1/search`) 모두 형제 파이썬 프로젝트(`embedding-service`)가 담당하고, 이 앱은 질문 문장을 넘기고 기사 목록을 받는다.
 
-- 질의 임베딩: Spring AI `spring-ai-starter-model-transformers`(로컬 ONNX, 외부 API 없음). 모델은 `news.vector-search.model-uri`.
-- **모델은 파이썬 적재 모델과 반드시 같아야 한다**(`intfloat/multilingual-e5-large`). 다르면 차원이 같아도 좌표계가 달라 에러 없이 검색 품질만 무너진다. 같은 좌표계인지는 `QueryEmbeddingContractTest`가 파이썬 `/v1/embed`와 코사인 유사도를 비교해 확인한다(기본 실행 제외, `EMBEDDING_CONTRACT_TEST=true`로 실행).
-- e5 계열은 프리픽스를 전제로 학습됐다. 적재는 `passage: `, 검색은 `query: `(`news.vector-search.query-prefix`).
-- 조회는 **두 번째 DataSource + 두 번째 EntityManagerFactory**(Postgres)를 쓴다. EMF를 직접 정의하면 Boot의 JPA 자동설정이 물러나므로 도메인 DB 쪽도 `JpaConfig`에 명시돼 있고, 저장소 패키지가 DB별로 나뉜다(`repository/` = MariaDB, `vector/repository/` = pgvector).
-- `<=>`(코사인 거리)와 `vector` 타입은 JPQL로 표현할 수 없어 `NewsChunkJpaRepository`의 네이티브 `@Query` + 인터페이스 프로젝션으로 처리한다. 별칭은 큰따옴표로 감싼다 — Postgres가 따옴표 없는 식별자를 소문자로 내려 프로젝션 게터와 어긋나기 때문이다.
-- **`news_chunks`의 소유자는 파이썬이다.** 벡터 EMF는 `ddl-auto: none`이고(전역은 `update`라 그대로 두면 Hibernate가 남의 테이블을 고친다), 저장소는 `JpaRepository`가 아니라 `Repository`를 상속해 `save`/`delete`를 노출하지 않는다. 벡터 엔티티를 `model/table` 아래 두지 않은 것도 같은 이유다(주 EMF가 그 패키지를 재귀 스캔한다).
-- 모델은 `@Lazy`로 첫 질문에 만들어진다. 기동 시점에 올리면 수백 MB가 힙에 들어가 `OutOfMemoryError`가 난다(실제로 발생했다). 컨테이너에는 `JAVA_TOOL_OPTIONS=-Xmx1600m`과 `mem_limit: 2g`, 모델 캐시 볼륨이 필요하다.
+- 호출은 `NewsSearchClient` 하나다. 요청은 `{query, stock_id, limit}`, 응답은 `{articles: [{news_id, title, content, url, score}]}`. 벡터(1024차원 float)는 주고받지 않는다.
+- **타임아웃이 적재용과 다르다.** 적재(`NewsEmbeddingClient`)는 배치라 read-timeout 3분이지만, 검색은 사용자가 화면 앞에서 기다리는 경로라 2초/5초다. 늦으면 뉴스 근거를 포기하고 답변을 진행하는 편이 낫다.
+- 503(서비스 미준비·벡터 DB 미연결)은 장애가 아니라 "지금은 못 준다"라서 빈 결과로 떨어진다. 그 외 실패도 `NewsVectorSearchService`가 삼킨다.
+- `article-limit`(프롬프트에 넣을 기사 수)만 이 앱이 정한다. 유사도 하한은 보내지 않는다 — 인덱스와 모델을 가진 쪽이 정하는 게 맞고, 실측상 그 값은 관련성 필터 구실을 못 한다(무관한 질문이 관련 질문보다 높은 점수를 받는다). 자세한 근거는 `embedding-service`의 `ARCHITECTURE.md` 참고.
+- 프리픽스(`query: ` / `passage: `)도 저쪽이 붙인다. 여기서 질문을 가공하면 이중으로 붙어 검색 품질이 조용히 망가진다.
+- **이 앱은 벡터 DB에 직접 붙지 않는다.** DataSource는 MariaDB 하나뿐이고 Boot 자동설정이 그대로 동작한다. 예전에는 질의 임베딩 모델(535MB ONNX)을 JVM에 올리고 pgvector에 두 번째 DataSource로 붙었는데, 모델 가중치가 힙이 아니라 네이티브 메모리에 잡혀 `-Xmx`로 통제되지 않았다 — 컨테이너가 `mem_limit` 3g의 99.94%를 점유하고 469MB가 스왑으로 밀려났으며 배포 후 첫 질문이 206초 걸렸다. 지금은 `mem_limit: 2g` / `-Xmx1200m`이다.
+
 - 행이 없거나 `ENABLED=0`이거나 DB 조회가 실패하면 코드에 들고 있는 기본 프롬프트(`PromptCode.fallback`)로 동작한다 — 어드민 설정 실수로 챗봇이 멈추지 않는다.
 - 조회 결과는 `prompt.cache-ttl-seconds`(기본 60초) 동안 캐싱되므로 어드민 수정은 최대 그만큼 뒤에 반영된다.
 

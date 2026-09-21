@@ -92,8 +92,8 @@ class StockChatService(
         val newsSearchFinishedAt = System.nanoTime()
 
         // stockLookupMs는 TB_STOCK 전량 스캔(질문 문장에 종목명이 들어 있는지 보는 역방향 LIKE),
-        // newsSearchMs는 질의 임베딩 + pgvector 조회를 합친 값이다. 그 둘의 내역은
-        // NewsVectorSearchService가 따로 남긴다.
+        // newsSearchMs는 임베딩 서비스(POST /v1/search) 왕복이다 - 임베딩과 pgvector 조회를
+        // 저쪽이 하므로 이 앱에서는 더 쪼갤 수 없다.
         log.info(
             "stock chat prompt timing: stockLookupMs={} newsSearchMs={} articles={}",
             elapsedMs(stockLookupStartedAt, stockLookupFinishedAt),
