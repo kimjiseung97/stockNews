@@ -132,7 +132,7 @@ jobs:
             NVIDIA_API_KEY=$NVIDIA_API_KEY
             # 빈 시크릿은 빈 문자열로 들어와 Spring의 ${VAR:default} 기본값을 덮어쓴다(빈 값 != 없음).
             # 특히 LLM_PROVIDER가 빈 값이면 LlmClient 빈이 하나도 안 떠 기동이 실패하므로 셸에서 기본값을 채운다.
-            LLM_PROVIDER=${LLM_PROVIDER:-nvidia}
+            LLM_PROVIDER=${LLM_PROVIDER:-openai}
             ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
             ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-opus-5}
             ANTHROPIC_EFFORT=${ANTHROPIC_EFFORT:-low}

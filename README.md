@@ -95,9 +95,9 @@ LLM 호출은 `LlmClient` 인터페이스(`chat(systemPrompt, userMessage)`) 뒤
 
 | provider | 구현체 | 비고 |
 |---|---|---|
-| `nvidia` (기본) | `NvidiaChatClient` | NVIDIA NIM 무료 티어. 모델 단종/권한없음/5xx면 `fallback-models`로 순차 폴백. 무료 큐잉으로 60~120초 지연이 잦다 |
+| `nvidia` | `NvidiaChatClient` | NVIDIA NIM 무료 티어. 모델 단종/권한없음/5xx면 `fallback-models`로 순차 폴백. 무료 큐잉으로 60~120초 지연이 잦다 |
 | `anthropic` | `ClaudeChatClient` | 공식 Java SDK. `ANTHROPIC_MODEL`(기본 `claude-opus-5`), `ANTHROPIC_EFFORT`(기본 `low`). 안전 거절(`stop_reason=refusal`)은 실패로 처리 |
-| `openai` | `GptClient` | Chat Completions 직접 호출. GPT-5 계열 제약 반영: `max_completion_tokens` 사용, `temperature`/`top_p` 미전송, `reasoning_effort` 명시 |
+| `openai` (기본) | `GptClient` | Chat Completions 직접 호출. `OPENAI_MODEL`(기본 `gpt-5-mini`), `OPENAI_REASONING_EFFORT`(기본 `low`). GPT-5 계열 제약 반영: `max_completion_tokens` 사용, `temperature`/`top_p` 미전송, `reasoning_effort` 명시 |
 
 실패는 전부 `LlmException`으로 올라와 `STOCK_CHAT_FAILED`가 된다. 새 제공자는 `LlmClient` 구현체에 `@ConditionalOnProperty(prefix = "llm", name = ["provider"], havingValue = "<이름>")`을 붙이고 env만 바꾸면 붙는다.
 

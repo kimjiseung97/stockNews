@@ -163,11 +163,12 @@ naver:
     cache-ttl-minutes: 60
 
 llm:
-  # 챗봇 LLM 제공자 - LlmClient 구현체를 고르는 스위치. 지금은 nvidia 하나다.
+  # 챗봇 LLM 제공자 - LlmClient 구현체를 고르는 스위치: nvidia | anthropic | openai.
+  # 기본은 openai(GptClient, gpt-5-mini) - 비용/품질 비교 끝에 정한 값이다(Sonnet 5의 약 1/6 비용).
   # 새 제공자를 붙일 때 구현체에 @ConditionalOnProperty(havingValue = "<이름>")을 달고 이 값을 바꾸면
-  # 서비스 코드 수정 없이 교체된다. 키가 없으면 nvidia. 주의: 빈 문자열은 '없음'이 아니라 어떤 구현체에도
-  # 맞지 않아 LlmClient 빈이 0개가 되고 기동이 실패한다 - 배포 스크립트가 빈 시크릿을 nvidia로 채운다.
-  provider: ${LLM_PROVIDER:nvidia}
+  # 서비스 코드 수정 없이 교체된다. 주의: 빈 문자열은 '없음'이 아니라 어떤 구현체에도
+  # 맞지 않아 LlmClient 빈이 0개가 되고 기동이 실패한다 - 배포 스크립트가 빈 시크릿을 openai로 채운다.
+  provider: ${LLM_PROVIDER:openai}
 
 # llm.provider=anthropic 일 때 ClaudeChatClient가 읽는 설정. 키는 GitHub Actions 시크릿 -> .env로만 들어온다.
 anthropic:
