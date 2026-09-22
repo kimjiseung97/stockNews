@@ -16,14 +16,14 @@ class PromptServiceTest {
     private val promptService = PromptService(promptRepository, cacheTtlSeconds = 60)
 
     private fun prompt(content: String) = Prompt(
-        code = "STOCK_CHAT_SYSTEM",
+        code = "DEFAULT_PROMPT",
         name = "종목 챗봇 시스템 프롬프트",
         content = content,
     )
 
     @Test
     fun `DB에 등록된 프롬프트를 가져와 변수를 채운다`() {
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM"))
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT"))
             .thenReturn(prompt("오늘은 {{today}}이다."))
 
         val rendered = promptService.render(PromptCode.STOCK_CHAT_SYSTEM, mapOf("today" to "2026년 9월 13일"))
@@ -33,29 +33,29 @@ class PromptServiceTest {
 
     @Test
     fun `TTL 안에서는 DB를 다시 조회하지 않는다`() {
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM"))
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT"))
             .thenReturn(prompt("내용"))
 
         repeat(3) { promptService.render(PromptCode.STOCK_CHAT_SYSTEM, emptyMap()) }
 
-        verify(promptRepository, times(1)).findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM")
+        verify(promptRepository, times(1)).findByCodeAndEnabledIsTrue("DEFAULT_PROMPT")
     }
 
     @Test
     fun `캐시를 비우면 DB를 다시 조회한다`() {
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM"))
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT"))
             .thenReturn(prompt("내용"))
 
         promptService.render(PromptCode.STOCK_CHAT_SYSTEM, emptyMap())
         promptService.evictCache()
         promptService.render(PromptCode.STOCK_CHAT_SYSTEM, emptyMap())
 
-        verify(promptRepository, times(2)).findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM")
+        verify(promptRepository, times(2)).findByCodeAndEnabledIsTrue("DEFAULT_PROMPT")
     }
 
     @Test
     fun `등록된 프롬프트가 없으면 코드 기본 프롬프트를 쓴다`() {
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM")).thenReturn(null)
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT")).thenReturn(null)
 
         val rendered = promptService.render(PromptCode.STOCK_CHAT_SYSTEM, mapOf("today" to "2026년 9월 13일"))
 
@@ -67,7 +67,7 @@ class PromptServiceTest {
     fun `캐시 만료 후 DB 조회가 실패하면 만료된 캐시 내용으로 버틴다`() {
         // TTL을 음수로 줘 캐시가 담기자마자 만료되는 상황(=매번 DB를 다시 보러 가는 상황)을 만든다.
         val noCacheService = PromptService(promptRepository, cacheTtlSeconds = -1)
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM"))
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT"))
             .thenReturn(prompt("정상 프롬프트"))
             .thenThrow(QueryTimeoutException("db down"))
 
@@ -78,7 +78,7 @@ class PromptServiceTest {
     @Test
     fun `어드민이 프롬프트를 꺼버리면 캐시를 재사용하지 않고 기본 프롬프트로 내려간다`() {
         val noCacheService = PromptService(promptRepository, cacheTtlSeconds = -1)
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM"))
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT"))
             .thenReturn(prompt("문제가 생긴 프롬프트"))
             .thenReturn(null) // 어드민이 ENABLED=false로 끄거나 삭제한 상황
 
@@ -90,7 +90,7 @@ class PromptServiceTest {
 
     @Test
     fun `DB 조회가 실패했고 캐시도 없으면 코드 기본 프롬프트를 쓴다`() {
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM"))
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT"))
             .thenThrow(QueryTimeoutException("db down"))
 
         val rendered = promptService.render(PromptCode.STOCK_CHAT_SYSTEM, emptyMap())

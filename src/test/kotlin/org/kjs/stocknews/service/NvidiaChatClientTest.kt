@@ -20,6 +20,8 @@ class NvidiaChatClientTest {
     private val requestBodyByModel = mutableMapOf<String, String>()
     private var statusByModel = mapOf<String, Int>()
     private var nonJsonModels = setOf<String>()
+    // 추론 모델이 max_tokens를 생각에 다 써서 content=null, finish_reason=length로 응답하는 상황을 흉내낸다.
+    private var reasoningOnlyModels = setOf<String>()
 
     @BeforeEach
     fun startStubServer() {
@@ -27,6 +29,7 @@ class NvidiaChatClientTest {
         requestBodyByModel.clear()
         statusByModel = emptyMap()
         nonJsonModels = emptySet()
+        reasoningOnlyModels = emptySet()
         server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
         server.createContext("/v1/chat/completions") { exchange -> handle(exchange) }
         server.start()
@@ -46,6 +49,8 @@ class NvidiaChatClientTest {
         val status = statusByModel[model] ?: 200
         val response = when {
             model in nonJsonModels -> "not json at all"
+            model in reasoningOnlyModels ->
+                """{"choices":[{"message":{"role":"assistant","content":null,"reasoning_content":"생각만 하다 끝남"},"finish_reason":"length"}]}"""
             status == 200 -> """{"choices":[{"message":{"role":"assistant","content":"$model 답변"}}]}"""
             else -> """{"status":$status,"detail":"$model unavailable"}"""
         }
@@ -206,5 +211,30 @@ class NvidiaChatClientTest {
         }
 
         assertEquals(listOf("garbage-model"), requestedModels)
+    }
+
+    @Test
+    fun `추론만 하고 content가 null로 오면 파싱 오류가 아니라 finish_reason을 담은 실패로 끝난다`() {
+        reasoningOnlyModels = setOf("thinking-model")
+
+        val error = assertThrows<NvidiaChatException> {
+            client("thinking-model", "live-model").chatToLLm("system", "질문")
+        }
+
+        // 응답은 정상(200)이었으므로 모델 장애가 아니다 - 폴백으로 넘어가지 않고 그 모델에서 끝나야 한다.
+        assertEquals(listOf("thinking-model"), requestedModels)
+        assertTrue(error.message!!.contains("returned empty content"), error.message)
+        assertTrue(error.message!!.contains("finishReason=length"), error.message)
+        assertTrue(error.message!!.contains("reasoningChars=9"), error.message)
+    }
+
+    @Test
+    fun `요청 메시지에는 content가 항상 실리고 reasoning_content 키는 나가지 않는다`() {
+        client("live-model", "").chatToLLm("시스템 프롬프트", "질문")
+
+        val body = requestBodyByModel["live-model"]!!
+        assertTrue(body.contains("\"content\":\"시스템 프롬프트\""), body)
+        assertTrue(body.contains("\"content\":\"질문\""), body)
+        assertFalse(body.contains("reasoning_content"), body)
     }
 }

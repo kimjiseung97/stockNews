@@ -7,8 +7,10 @@ package org.kjs.stocknews.service
 // 어드민이 프롬프트를 지웠다고 챗봇이 죽으면 안 되므로 코드에도 기본 본문을 들고 있는다.
 // DB 본문과 같은 템플릿 문법(PromptTemplate)을 쓰므로 변수 치환 동작은 동일하다.
 enum class PromptCode(val code: String, val fallback: String) {
+    // 어드민이 실제로 등록해 둔 CODE는 DEFAULT_PROMPT다(2026-09-22 운영 DB 확인: 2,351자, 활성).
+    // 예전엔 코드가 "STOCK_CHAT_SYSTEM"을 찾아 행이 없다고 판단하고 매번 아래 fallback으로 답하고 있었다.
     STOCK_CHAT_SYSTEM(
-        code = "STOCK_CHAT_SYSTEM",
+        code = "DEFAULT_PROMPT",
         fallback = STOCK_CHAT_SYSTEM_FALLBACK,
     ),
     ;

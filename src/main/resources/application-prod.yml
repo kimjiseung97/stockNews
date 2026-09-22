@@ -166,12 +166,15 @@ nvidia:
   api:
     base-url: https://integrate.api.nvidia.com/v1
     key: ${NVIDIA_API_KEY}
-    # 기본 모델을 gpt-oss-20b에서 glm-5.3-flash로 교체(2026-09-22). 운영 로그 14일치에서 gpt-oss-20b는
-    # 7건 중 10초 미만 응답이 0건, 60초 초과가 4건, 그중 2건은 read-timeout(120초)에 걸려 실패했다
-    # (reasoning_effort=low를 이미 보내는 상태). 타임아웃은 폴백 대상이 아니라 그대로 실패로 떨어지므로
-    # 느린 모델을 앞에 두면 사용자가 2분을 기다린 뒤 실패를 본다. gpt-oss-20b는 폴백 1순위로 내린다.
-    model: z-ai/glm-5.3-flash
-    fallback-models: openai/gpt-oss-20b,mistralai/mistral-nemotron
+    # 기본 모델은 추론(thinking)을 하지 않는 mistral-nemotron(2026-09-22). 운영 로그 실측:
+    #   - gpt-oss-20b(reasoning_effort=low): 7건 중 10초 미만 0건, 60초 초과 4건, 2건은 read-timeout(120초) 실패
+    #   - glm-5.3-flash(파라미터 없음): 94초 뒤 content=null(finish_reason=length) - 이 모델은 reasoning_effort
+    #     기본값이 max라 max_tokens를 전부 생각에 써버렸다
+    # 타임아웃은 폴백 대상이 아니라 그대로 실패로 떨어지므로 느린 모델이 앞에 있으면 사용자가 2분을
+    # 기다린 뒤 실패를 본다. 공식 문서상 mistral-nemotron은 "not a reasoning or thinking model"이고
+    # 한국어(KMMLU) 벤치마크가 있다. 추론 모델 둘은 폴백으로 내리고 둘 다 reasoning_effort=low를 받는다.
+    model: mistralai/mistral-nemotron
+    fallback-models: openai/gpt-oss-20b,z-ai/glm-5.3-flash
     max-tokens: 1024
     top-p: 0.95
     connect-timeout-ms: 10000
@@ -182,7 +185,11 @@ nvidia:
     reasoning-effort: ${NVIDIA_REASONING_EFFORT:low}
     # reasoning-effort를 실어 보낼 모델. 모르는 파라미터를 400으로 거절하는 모델이 있고 400은
     # 폴백 대상이 아니라 그대로 실패하므로, 지원이 확인된 모델만 적는다.
-    reasoning-effort-models: openai/gpt-oss-20b
+    #   - gpt-oss-20b: NVIDIA API 레퍼런스에 top-level 파라미터로 명시(low/medium/high, 기본 medium)
+    #   - glm-5.3-flash: 문서상 "thinking budget is controlled by reasoning_effort"(low/high/max, 기본 max).
+    #     안 보내면 max로 돌아 답변 없이 토큰을 소진하므로 보낸다. top-level 위치가 문서에 명시되진 않았고,
+    #     마지막 폴백이라 거절돼도 잃는 건 이 모델 하나다.
+    reasoning-effort-models: openai/gpt-oss-20b,z-ai/glm-5.3-flash
 
 # 어드민(TB_PROMPT)에 등록된 LLM 프롬프트를 다시 읽기까지의 캐시 시간. 어드민 수정은 최대 이 시간 뒤에 반영된다.
 prompt:

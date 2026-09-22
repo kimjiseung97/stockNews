@@ -221,9 +221,18 @@ class NvidiaChatClient(
             throw NvidiaChatException("nvidia chat completion failed: model=$model", e)
         }
 
-        val content = response?.choices?.firstOrNull()?.message?.content
+        val choice = response?.choices?.firstOrNull()
+        val content = choice?.message?.content
         if (content.isNullOrBlank()) {
-            throw NvidiaChatException("nvidia chat completion returned empty content: model=$model")
+            // 추론 모델이 max_tokens를 생각(reasoning_content)에 다 쓰면 finish_reason=length, content=null로
+            // 온다. 그냥 "empty"라고만 남기면 모델 장애인지 토큰 예산 문제인지 갈 수 없어 둘을 같이 남긴다.
+            val reasoningChars = choice?.message?.reasoningContent?.length ?: 0
+            // finish_reason은 외부 응답값이라 로그 인젝션 방지로 제어문자를 걷어낸다.
+            val finishReason = sanitizeForLog(choice?.finishReason ?: "null")
+            throw NvidiaChatException(
+                "nvidia chat completion returned empty content: model=$model " +
+                    "finishReason=$finishReason reasoningChars=$reasoningChars",
+            )
         }
         return content
     }

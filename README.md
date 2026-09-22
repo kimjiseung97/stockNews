@@ -72,7 +72,7 @@ flowchart TD
 ```mermaid
 flowchart LR
     Admin(["운영자"]) --> AdminApp["stockNewsAdmin<br/>/prompts"]
-    AdminApp --> PromptTable[("TB_PROMPT<br/>CODE = STOCK_CHAT_SYSTEM")]
+    AdminApp --> PromptTable[("TB_PROMPT<br/>CODE = DEFAULT_PROMPT")]
     Question(["사용자 질문"]) --> ChatSvc["StockChatService"]
     PromptTable --> PromptSvc["PromptService<br/>(코드별 조회 + 60초 캐시)"]
     ChatSvc --> StockLookup["질문에서 종목 탐지<br/>(TB_STOCK)"]
@@ -84,7 +84,7 @@ flowchart LR
     Template --> LLM["NvidiaChatClient (NVIDIA NIM)"]
 ```
 
-- 챗봇 시스템 프롬프트는 코드가 아니라 어드민이 `TB_PROMPT`에 등록한 본문을 쓴다(`PromptCode.STOCK_CHAT_SYSTEM`). 프롬프트를 고치는 데 배포가 필요 없다.
+- 챗봇 시스템 프롬프트는 코드가 아니라 어드민이 `TB_PROMPT`에 등록한 본문을 쓴다(`PromptCode.STOCK_CHAT_SYSTEM` → `TB_PROMPT.CODE = DEFAULT_PROMPT`). 프롬프트를 고치는 데 배포가 필요 없다.
 - 본문의 `{{today}}`(오늘 날짜) / `{{stockLabel}}`(질문에서 찾은 종목) / `{{newsContext}}`(질문과 의미가 가까운 뉴스)는 요청마다 실제 값으로 치환되고, `{{#newsContext}}...{{/newsContext}}` 구간은 값이 있을 때만 남는다.
 - `{{newsContext}}`는 최신순이 아니라 **의미 유사도순**이다. 질문 문장을 임베딩 서비스에 넘겨(`NewsVectorSearchService` → `NewsSearchClient`) 의미가 가까운 뉴스를 받아 제목과 본문 청크를 함께 넣는다. 종목을 못 찾은 질문은 종목 필터 없이 전체에서 찾는다.
 - 검색이 실패하거나 서비스가 아직 안 떴으면(503) 예외 대신 빈 컨텍스트로 떨어져, 뉴스 근거 없이 답변한다 — 검색 실패가 챗봇 실패가 되지 않는다.

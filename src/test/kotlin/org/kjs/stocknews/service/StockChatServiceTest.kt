@@ -63,9 +63,9 @@ class StockChatServiceTest {
 
     @Test
     fun `어드민이 DB에 등록한 프롬프트에 종목과 뉴스가 끼워져 LLM에 전달된다`() {
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM")).thenReturn(
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT")).thenReturn(
             Prompt(
-                code = "STOCK_CHAT_SYSTEM",
+                code = "DEFAULT_PROMPT",
                 name = "종목 챗봇 시스템 프롬프트",
                 content = "오늘은 {{today}}. 대상 종목: {{stockLabel}}.{{#newsContext}}\n참고 뉴스:\n{{newsContext}}{{/newsContext}}",
             ),
@@ -92,9 +92,9 @@ class StockChatServiceTest {
 
     @Test
     fun `뉴스 본문의 줄바꿈과 제어문자는 한 줄로 눕혀서 넣는다`() {
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM")).thenReturn(
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT")).thenReturn(
             Prompt(
-                code = "STOCK_CHAT_SYSTEM",
+                code = "DEFAULT_PROMPT",
                 name = "종목 챗봇 시스템 프롬프트",
                 content = "{{#newsContext}}{{newsContext}}{{/newsContext}}",
             ),
@@ -124,9 +124,9 @@ class StockChatServiceTest {
 
     @Test
     fun `종목을 못 찾으면 DB 프롬프트의 뉴스 구간이 통째로 빠진다`() {
-        `when`(promptRepository.findByCodeAndEnabledIsTrue("STOCK_CHAT_SYSTEM")).thenReturn(
+        `when`(promptRepository.findByCodeAndEnabledIsTrue("DEFAULT_PROMPT")).thenReturn(
             Prompt(
-                code = "STOCK_CHAT_SYSTEM",
+                code = "DEFAULT_PROMPT",
                 name = "종목 챗봇 시스템 프롬프트",
                 content = "기본 안내.{{#newsContext}}\n참고 뉴스:\n{{newsContext}}{{/newsContext}}",
             ),
