@@ -166,8 +166,12 @@ nvidia:
   api:
     base-url: https://integrate.api.nvidia.com/v1
     key: ${NVIDIA_API_KEY}
-    model: openai/gpt-oss-20b
-    fallback-models: z-ai/glm-5.3-flash,mistralai/mistral-nemotron
+    # 기본 모델을 gpt-oss-20b에서 glm-5.3-flash로 교체(2026-09-22). 운영 로그 14일치에서 gpt-oss-20b는
+    # 7건 중 10초 미만 응답이 0건, 60초 초과가 4건, 그중 2건은 read-timeout(120초)에 걸려 실패했다
+    # (reasoning_effort=low를 이미 보내는 상태). 타임아웃은 폴백 대상이 아니라 그대로 실패로 떨어지므로
+    # 느린 모델을 앞에 두면 사용자가 2분을 기다린 뒤 실패를 본다. gpt-oss-20b는 폴백 1순위로 내린다.
+    model: z-ai/glm-5.3-flash
+    fallback-models: openai/gpt-oss-20b,mistralai/mistral-nemotron
     max-tokens: 1024
     top-p: 0.95
     connect-timeout-ms: 10000
