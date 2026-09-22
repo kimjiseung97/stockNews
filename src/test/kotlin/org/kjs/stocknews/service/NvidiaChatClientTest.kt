@@ -87,7 +87,7 @@ class NvidiaChatClientTest {
     fun `기본 모델이 단종(410)되면 폴백 모델로 전환해 답변을 반환한다`() {
         statusByModel = mapOf("dead-model" to 410)
 
-        val answer = client("dead-model", "live-model").chatToLLm("system", "질문")
+        val answer = client("dead-model", "live-model").chat("system", "질문")
 
         assertEquals("live-model 답변", answer)
         assertEquals(listOf("dead-model", "live-model"), requestedModels)
@@ -97,7 +97,7 @@ class NvidiaChatClientTest {
     fun `기본 모델이 계정 권한 없음(404)이면 폴백 모델로 전환한다`() {
         statusByModel = mapOf("no-access-model" to 404)
 
-        val answer = client("no-access-model", "live-model").chatToLLm("system", "질문")
+        val answer = client("no-access-model", "live-model").chat("system", "질문")
 
         assertEquals("live-model 답변", answer)
     }
@@ -106,7 +106,7 @@ class NvidiaChatClientTest {
     fun `폴백 모델도 못 쓰면 그 다음 폴백 모델까지 순서대로 시도한다`() {
         statusByModel = mapOf("dead-1" to 410, "dead-2" to 404)
 
-        val answer = client("dead-1", "dead-2, live-model").chatToLLm("system", "질문")
+        val answer = client("dead-1", "dead-2, live-model").chat("system", "질문")
 
         assertEquals("live-model 답변", answer)
         assertEquals(listOf("dead-1", "dead-2", "live-model"), requestedModels)
@@ -117,7 +117,7 @@ class NvidiaChatClientTest {
         statusByModel = mapOf("dead-1" to 410, "dead-2" to 410)
 
         val exception = assertThrows<NvidiaChatException> {
-            client("dead-1", "dead-2").chatToLLm("system", "질문")
+            client("dead-1", "dead-2").chat("system", "질문")
         }
 
         assertTrue(exception.message!!.contains("dead-2"))
@@ -128,7 +128,7 @@ class NvidiaChatClientTest {
     fun `모델 추론 백엔드 장애(500)면 폴백 모델로 전환한다`() {
         statusByModel = mapOf("broken-model" to 500)
 
-        val answer = client("broken-model", "live-model").chatToLLm("system", "질문")
+        val answer = client("broken-model", "live-model").chat("system", "질문")
 
         assertEquals("live-model 답변", answer)
         assertEquals(listOf("broken-model", "live-model"), requestedModels)
@@ -139,7 +139,7 @@ class NvidiaChatClientTest {
     @Test
     fun `지원 목록에 있는 모델에는 reasoning_effort를 실어 보낸다`() {
         val answer = client("gpt-oss", "", reasoningEffort = "low", reasoningEffortModels = "gpt-oss")
-            .chatToLLm("system", "질문")
+            .chat("system", "질문")
 
         assertEquals("gpt-oss 답변", answer)
         assertTrue(
@@ -153,7 +153,7 @@ class NvidiaChatClientTest {
         statusByModel = mapOf("gpt-oss" to 410)
 
         val answer = client("gpt-oss", "other-model", reasoningEffort = "low", reasoningEffortModels = "gpt-oss")
-            .chatToLLm("system", "질문")
+            .chat("system", "질문")
 
         assertEquals("other-model 답변", answer)
         assertTrue(
@@ -169,7 +169,7 @@ class NvidiaChatClientTest {
     @Test
     fun `reasoning-effort 설정이 비어 있으면 지원 모델에도 보내지 않는다`() {
         client("gpt-oss", "", reasoningEffort = "", reasoningEffortModels = "gpt-oss")
-            .chatToLLm("system", "질문")
+            .chat("system", "질문")
 
         assertFalse(
             requestBodyByModel["gpt-oss"]!!.contains("reasoning_effort"),
@@ -180,7 +180,7 @@ class NvidiaChatClientTest {
     @Test
     fun `reasoning-effort 값의 대소문자와 앞뒤 공백은 정규화해서 보낸다`() {
         client("gpt-oss", "", reasoningEffort = "  LOW  ", reasoningEffortModels = "gpt-oss")
-            .chatToLLm("system", "질문")
+            .chat("system", "질문")
 
         assertTrue(
             requestBodyByModel["gpt-oss"]!!.contains("\"reasoning_effort\":\"low\""),
@@ -193,7 +193,7 @@ class NvidiaChatClientTest {
     @Test
     fun `reasoning-effort가 허용값이 아니면 보내지 않고 답변은 정상 반환한다`() {
         val answer = client("gpt-oss", "", reasoningEffort = "veryhigh", reasoningEffortModels = "gpt-oss")
-            .chatToLLm("system", "질문")
+            .chat("system", "질문")
 
         assertEquals("gpt-oss 답변", answer)
         assertFalse(
@@ -207,7 +207,7 @@ class NvidiaChatClientTest {
         nonJsonModels = setOf("garbage-model")
 
         assertThrows<NvidiaChatException> {
-            client("garbage-model", "live-model").chatToLLm("system", "질문")
+            client("garbage-model", "live-model").chat("system", "질문")
         }
 
         assertEquals(listOf("garbage-model"), requestedModels)
@@ -218,7 +218,7 @@ class NvidiaChatClientTest {
         reasoningOnlyModels = setOf("thinking-model")
 
         val error = assertThrows<NvidiaChatException> {
-            client("thinking-model", "live-model").chatToLLm("system", "질문")
+            client("thinking-model", "live-model").chat("system", "질문")
         }
 
         // 응답은 정상(200)이었으므로 모델 장애가 아니다 - 폴백으로 넘어가지 않고 그 모델에서 끝나야 한다.
@@ -230,7 +230,7 @@ class NvidiaChatClientTest {
 
     @Test
     fun `요청 메시지에는 content가 항상 실리고 reasoning_content 키는 나가지 않는다`() {
-        client("live-model", "").chatToLLm("시스템 프롬프트", "질문")
+        client("live-model", "").chat("시스템 프롬프트", "질문")
 
         val body = requestBodyByModel["live-model"]!!
         assertTrue(body.contains("\"content\":\"시스템 프롬프트\""), body)

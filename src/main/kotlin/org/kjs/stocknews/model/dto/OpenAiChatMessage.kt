@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 // NON_NULL은 reasoningContent 필드에만 건다. 클래스 단위로 걸면 content=null인 요청이 만들어졌을 때
 // "content": null도 아니고 키가 통째로 빠진 요청이 조용히 나가버린다 - 요청의 content는 항상 실려야 한다.
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class NvidiaChatMessage(
+data class OpenAiChatMessage(
     val role: String,
     val content: String?,
     @JsonInclude(JsonInclude.Include.NON_NULL)

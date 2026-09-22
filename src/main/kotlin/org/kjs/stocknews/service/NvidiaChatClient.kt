@@ -1,10 +1,11 @@
 package org.kjs.stocknews.service
 
-import org.kjs.stocknews.model.dto.NvidiaChatCompletionRequest
-import org.kjs.stocknews.model.dto.NvidiaChatCompletionResponse
-import org.kjs.stocknews.model.dto.NvidiaChatMessage
+import org.kjs.stocknews.model.dto.OpenAiChatCompletionRequest
+import org.kjs.stocknews.model.dto.OpenAiChatCompletionResponse
+import org.kjs.stocknews.model.dto.OpenAiChatMessage
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.client.SimpleClientHttpRequestFactory
@@ -40,8 +41,11 @@ private fun sanitizeForLog(body: String): String {
     }
 }
 
-// NVIDIA NIM(build.nvidia.com) OpenAI 호환 chat completions API 클라이언트.
+// NVIDIA NIM(build.nvidia.com) OpenAI 호환 chat completions API 클라이언트 - LlmClient의 NVIDIA 구현.
+// llm.provider가 nvidia일 때(또는 비어 있을 때)만 빈으로 올라간다. 다른 제공자 구현체와 동시에 뜨면
+// StockChatService가 어느 LlmClient를 받을지 모호해지므로 조건은 서로 배타적이어야 한다.
 @Component
+@ConditionalOnProperty(prefix = "llm", name = ["provider"], havingValue = "nvidia", matchIfMissing = true)
 class NvidiaChatClient(
     @Value("\${nvidia.api.base-url}") private val baseUrl: String,
     @Value("\${nvidia.api.key}") private val apiKey: String,
@@ -67,7 +71,7 @@ class NvidiaChatClient(
     // 그래서 기본 모델이 죽어 폴백으로 넘어갔을 때 이 파라미터가 따라가 챗봇을 통째로 멈추지
     // 않도록, 지원이 확인된 모델에만 싣는다.
     @Value("\${nvidia.api.reasoning-effort-models:}") private val reasoningEffortModelsRaw: String,
-) {
+) : LlmClient {
     private val log = LoggerFactory.getLogger(NvidiaChatClient::class.java)
 
     // 실제로 호출을 시도할 모델 목록. 앞에서부터 순서대로 시도하며, 0번이 기본 모델(nvidia.api.model)이고
@@ -104,7 +108,7 @@ class NvidiaChatClient(
     //
     // 루프가 도는 경우는 "그 모델만 못 쓰는" 실패(NvidiaModelUnavailableException) 하나뿐이다.
     // 타임아웃/파싱 실패 같은 나머지 실패는 callModel이 던진 예외가 그대로 빠져나가 루프가 즉시 끝난다.
-    fun chatToLLm(systemPrompt: String, userMessage: String): String {
+    override fun chat(systemPrompt: String, userMessage: String): String {
         var lastModelFailure: NvidiaChatException? = null
 
         for (index in modelsToTry.indices) {
@@ -162,11 +166,11 @@ class NvidiaChatClient(
     }
 
     private fun callModel(model: String, systemPrompt: String, userMessage: String): String {
-        val request = NvidiaChatCompletionRequest(
+        val request = OpenAiChatCompletionRequest(
             model = model,
             messages = listOf(
-                NvidiaChatMessage(role = ROLE_SYSTEM, content = systemPrompt),
-                NvidiaChatMessage(role = ROLE_USER, content = userMessage),
+                OpenAiChatMessage(role = ROLE_SYSTEM, content = systemPrompt),
+                OpenAiChatMessage(role = ROLE_USER, content = userMessage),
             ),
             temperature = 0.5,
             topP = topP,
@@ -182,7 +186,7 @@ class NvidiaChatClient(
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
-                .body(NvidiaChatCompletionResponse::class.java)
+                .body(OpenAiChatCompletionResponse::class.java)
         } catch (e: HttpStatusCodeException) {
             val message = "nvidia chat completion rejected: model=$model status=${e.statusCode} " +
                 "body=${sanitizeForLog(e.responseBodyAsString)}"

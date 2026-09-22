@@ -152,6 +152,21 @@ naver:
     max-articles-per-query: 1
     cache-ttl-minutes: 60
 
+llm:
+  provider: nvidia   # nvidia | anthropic | openai
+
+anthropic:
+  api:
+    key: your-anthropic-api-key
+    model: claude-opus-5
+    effort: low
+
+openai:
+  api:
+    key: your-openai-api-key
+    model: gpt-5-mini
+    reasoning-effort: low
+
 nvidia:
   api:
     base-url: https://integrate.api.nvidia.com/v1

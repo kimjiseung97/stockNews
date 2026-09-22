@@ -22,7 +22,7 @@ private fun <T> anyArg(): T = ArgumentMatchers.any()
 private fun <T> eqArg(value: T): T = ArgumentMatchers.eq(value)
 
 class StockChatServiceTest {
-    private val nvidiaChatClient = mock(NvidiaChatClient::class.java)
+    private val llmClient = mock(LlmClient::class.java)
     private val stockRepository = mock(StockRepository::class.java)
     private val newsVectorSearchService = mock(NewsVectorSearchService::class.java)
 
@@ -30,13 +30,13 @@ class StockChatServiceTest {
     private val promptRepository = mock(PromptRepository::class.java)
     private val promptService = PromptService(promptRepository, cacheTtlSeconds = 60)
     private val stockChatService =
-        StockChatService(nvidiaChatClient, stockRepository, newsVectorSearchService, promptService)
+        StockChatService(llmClient, stockRepository, newsVectorSearchService, promptService)
 
     @Test
     fun `종목이 언급되지 않은 질문이면 컨텍스트 없이 AI 답변을 반환한다`() {
         `when`(stockRepository.findFirstMentionedInText(anyArg())).thenReturn(null)
         `when`(newsVectorSearchService.search(anyArg(), anyArg())).thenReturn(emptyList())
-        `when`(nvidiaChatClient.chatToLLm(anyArg(), eqArg("최근 실적 어때?")))
+        `when`(llmClient.chat(anyArg(), eqArg("최근 실적 어때?")))
             .thenReturn("애플의 최근 실적은...")
 
         val response = stockChatService.ask(StockChatRequest("최근 실적 어때?"))
@@ -51,7 +51,7 @@ class StockChatServiceTest {
         `when`(newsVectorSearchService.search(anyArg(), eqArg(1L)))
             .thenReturn(listOf(hit(title = "애플 신제품 발표", content = "애플이 신제품을 발표했다.")))
         var capturedSystemPrompt: String? = null
-        `when`(nvidiaChatClient.chatToLLm(anyArg(), eqArg("애플 최근 실적 어때?"))).thenAnswer { invocation ->
+        `when`(llmClient.chat(anyArg(), eqArg("애플 최근 실적 어때?"))).thenAnswer { invocation ->
             capturedSystemPrompt = invocation.arguments[0] as String
             "애플의 최근 실적은..."
         }
@@ -75,7 +75,7 @@ class StockChatServiceTest {
         `when`(newsVectorSearchService.search(anyArg(), eqArg(1L)))
             .thenReturn(listOf(hit(title = "애플 신제품 발표", content = "애플이 신제품을 발표했다.")))
         var capturedSystemPrompt: String? = null
-        `when`(nvidiaChatClient.chatToLLm(anyArg(), eqArg("애플 소식 알려줘"))).thenAnswer { invocation ->
+        `when`(llmClient.chat(anyArg(), eqArg("애플 소식 알려줘"))).thenAnswer { invocation ->
             capturedSystemPrompt = invocation.arguments[0] as String
             "애플 소식은..."
         }
@@ -110,7 +110,7 @@ class StockChatServiceTest {
             ),
         )
         var capturedSystemPrompt: String? = null
-        `when`(nvidiaChatClient.chatToLLm(anyArg(), anyArg())).thenAnswer { invocation ->
+        `when`(llmClient.chat(anyArg(), anyArg())).thenAnswer { invocation ->
             capturedSystemPrompt = invocation.arguments[0] as String
             "답변"
         }
@@ -134,7 +134,7 @@ class StockChatServiceTest {
         `when`(stockRepository.findFirstMentionedInText(anyArg())).thenReturn(null)
         `when`(newsVectorSearchService.search(anyArg(), anyArg())).thenReturn(emptyList())
         var capturedSystemPrompt: String? = null
-        `when`(nvidiaChatClient.chatToLLm(anyArg(), anyArg())).thenAnswer { invocation ->
+        `when`(llmClient.chat(anyArg(), anyArg())).thenAnswer { invocation ->
             capturedSystemPrompt = invocation.arguments[0] as String
             "답변"
         }
@@ -162,7 +162,7 @@ class StockChatServiceTest {
         `when`(stockRepository.findFirstMentionedInText(anyArg())).thenReturn(null)
         `when`(newsVectorSearchService.search(anyArg(), anyArg())).thenReturn(emptyList())
         val cause = NvidiaChatException("nvidia chat completion timed out")
-        `when`(nvidiaChatClient.chatToLLm(anyArg(), anyArg())).thenThrow(cause)
+        `when`(llmClient.chat(anyArg(), anyArg())).thenThrow(cause)
 
         val exception = assertThrows<BusinessException> { stockChatService.ask(StockChatRequest("질문")) }
         assertEquals(ResultCode.STOCK_CHAT_FAILED, exception.resultCode)

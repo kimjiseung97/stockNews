@@ -77,6 +77,14 @@ jobs:
           TOSS_CLIENT_ID: ${{ secrets.TOSS_CLIENT_ID }}
           TOSS_CLIENT_SECRET: ${{ secrets.TOSS_CLIENT_SECRET }}
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          # 챗봇 LLM 제공자 스위치(nvidia|anthropic|openai)와 각 제공자 키/모델. 비어 있으면 앱 기본값(nvidia).
+          LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+          ANTHROPIC_EFFORT: ${{ secrets.ANTHROPIC_EFFORT }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          OPENAI_REASONING_EFFORT: ${{ secrets.OPENAI_REASONING_EFFORT }}
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
           DOMAIN: ${{ secrets.DOMAIN }}
@@ -86,7 +94,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           command_timeout: 40m
-          envs: IMAGE_TAG,DB_HOST,DB_PORT,DB_NAME,DB_USERNAME,DB_PASSWORD,MAIL_HOST,MAIL_PORT,MAIL_USERNAME,MAIL_PASSWORD,MAIL_FROM_NAME,NAVER_CLIENT_ID,NAVER_CLIENT_SECRET,TOSS_CLIENT_ID,TOSS_CLIENT_SECRET,NVIDIA_API_KEY,FINNHUB_API_KEY,CORS_ALLOWED_ORIGINS,DOMAIN,SCHEDULER_ENABLED
+          envs: IMAGE_TAG,DB_HOST,DB_PORT,DB_NAME,DB_USERNAME,DB_PASSWORD,MAIL_HOST,MAIL_PORT,MAIL_USERNAME,MAIL_PASSWORD,MAIL_FROM_NAME,NAVER_CLIENT_ID,NAVER_CLIENT_SECRET,TOSS_CLIENT_ID,TOSS_CLIENT_SECRET,NVIDIA_API_KEY,LLM_PROVIDER,ANTHROPIC_API_KEY,ANTHROPIC_MODEL,ANTHROPIC_EFFORT,OPENAI_API_KEY,OPENAI_MODEL,OPENAI_REASONING_EFFORT,FINNHUB_API_KEY,CORS_ALLOWED_ORIGINS,DOMAIN,SCHEDULER_ENABLED
           script: |
             set -e
             cd ~/stockNews
@@ -112,6 +120,15 @@ jobs:
             TOSS_CLIENT_ID=$TOSS_CLIENT_ID
             TOSS_CLIENT_SECRET=$TOSS_CLIENT_SECRET
             NVIDIA_API_KEY=$NVIDIA_API_KEY
+            # 빈 시크릿은 빈 문자열로 들어와 Spring의 ${VAR:default} 기본값을 덮어쓴다(빈 값 != 없음).
+            # 특히 LLM_PROVIDER가 빈 값이면 LlmClient 빈이 하나도 안 떠 기동이 실패하므로 셸에서 기본값을 채운다.
+            LLM_PROVIDER=${LLM_PROVIDER:-nvidia}
+            ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
+            ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-opus-5}
+            ANTHROPIC_EFFORT=${ANTHROPIC_EFFORT:-low}
+            OPENAI_API_KEY=$OPENAI_API_KEY
+            OPENAI_MODEL=${OPENAI_MODEL:-gpt-5-mini}
+            OPENAI_REASONING_EFFORT=${OPENAI_REASONING_EFFORT:-low}
             FINNHUB_API_KEY=$FINNHUB_API_KEY
             CORS_ALLOWED_ORIGINS=$CORS_ALLOWED_ORIGINS
             DOMAIN=$DOMAIN

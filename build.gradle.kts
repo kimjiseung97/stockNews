@@ -38,6 +38,8 @@ dependencies {
     // IP 단위 요청 제한(토큰 버킷) - 버킷 보관은 Caffeine(TTL/최대 개수 제한)이 담당한다.
     implementation("com.bucket4j:bucket4j_jdk17-core:$bucket4jVersion")
     implementation("com.github.ben-manes.caffeine:caffeine")
+    // Anthropic 공식 Java SDK - ClaudeChatClient(LlmClient 구현)가 쓴다. Kotlin은 Java SDK를 그대로 쓴다.
+    implementation("com.anthropic:anthropic-java:2.34.0")
     kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
     kapt("jakarta.persistence:jakarta.persistence-api")
     kapt("jakarta.annotation:jakarta.annotation-api")

@@ -81,13 +81,25 @@ flowchart LR
     EmbedSvc --> PgVector[("pgvector<br/>news_chunks")]
     EmbedSvc --> PromptSvc
     PromptSvc --> Template["PromptTemplate<br/>{{today}} {{stockLabel}} {{newsContext}} 치환"]
-    Template --> LLM["NvidiaChatClient (NVIDIA NIM)"]
+    Template --> LLM["LlmClient<br/>(llm.provider=nvidia → NvidiaChatClient)"]
 ```
 
 - 챗봇 시스템 프롬프트는 코드가 아니라 어드민이 `TB_PROMPT`에 등록한 본문을 쓴다(`PromptCode.STOCK_CHAT_SYSTEM` → `TB_PROMPT.CODE = DEFAULT_PROMPT`). 프롬프트를 고치는 데 배포가 필요 없다.
 - 본문의 `{{today}}`(오늘 날짜) / `{{stockLabel}}`(질문에서 찾은 종목) / `{{newsContext}}`(질문과 의미가 가까운 뉴스)는 요청마다 실제 값으로 치환되고, `{{#newsContext}}...{{/newsContext}}` 구간은 값이 있을 때만 남는다.
 - `{{newsContext}}`는 최신순이 아니라 **의미 유사도순**이다. 질문 문장을 임베딩 서비스에 넘겨(`NewsVectorSearchService` → `NewsSearchClient`) 의미가 가까운 뉴스를 받아 제목과 본문 청크를 함께 넣는다. 종목을 못 찾은 질문은 종목 필터 없이 전체에서 찾는다.
 - 검색이 실패하거나 서비스가 아직 안 떴으면(503) 예외 대신 빈 컨텍스트로 떨어져, 뉴스 근거 없이 답변한다 — 검색 실패가 챗봇 실패가 되지 않는다.
+
+### 챗봇 LLM 제공자 (LlmClient)
+
+LLM 호출은 `LlmClient` 인터페이스(`chat(systemPrompt, userMessage)`) 뒤에 있고, `llm.provider`(env `LLM_PROVIDER`)가 구현체 하나를 고른다. 서비스 코드는 어느 제공자인지 모른다.
+
+| provider | 구현체 | 비고 |
+|---|---|---|
+| `nvidia` (기본) | `NvidiaChatClient` | NVIDIA NIM 무료 티어. 모델 단종/권한없음/5xx면 `fallback-models`로 순차 폴백. 무료 큐잉으로 60~120초 지연이 잦다 |
+| `anthropic` | `ClaudeChatClient` | 공식 Java SDK. `ANTHROPIC_MODEL`(기본 `claude-opus-5`), `ANTHROPIC_EFFORT`(기본 `low`). 안전 거절(`stop_reason=refusal`)은 실패로 처리 |
+| `openai` | `GptClient` | Chat Completions 직접 호출. GPT-5 계열 제약 반영: `max_completion_tokens` 사용, `temperature`/`top_p` 미전송, `reasoning_effort` 명시 |
+
+실패는 전부 `LlmException`으로 올라와 `STOCK_CHAT_FAILED`가 된다. 새 제공자는 `LlmClient` 구현체에 `@ConditionalOnProperty(prefix = "llm", name = ["provider"], havingValue = "<이름>")`을 붙이고 env만 바꾸면 붙는다.
 
 ### 챗봇 RAG (벡터 검색)
 

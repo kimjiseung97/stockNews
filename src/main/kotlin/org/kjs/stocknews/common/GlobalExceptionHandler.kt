@@ -1,6 +1,7 @@
 package org.kjs.stocknews.common
 
 import org.kjs.stocknews.config.ratelimit.RateLimitExceededException
+import org.kjs.stocknews.service.LlmException
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataAccessException
 import org.springframework.dao.DataAccessResourceFailureException
@@ -53,7 +54,15 @@ class GlobalExceptionHandler {
     fun handleBusinessException(e: BusinessException): ApiResponse<Nothing> {
         // 원인이 있는 경우(하위 계층 예외를 감싼 경우)만 로깅한다 - 입력 검증 실패 같은 일반적인
         // 비즈니스 실패는 원인이 없어 로그 잡음을 만들지 않는다.
-        e.cause?.let { log.warn("business exception: {}", e.resultCode, it) }
+        val cause = e.cause
+        if (cause is LlmException) {
+            // LLM 호출 실패는 예상된 실패라 스택이 필요 없고, 원인 체인 끝의 HTTP 예외 메시지에는 외부 응답 본문이
+            // 그대로 들어 있어 스택을 찍으면 로그 인젝션·민감정보 기록 경로가 된다. 구현체가 정제해 담은
+            // 메시지(모델, 상태코드, 에러 타입, finish_reason ...)만 남긴다.
+            log.warn("business exception: {} - {}", e.resultCode, cause.message)
+        } else if (cause != null) {
+            log.warn("business exception: {}", e.resultCode, cause)
+        }
         return ApiResponse.fail(e.resultCode)
     }
 

@@ -26,7 +26,7 @@ private val SYSTEM_PROMPT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy년 M�
 // 서버 타임존 설정과 무관하게 사용자 기준(한국) 날짜를 프롬프트에 넣는다.
 private val SERVICE_ZONE = ZoneId.of("Asia/Seoul")
 
-// 사용자의 평문 질문을 받아 NVIDIA NIM LLM에 질의하고 답변을 반환한다.
+// 사용자의 평문 질문을 받아 LLM(LlmClient - 제공자는 llm.provider 설정이 정한다)에 질의하고 답변을 반환한다.
 //
 // 시스템 프롬프트 본문은 코드가 아니라 어드민(stockNewsAdmin)이 TB_PROMPT에 등록한 것을 가져다 쓴다
 // (PromptCode.STOCK_CHAT_SYSTEM → TB_PROMPT.CODE = DEFAULT_PROMPT). 여기서는 프롬프트에 끼워 넣을 값만 만들어 넘긴다.
@@ -39,7 +39,7 @@ private val SERVICE_ZONE = ZoneId.of("Asia/Seoul")
 // 최신순 N건을 넣던 이전 방식은 질문과 무관한 기사가 컨텍스트를 차지하는 문제가 있었다.
 @Service
 class StockChatService(
-    private val nvidiaChatClient: NvidiaChatClient,
+    private val llmClient: LlmClient,
     private val stockRepository: StockRepository,
     private val newsVectorSearchService: NewsVectorSearchService,
     private val promptService: PromptService,
@@ -56,8 +56,8 @@ class StockChatService(
 
         val answer: String
         try {
-            answer = nvidiaChatClient.chatToLLm(systemPrompt, question)
-        } catch (e: NvidiaChatException) {
+            answer = llmClient.chat(systemPrompt, question)
+        } catch (e: LlmException) {
             logFailedTiming(startedAt, promptReadyAt, failedAt = System.nanoTime())
             throw BusinessException(ResultCode.STOCK_CHAT_FAILED, cause = e)
         }

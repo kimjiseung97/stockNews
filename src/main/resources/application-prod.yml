@@ -162,6 +162,39 @@ naver:
     max-articles-per-query: 5
     cache-ttl-minutes: 60
 
+llm:
+  # 챗봇 LLM 제공자 - LlmClient 구현체를 고르는 스위치. 지금은 nvidia 하나다.
+  # 새 제공자를 붙일 때 구현체에 @ConditionalOnProperty(havingValue = "<이름>")을 달고 이 값을 바꾸면
+  # 서비스 코드 수정 없이 교체된다. 키가 없으면 nvidia. 주의: 빈 문자열은 '없음'이 아니라 어떤 구현체에도
+  # 맞지 않아 LlmClient 빈이 0개가 되고 기동이 실패한다 - 배포 스크립트가 빈 시크릿을 nvidia로 채운다.
+  provider: ${LLM_PROVIDER:nvidia}
+
+# llm.provider=anthropic 일 때 ClaudeChatClient가 읽는 설정. 키는 GitHub Actions 시크릿 -> .env로만 들어온다.
+anthropic:
+  api:
+    key: ${ANTHROPIC_API_KEY:}
+    # 기본 claude-opus-5. 비용을 낮추려면 claude-sonnet-5 / claude-haiku-4-5로 env만 바꾼다.
+    model: ${ANTHROPIC_MODEL:claude-opus-5}
+    max-tokens: 1024
+    # 추론 깊이(low/medium/high/xhigh/max). 뉴스 근거 요약에는 low로 충분하고 응답이 빠르다.
+    effort: ${ANTHROPIC_EFFORT:low}
+    timeout-ms: 60000
+    # SDK 재시도는 Retry-After를 따라 대기하므로 동기 챗봇 경로에서는 끈다(총 대기가 timeout을 넘김).
+    max-retries: 0
+
+# llm.provider=openai 일 때 GptClient가 읽는 설정.
+openai:
+  api:
+    key: ${OPENAI_API_KEY:}
+    base-url: https://api.openai.com/v1
+    # 저비용·저지연 기본값. GPT-5 계열은 max_tokens/temperature/top_p를 받지 않으므로 GptClient가 보내지 않는다.
+    model: ${OPENAI_MODEL:gpt-5-mini}
+    max-completion-tokens: 1024
+    # none/minimal/low/medium/high/xhigh/max 중 모델이 지원하는 값. gpt-5-mini에서 minimal 지원 여부는 미확정이라 low.
+    reasoning-effort: ${OPENAI_REASONING_EFFORT:low}
+    connect-timeout-ms: 10000
+    read-timeout-ms: 60000
+
 nvidia:
   api:
     base-url: https://integrate.api.nvidia.com/v1
