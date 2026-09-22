@@ -29,7 +29,7 @@ private val SERVICE_ZONE = ZoneId.of("Asia/Seoul")
 // 사용자의 평문 질문을 받아 NVIDIA NIM LLM에 질의하고 답변을 반환한다.
 //
 // 시스템 프롬프트 본문은 코드가 아니라 어드민(stockNewsAdmin)이 TB_PROMPT에 등록한 것을 가져다 쓴다
-// (CODE = STOCK_CHAT_SYSTEM). 여기서는 프롬프트에 끼워 넣을 값만 만들어 넘긴다.
+// (PromptCode.STOCK_CHAT_SYSTEM → TB_PROMPT.CODE = DEFAULT_PROMPT). 여기서는 프롬프트에 끼워 넣을 값만 만들어 넘긴다.
 //   {{today}}       - LLM이 학습 시점 지식에 갇혀 "올해"를 잘못 판단하는 걸 막기 위한 실제 오늘 날짜
 //   {{stockLabel}}  - 질문에서 찾아낸 종목 표기(예: AAPL(애플)), 못 찾으면 빈 값
 //   {{newsContext}} - 질문과 의미가 가까운 실제 수집 뉴스(RAG), 없으면 빈 값
@@ -51,31 +51,41 @@ class StockChatService(
         validateQuestion(question)
 
         val startedAt = System.nanoTime()
-        val systemPrompt = promptService.render(PromptCode.STOCK_CHAT_SYSTEM, promptVariables(question))
+        val systemPrompt = promptService.render(PromptCode.STOCK_CHAT_SYSTEM, makePromptVariables(question))
         val promptReadyAt = System.nanoTime()
 
-        val answer = try {
-            nvidiaChatClient.chatToLLm(systemPrompt, question)
+        val answer: String
+        try {
+            answer = nvidiaChatClient.chatToLLm(systemPrompt, question)
         } catch (e: NvidiaChatException) {
-            // 실패한 호출의 소요시간도 남긴다. 타임아웃(read-timeout 120초)으로 죽은 것인지
-            // 즉시 거절된 것인지가 숫자로 갈린다.
-            log.info(
-                "stock chat timing (failed): promptMs={} llmMs={}",
-                elapsedMs(startedAt, promptReadyAt),
-                elapsedMs(promptReadyAt, System.nanoTime()),
-            )
+            logFailedTiming(startedAt, promptReadyAt, failedAt = System.nanoTime())
             throw BusinessException(ResultCode.STOCK_CHAT_FAILED, cause = e)
         }
-        val finishedAt = System.nanoTime()
 
+        logTiming(startedAt, promptReadyAt, finishedAt = System.nanoTime())
+        return StockChatResponse(answer)
+    }
+
+    // 프롬프트 조립(promptMs)과 LLM 호출(llmMs)이 각각 얼마나 걸렸는지 나눠 남긴다.
+    // 응답이 느릴 때 둘 중 어느 쪽이 원인인지 로그만으로 갈라내기 위한 계측이다.
+    private fun logTiming(startedAt: Long, promptReadyAt: Long, finishedAt: Long) {
         log.info(
             "stock chat timing: promptMs={} llmMs={} totalMs={}",
             elapsedMs(startedAt, promptReadyAt),
             elapsedMs(promptReadyAt, finishedAt),
             elapsedMs(startedAt, finishedAt),
         )
+    }
 
-        return StockChatResponse(answer)
+    // 실패한 호출의 소요시간도 남긴다. 타임아웃(read-timeout 120초)으로 죽은 것인지
+    // 즉시 거절된 것인지가 숫자로 갈린다. totalMs는 남기지 않는다 - 실패 지점까지의
+    // 시간이라 성공 경로의 totalMs와 같은 뜻이 아니고, 나란히 두면 오히려 헷갈린다.
+    private fun logFailedTiming(startedAt: Long, promptReadyAt: Long, failedAt: Long) {
+        log.info(
+            "stock chat timing (failed): promptMs={} llmMs={}",
+            elapsedMs(startedAt, promptReadyAt),
+            elapsedMs(promptReadyAt, failedAt),
+        )
     }
 
     // 질문에 언급된 종목을 찾고, 그 종목의 뉴스 중 질문과 의미가 가까운 것을 프롬프트 변수로 만들어준다.
@@ -83,7 +93,7 @@ class StockChatService(
     // 뉴스 근거를 받을 수 있어야 하기 때문이다.
     // 검색 결과가 없거나 벡터 DB/모델이 실패하면 관련 변수는 빈 값이 되고,
     // 프롬프트의 해당 구간({{#newsContext}})도 통째로 빠진다.
-    private fun promptVariables(question: String): Map<String, String?> {
+    private fun makePromptVariables(question: String): Map<String, String?> {
         val stockLookupStartedAt = System.nanoTime()
         val stock = stockRepository.findFirstMentionedInText(question)
         val stockLookupFinishedAt = System.nanoTime()
