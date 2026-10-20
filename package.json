@@ -31,6 +31,7 @@
     "sass-embedded": "^1.100.0",
     "terser": "^5.49.0",
     "typescript": "~6.0.2",
-    "vite": "^8.1.5"
+    "vite": "^8.1.5",
+    "vite-prerender-plugin": "^0.5.14"
   }
 }

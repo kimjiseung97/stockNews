@@ -252,6 +252,29 @@ npm install react-router-dom
 - URL 파라미터 관리
 - 잘못된 주소 페이지 처리
 
+### Vite Prerender Plugin
+
+```bash
+npm install -D vite-prerender-plugin
+```
+
+검색로봇이 JavaScript를 실행하지 않아도 페이지 내용을 읽을 수 있도록 빌드할 때 공개 페이지별 HTML을 생성하는 라이브러리
+
+- `/` 홈 페이지
+- `/stock-search` 미국주식 종목 검색 페이지
+- `/stock-news` 미국주식 뉴스 페이지
+
+각 페이지에 제목, 설명, 검색 키워드, canonical URL, Open Graph와 본문을 따로 생성합니다.
+
+프리렌더링할 페이지와 설정은 아래 파일에서 관리합니다.
+
+- `vite.config.ts`: 플러그인 연결과 프리렌더링 경로 설정
+- `src/prerender.ts`: 페이지별 SEO 정보와 검색로봇용 HTML 관리
+
+새로운 공개 페이지를 검색엔진에 노출하려면 `src/prerender.ts`의 `pages`에 페이지 정보를 추가하고, `vite.config.ts`의 `additionalPrerenderRoutes`에도 같은 경로를 추가합니다.
+
+로그인, 관심 종목, 이메일 설정처럼 개인 정보가 포함된 페이지는 프리렌더링하지 않습니다.
+
 ### GSAP
 
 ```bash

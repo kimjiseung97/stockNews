@@ -3,6 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
+import { vitePrerenderPlugin } from 'vite-prerender-plugin'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -70,6 +71,14 @@ export default defineConfig(({ mode }) => {
       },
       sourcemap: false, // 빌드 시 소스 맵 생성을 방지하여 원본 코드 노출 차단
     },
-    plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
+    plugins: [
+      react(),
+      babel({ presets: [reactCompilerPreset()] }),
+      vitePrerenderPlugin({
+        renderTarget: '#root',
+        prerenderScript: path.resolve(__dirname, './src/prerender.ts'),
+        additionalPrerenderRoutes: ['/stock-search', '/stock-news'],
+      }),
+    ],
   }
 })
